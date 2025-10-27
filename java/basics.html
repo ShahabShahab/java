@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Basics - Programming Resources</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        article {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        article h1 {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        article h2 {
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        article p, article li {
+            line-height: 1.8;
+            color: #475569;
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-btn">← Back to Home</a>
+    <article class="article-content">
+        <h1>Java Basics</h1>
+        
+        <h2>Introduction to Java</h2>
+        <p>Java is a high-level, object-oriented programming language developed by Sun Microsystems (now owned by Oracle). It's designed to be platform-independent and is widely used for building web applications, mobile apps (Android), and enterprise software.</p>
+        
+        <h2>Variables and Data Types</h2>
+        <p>Java has several primitive data types:</p>
+        <ul>
+            <li><code>int</code> - Integer values</li>
+            <li><code>double</code> - Floating-point numbers</li>
+            <li><code>boolean</code> - True or false values</li>
+            <li><code>char</code> - Single characters</li>
+            <li><code>String</code> - Text sequences</li>
+        </ul>
+        
+        <h2>Example: Hello World</h2>
+        <pre><code>public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}</code></pre>
+        
+        <h2>Control Structures</h2>
+        <p>Java supports common control structures:</p>
+        <pre><code>// If-else statement
+if (x > 0) {
+    System.out.println("Positive");
+} else if (x < 0) {
+    System.out.println("Negative");
+} else {
+    System.out.println("Zero");
+}
+
+// For loop
+for (int i = 0; i < 10; i++) {
+    System.out.println(i);
+}
+
+// While loop
+int count = 0;
+while (count < 5) {
+    System.out.println(count);
+    count++;
+}</code></pre>
+        
+        <h2>Arrays</h2>
+        <p>Arrays in Java are fixed-size collections:</p>
+        <pre><code>// Declare and initialize
+int[] numbers = {1, 2, 3, 4, 5};
+
+// Access elements
+int first = numbers[0];
+
+// Array length
+int size = numbers.length;</code></pre>
+        
+    </article>
+</body>
+</html>
+

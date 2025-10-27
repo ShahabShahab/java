@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object-Oriented Programming in Java - Programming Resources</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        article {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        article h1 {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        article h2 {
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        pre {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-btn">← Back to Home</a>
+    <article>
+        <h1>Object-Oriented Programming in Java</h1>
+        
+        <h2>What is OOP?</h2>
+        <p>Object-Oriented Programming (OOP) is a programming paradigm that organizes code into objects, which represent real-world entities. Java is built on four main OOP principles.</p>
+        
+        <h2>1. Encapsulation</h2>
+        <p>Encapsulation bundles data and methods that operate on that data together.</p>
+        <pre><code>public class BankAccount {
+    private double balance;
+    
+    public double getBalance() {
+        return balance;
+    }
+    
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+}</code></pre>
+        
+        <h2>2. Inheritance</h2>
+        <p>Inheritance allows classes to inherit properties and methods from parent classes.</p>
+        <pre><code>class Animal {
+    void makeSound() {
+        System.out.println("Some sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void makeSound() {
+        System.out.println("Woof!");
+    }
+}</code></pre>
+        
+        <h2>3. Polymorphism</h2>
+        <p>Polymorphism allows objects of different types to be accessed through the same interface.</p>
+        
+        <h2>4. Abstraction</h2>
+        <p>Abstraction hides implementation details and shows only essential features.</p>
+        <pre><code>abstract class Shape {
+    abstract double calculateArea();
+}
+
+class Circle extends Shape {
+    private double radius;
+    
+    double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+}</code></pre>
+    </article>
+</body>
+</html>
+
