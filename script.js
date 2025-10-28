@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const readmeCards = document.querySelectorAll('.readme-card');
 
+    
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Update active state
