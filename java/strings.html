@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Immutability and Memory Analysis in Java</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #1e40af;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .highlight-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .math-proof {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #374151;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>String Immutability and Memory Analysis in Java</h1>
+        
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#core-concepts">📚 Core Concepts Covered</a></li>
+                <li><a href="#key-concepts">🔍 Key Concepts Demonstrated</a></li>
+                <li><a href="#memory-analysis">📊 Memory Analysis Examples</a></li>
+                <li><a href="#key-takeaways">🎯 Key Takeaways</a></li>
+                <li><a href="#technical-details">🔬 Technical Details</a></li>
+                <li><a href="#practical-applications">🛠️ Practical Applications</a></li>
+            </ul>
+        </div>
+
+        <section id="core-concepts">
+            <h2>📚 Core Concepts Covered</h2>
+            
+            <h3>String Immutability Concepts</h3>
+            <ul>
+                <li>String creation and modification behavior</li>
+                <li>String Pool mechanism and optimization</li>
+                <li>StringBuilder vs String comparison</li>
+                <li>Performance implications of string operations</li>
+                <li>Thread safety benefits of immutability</li>
+            </ul>
+
+            <h3>Memory Analysis Concepts</h3>
+            <ul>
+                <li>O(n²) complexity of string concatenation</li>
+                <li>Mathematical proof of memory usage patterns</li>
+                <li>StringBuilder efficiency analysis</li>
+                <li>Step-by-step memory tracking and optimization</li>
+            </ul>
+        </section>
+
+        <section id="key-concepts">
+            <h2>🔍 Key Concepts Demonstrated</h2>
+            
+            <h3>String Immutability</h3>
+            <p><strong>Definition:</strong> String objects in Java cannot be modified after creation</p>
+            <p><strong>Behavior:</strong> Any "modification" creates a new String object</p>
+            <p><strong>Benefits:</strong> Thread safety, prevents bugs, enables optimizations</p>
+
+            <h4>Code Example: String Immutability Demonstration</h4>
+            <pre><code>// Creating a String
+String originalString = "Hello";
+System.out.println("1. Original string: '" + originalString + "'");
+System.out.println("   Memory address: " + System.identityHashCode(originalString));
+
+// "Modifying" a String (creates new object)
+String modifiedString = originalString + " World";
+System.out.println("2. After 'modification': '" + modifiedString + "'");
+System.out.println("   Original string: '" + originalString + "' (unchanged!)");
+System.out.println("   New string memory address: " + System.identityHashCode(modifiedString));
+System.out.println("   Original string memory address: " + System.identityHashCode(originalString) + " (same as before)");</code></pre>
+
+            <div class="highlight-box">
+                <strong>Output:</strong><br>
+                1. Original string: 'Hello'<br>
+                &nbsp;&nbsp;&nbsp;Memory address: [hash_code_1]<br>
+                2. After 'modification': 'Hello World'<br>
+                &nbsp;&nbsp;&nbsp;Original string: 'Hello' (unchanged!)<br>
+                &nbsp;&nbsp;&nbsp;New string memory address: [hash_code_2]<br>
+                &nbsp;&nbsp;&nbsp;Original string memory address: [hash_code_1] (same as before)
+            </div>
+
+            <h3>String Pool</h3>
+            <p><strong>Purpose:</strong> JVM optimization for string literals</p>
+            <p><strong>Behavior:</strong> Identical string literals share the same memory location</p>
+            <p><strong>Comparison:</strong> <code>==</code> vs <code>.equals()</code> behavior</p>
+
+            <h4>Code Example: String Pool Behavior</h4>
+            <pre><code>// String Pool demonstration
+String poolString1 = "Hello";
+String poolString2 = "Hello";
+String newString = new String("Hello");
+
+System.out.println("String Pool behavior:");
+System.out.println("poolString1 == poolString2: " + (poolString1 == poolString2));
+System.out.println("poolString1.equals(poolString2): " + poolString1.equals(poolString2));
+System.out.println("newString == poolString1: " + (newString == poolString1));
+System.out.println("newString.equals(poolString1): " + newString.equals(poolString1));</code></pre>
+
+            <div class="highlight-box">
+                <strong>Output:</strong><br>
+                String Pool behavior:<br>
+                poolString1 == poolString2: true<br>
+                poolString1.equals(poolString2): true<br>
+                newString == poolString1: false<br>
+                newString.equals(poolString1): true
+            </div>
+
+            <h3>Memory Analysis</h3>
+            <ul>
+                <li><strong>String Concatenation:</strong> O(n²) time and space complexity</li>
+                <li><strong>StringBuilder:</strong> O(n) time and space complexity</li>
+                <li><strong>Mathematical Proof:</strong> Sum of first n natural numbers = n(n+1)/2</li>
+            </ul>
+        </section>
+
+        <section id="memory-analysis">
+            <h2>📊 Memory Analysis Examples</h2>
+            
+            <h3>String Concatenation Memory Pattern</h3>
+            <div class="math-proof">
+                <strong>WHY IT'S O(n²)</strong><br>
+                Each iteration creates a NEW string with ALL previous characters + 1 new character<br><br>
+                Iteration 1: "a" (1 char)<br>
+                Iteration 2: "aa" (2 chars) - copies previous 1 char + adds 1 new<br>
+                Iteration 3: "aaa" (3 chars) - copies previous 2 chars + adds 1 new<br><br>
+                <strong>MATHEMATICAL PROOF</strong><br>
+                Total memory = 1 + 2 + 3 + 4 + ... + n<br>
+                This is the sum of first n natural numbers = n(n+1)/2<br>
+                Which is O(n²)
+            </div>
+
+            <h3>StringBuilder Efficiency Pattern</h3>
+            <div class="highlight-box">
+                <strong>COMPARISON</strong><br>
+                String concatenation: O(n²) memory complexity<br>
+                StringBuilder: O(n) memory complexity<br>
+                For large n, string concatenation becomes significantly more memory intensive!
+            </div>
+        </section>
+
+        <section id="key-takeaways">
+            <h2>🎯 Key Takeaways</h2>
+            
+            <h3>String Immutability Benefits</h3>
+            <ol>
+                <li><strong>Thread Safety:</strong> Multiple threads can safely read immutable strings</li>
+                <li><strong>Bug Prevention:</strong> Prevents accidental modifications</li>
+                <li><strong>Caching:</strong> Enables string pooling and other optimizations</li>
+                <li><strong>Hash Code Stability:</strong> Hash codes remain constant</li>
+            </ol>
+
+            <h3>Performance Considerations</h3>
+            <ol>
+                <li><strong>Use StringBuilder</strong> for frequent string modifications</li>
+                <li><strong>Avoid String concatenation</strong> in loops</li>
+                <li><strong>Understand O(n²) complexity</strong> of string operations</li>
+                <li><strong>Leverage String Pool</strong> for literal strings</li>
+            </ol>
+
+            <h3>Best Practices</h3>
+            <ol>
+                <li><strong>Prefer StringBuilder</strong> for dynamic string building</li>
+                <li><strong>Use String literals</strong> when possible (String Pool benefit)</li>
+                <li><strong>Use <code>.equals()</code></strong> for string comparison, not <code>==</code></li>
+                <li><strong>Consider StringBuffer</strong> for thread-safe mutable strings</li>
+            </ol>
+        </section>
+
+        <section id="technical-details">
+            <h2>🔬 Technical Details</h2>
+            
+            <h3>Memory Calculation</h3>
+            <ul>
+                <li>Each character in Java String uses 2 bytes (UTF-16)</li>
+                <li>String concatenation creates new objects, copying all previous characters</li>
+                <li>StringBuilder maintains internal buffer, only expanding when needed</li>
+            </ul>
+
+            <h3>Complexity Analysis</h3>
+            <ul>
+                <li><strong>String Concatenation:</strong> O(n²) time and space</li>
+                <li><strong>StringBuilder:</strong> O(n) time and space</li>
+                <li><strong>String Pool Lookup:</strong> O(1) average case</li>
+            </ul>
+        </section>
+
+        <section id="practical-applications">
+            <h2>🛠️ Practical Applications</h2>
+            
+            <h3>Performance Optimization Strategies</h3>
+            <ol>
+                <li><strong>Large Scale Operations:</strong> Use StringBuilder for operations involving many concatenations</li>
+                <li><strong>Memory Profiling:</strong> Monitor actual memory usage with JVM profiling tools</li>
+                <li><strong>Thread Safety:</strong> Leverage String immutability for concurrent applications</li>
+                <li><strong>StringBuffer vs StringBuilder:</strong> Choose based on thread safety requirements</li>
+            </ol>
+
+            <h3>Implementation Considerations</h3>
+            <ol>
+                <li><strong>Custom String Builders:</strong> Consider implementing specialized string builders for specific use cases</li>
+                <li><strong>Memory Tracking:</strong> Implement utilities to monitor object creation patterns</li>
+                <li><strong>Performance Benchmarking:</strong> Create comprehensive testing suites for string operations</li>
+                <li><strong>Caching Strategies:</strong> Utilize String Pool benefits for frequently used strings</li>
+            </ol>
+        </section>
+
+        <div class="highlight-box">
+            <strong>Key Insight:</strong> Immutable strings provide inherent thread safety without requiring synchronization mechanisms.
+        </div>
+    </div>
+</body>
+</html>
