@@ -1,6 +1,6 @@
-# Programming Resources - GitHub Pages
+# Java Programming Resources - GitHub Pages
 
-A modern, responsive website for hosting generated READMEs and documentation for Java and other programming languages.
+A modern, responsive website dedicated to Java programming tutorials, guides, and documentation.
 
 ## 🚀 Getting Started
 
@@ -8,7 +8,7 @@ A modern, responsive website for hosting generated READMEs and documentation for
 
 - **Clean, Modern UI**: Beautiful gradient header with clean card-based layout
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **Language Filtering**: Filter content by programming language (Java, Python, JavaScript, C++)
+- **Java Focus**: Dedicated to Java programming with comprehensive tutorials
 - **Easy to Extend**: Simple structure to add new READMEs and languages
 
 ### Project Structure
@@ -19,21 +19,15 @@ A modern, responsive website for hosting generated READMEs and documentation for
 ├── styles.css          # All styling
 ├── script.js           # JavaScript for filtering
 ├── README.md           # This file
-├── java/               # Java resources
-│   ├── basics.html
-│   ├── oops.html
-│   └── collections.html
-├── python/             # Python resources
-│   └── basics.html
-├── javascript/         # JavaScript resources
-│   └── basics.html
-└── cpp/                # C++ resources
-    └── basics.html
+└── java/               # Java resources
+    ├── basics.html
+    ├── oops.html
+    └── collections.html
 ```
 
 ## 📝 How to Add New READMEs
 
-1. **Choose or create a language folder** (e.g., `java/`, `python/`)
+1. **Create a new Java tutorial** in the `java/` folder
 
 2. **Create an HTML file** for your README:
    ```html
