@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Java Syllabus - Complete Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2563eb;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            columns: 2;
+            column-gap: 30px;
+        }
+        .toc li {
+            margin: 8px 0;
+            break-inside: avoid;
+        }
+        .toc a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .concept-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .milestone {
+            background: #e0e7ff;
+            border-left: 4px solid #6366f1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .version-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Core Java Syllabus - Complete Guide</h1>
+        
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#fundamentals">🔧 Fundamentals</a></li>
+                <li><a href="#oop">🏗️ Object-Oriented Programming</a></li>
+                <li><a href="#strings">📝 Strings</a></li>
+                <li><a href="#exceptions">⚠️ Exceptions and Error Handling</a></li>
+                <li><a href="#generics">🔗 Generics</a></li>
+                <li><a href="#collections">📚 Collections Framework</a></li>
+                <li><a href="#datetime">📅 Date and Time (java.time)</a></li>
+                <li><a href="#io">📁 I/O and NIO.2</a></li>
+                <li><a href="#concurrency">🧵 Concurrency</a></li>
+                <li><a href="#jvm">⚙️ JVM Internals and Performance</a></li>
+                <li><a href="#reflection">🔍 Reflection, Annotations, SPI</a></li>
+                <li><a href="#modules">📦 Modules (Java 9+)</a></li>
+                <li><a href="#networking">🌐 Networking</a></li>
+                <li><a href="#security">🔒 Security Basics</a></li>
+                <li><a href="#database">🗄️ Database Access (JDBC)</a></li>
+                <li><a href="#json">📄 JSON/XML</a></li>
+                <li><a href="#logging">📊 Logging</a></li>
+                <li><a href="#i18n">🌍 Internationalization</a></li>
+                <li><a href="#testing">🧪 Testing</a></li>
+                <li><a href="#build">🔨 Build and Dependency Management</a></li>
+                <li><a href="#practices">💡 Coding Practices</a></li>
+                <li><a href="#features">✨ Language Features by Version</a></li>
+                <li><a href="#patterns">🎨 Design Patterns</a></li>
+                <li><a href="#milestones">🎯 Hands-on Milestones</a></li>
+            </ul>
+        </div>
+
+        <section id="fundamentals" class="section">
+            <h2>🔧 Fundamentals</h2>
+            
+            <h3>JVM</h3>
+            <div class="concept-box">
+                A runtime environment that executes Java bytecode. It provides memory management, garbage collection, and security features. The JVM is platform-specific but allows Java programs to run on any operating system.
+            </div>
+
+            <h3>Bytecode</h3>
+            <div class="concept-box">
+                Intermediate code generated by the Java compiler (.class files). It's platform-independent and executed by the JVM. Bytecode is more efficient than interpreted languages but slower than native machine code.
+            </div>
+
+            <h3>Platform Independence</h3>
+            <div class="concept-box">
+                Java's "write once, run anywhere" principle. Source code compiles to bytecode that runs on any JVM, regardless of the underlying operating system or hardware architecture.
+            </div>
+
+            <h3>Key Topics</h3>
+            <ul>
+                <li>Data types, variables, control flow, arrays</li>
+                <li>Packages - Namespace mechanism to organize classes and avoid naming conflicts</li>
+                <li>Access Modifiers - Control visibility of classes, methods, and fields</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Java runs on the JVM using bytecode for cross-platform execution. Master basic syntax including types, variables, control structures, and arrays. Organize code with packages and control visibility using access modifiers.
+            </div>
+        </section>
+
+        <section id="oop" class="section">
+            <h2>🏗️ Object-Oriented Programming</h2>
+            
+            <h3>Classes</h3>
+            <div class="concept-box">
+                Blueprints or templates that define the structure and behavior of objects. Contain fields (data) and methods (functions). Use PascalCase naming convention.
+            </div>
+
+            <h3>Objects</h3>
+            <div class="concept-box">
+                Instances of classes created using the <code>new</code> keyword. Each object has its own state (field values) and can invoke methods. Objects are reference types in Java.
+            </div>
+
+            <h3>Core OOP Principles</h3>
+            <ul>
+                <li><strong>Encapsulation:</strong> Data hiding principle that bundles data and methods together</li>
+                <li><strong>Inheritance:</strong> Mechanism where a class inherits properties and methods from another class</li>
+                <li><strong>Polymorphism:</strong> Ability of objects to take multiple forms</li>
+                <li><strong>Interfaces:</strong> Contracts that define what methods a class must implement</li>
+                <li><strong>Abstract Classes:</strong> Classes that cannot be instantiated directly</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Design software using classes and objects with proper constructors. Apply OOP principles: encapsulation (data hiding), inheritance (code reuse), and polymorphism (flexible behavior). Understand when to use interfaces versus abstract classes.
+            </div>
+        </section>
+
+        <section id="strings" class="section">
+            <h2>📝 Strings</h2>
+            
+            <h3>String Immutability</h3>
+            <div class="concept-box">
+                Strings cannot be changed after creation. Any modification creates a new String object. Ensures thread-safety and prevents accidental modifications.
+            </div>
+
+            <h3>String Pooling</h3>
+            <div class="concept-box">
+                JVM maintains a pool of unique string literals to save memory. String literals with same content share the same memory location.
+            </div>
+
+            <h3>StringBuilder vs StringBuffer</h3>
+            <ul>
+                <li><strong>StringBuilder:</strong> Mutable sequence of characters for efficient string building. Not thread-safe but faster</li>
+                <li><strong>StringBuffer:</strong> Thread-safe mutable sequence of characters. Synchronized methods ensure thread safety</li>
+            </ul>
+
+            <h3>Common APIs</h3>
+            <div class="code-example">
+substring(int start, int end)    // Extract portion of string
+split(String regex)              // Split string into array
+replace(String old, String new)  // Replace occurrences
+format(String format, Object... args) // Format string with placeholders
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Strings are immutable and pooled for memory efficiency. Use StringBuilder for efficient concatenation. Master essential APIs like substring, split, replace, and format.
+            </div>
+        </section>
+
+        <section id="exceptions" class="section">
+            <h2>⚠️ Exceptions and Error Handling</h2>
+            
+            <h3>Checked vs Unchecked Exceptions</h3>
+            <ul>
+                <li><strong>Checked Exceptions:</strong> Must be handled at compile time (IOException, SQLException)</li>
+                <li><strong>Unchecked Exceptions:</strong> Runtime exceptions that don't need to be declared (NullPointerException, ArrayIndexOutOfBoundsException)</li>
+            </ul>
+
+            <h3>Exception Handling</h3>
+            <div class="code-example">
+try {
+    riskyCode();
+} catch (Exception e) {
+    handle(e);
+} finally {
+    cleanup();
+}
+            </div>
+
+            <h3>try-with-resources</h3>
+            <div class="code-example">
+try (FileInputStream fis = new FileInputStream("file.txt")) {
+    // use fis
+} // automatically closed
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Distinguish between checked exceptions (must handle) and unchecked exceptions (runtime errors). Use try/catch/finally and try-with-resources for proper resource management.
+            </div>
+        </section>
+
+        <section id="generics" class="section">
+            <h2>🔗 Generics</h2>
+            
+            <h3>Type Parameters</h3>
+            <div class="code-example">
+List&lt;String&gt; list = new ArrayList&lt;&gt;();
+public class Box&lt;T&gt; { private T item; }
+            </div>
+
+            <h3>Bounds</h3>
+            <div class="code-example">
+public class NumberBox&lt;T extends Number&gt;
+// T must be Number or its subclass
+            </div>
+
+            <h3>Wildcards</h3>
+            <ul>
+                <li><strong>? extends:</strong> Upper bounded wildcard for covariance (read-only)</li>
+                <li><strong>? super:</strong> Lower bounded wildcard for contravariance (write access)</li>
+            </ul>
+
+            <h3>Type Erasure</h3>
+            <div class="concept-box">
+                Process where generic type information is removed at compile time. All generic types become Object or their upper bound. Enables backward compatibility but limits runtime type checking.
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Generics provide compile-time type safety through type parameters and bounds. Use wildcards for flexible type relationships. Understand type erasure limitations at runtime.
+            </div>
+        </section>
+
+        <section id="collections" class="section">
+            <h2>📚 Collections Framework</h2>
+            
+            <h3>Core Interfaces</h3>
+            <ul>
+                <li><strong>Collection:</strong> Root interface for all collections</li>
+                <li><strong>List:</strong> Ordered collection allowing duplicates (ArrayList, LinkedList)</li>
+                <li><strong>Set:</strong> Collection with no duplicates (HashSet, TreeSet)</li>
+                <li><strong>Map:</strong> Key-value pairs, no duplicate keys (HashMap, TreeMap)</li>
+            </ul>
+
+            <h3>Key Implementations</h3>
+            <ul>
+                <li><strong>ArrayList:</strong> Resizable array, O(1) get, O(n) add/remove</li>
+                <li><strong>LinkedList:</strong> Doubly-linked list, O(n) get, O(1) add/remove</li>
+                <li><strong>HashMap:</strong> Hash table, O(1) average case</li>
+                <li><strong>TreeMap:</strong> Red-black tree, O(log n) operations, sorted</li>
+            </ul>
+
+            <h3>equals() and hashCode() Contracts</h3>
+            <div class="concept-box">
+                <strong>equals() Contract:</strong> Reflexive, symmetric, transitive, consistent, non-null<br>
+                <strong>hashCode() Contract:</strong> Equal objects must have same hashCode, consistent across calls
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use Collection, List, Set, and Map interfaces with appropriate implementations. Choose based on performance characteristics and ordering needs. Always implement equals/hashCode correctly.
+            </div>
+        </section>
+
+        <section id="datetime" class="section">
+            <h2>📅 Date and Time (java.time)</h2>
+            
+            <h3>Core Classes</h3>
+            <ul>
+                <li><strong>LocalDate:</strong> Date without time or timezone</li>
+                <li><strong>LocalTime:</strong> Time without date or timezone</li>
+                <li><strong>LocalDateTime:</strong> Combines LocalDate and LocalTime</li>
+                <li><strong>Instant:</strong> Point in time on UTC timeline</li>
+                <li><strong>ZoneId:</strong> Timezone identifier</li>
+            </ul>
+
+            <div class="code-example">
+LocalDate today = LocalDate.now();
+LocalTime meeting = LocalTime.of(14, 30);
+LocalDateTime event = LocalDateTime.of(2024, 12, 25, 10, 30);
+Instant now = Instant.now();
+ZoneId zone = ZoneId.of("America/New_York");
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use immutable java.time types instead of legacy Date/Calendar. Handle time zones properly with ZoneId. Format and parse dates with DateTimeFormatter.
+            </div>
+        </section>
+
+        <section id="io" class="section">
+            <h2>📁 I/O and NIO.2</h2>
+            
+            <h3>java.io Streams</h3>
+            <ul>
+                <li><strong>InputStream/OutputStream:</strong> Byte-oriented streams for binary data</li>
+                <li><strong>Reader/Writer:</strong> Character-oriented streams for text data</li>
+            </ul>
+
+            <h3>java.nio.file</h3>
+            <div class="code-example">
+Path path = Paths.get("folder", "file.txt");
+Path absolute = path.toAbsolutePath();
+Files.copy(source, destination);
+List&lt;String&gt; lines = Files.readAllLines(path);
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use java.io for basic I/O operations with proper resource management. Prefer java.nio.file for modern file operations. Always use try-with-resources for automatic cleanup.
+            </div>
+        </section>
+
+        <section id="concurrency" class="section">
+            <h2>🧵 Concurrency</h2>
+            
+            <h3>Threads and Executors</h3>
+            <div class="code-example">
+Thread thread = new Thread(() -> System.out.println("Hello"));
+thread.start();
+
+ExecutorService executor = Executors.newFixedThreadPool(4);
+Future&lt;String&gt; future = executor.submit(() -> "Result");
+            </div>
+
+            <h3>Synchronization</h3>
+            <ul>
+                <li><strong>synchronized:</strong> Control access to shared resources</li>
+                <li><strong>volatile:</strong> Ensure variable visibility across threads</li>
+                <li><strong>atomics:</strong> Thread-safe classes for atomic operations</li>
+            </ul>
+
+            <h3>CompletableFuture</h3>
+            <div class="code-example">
+CompletableFuture.supplyAsync(() -> "Hello")
+    .thenApply(s -> s + " World")
+    .thenAccept(System.out::println);
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Create and manage threads using Executors. Ensure thread-safety with synchronization, volatile, and atomic classes. Compose asynchronous operations with CompletableFuture.
+            </div>
+        </section>
+
+        <section id="jvm" class="section">
+            <h2>⚙️ JVM Internals and Performance</h2>
+            
+            <h3>Memory Model</h3>
+            <ul>
+                <li><strong>Heap:</strong> Runtime data area for objects and arrays</li>
+                <li><strong>Stack:</strong> Thread-specific memory for method calls</li>
+                <li><strong>Metaspace:</strong> Memory area for class metadata (Java 8+)</li>
+            </ul>
+
+            <h3>Garbage Collection</h3>
+            <div class="concept-box">
+                Automatic memory management that reclaims unused objects. Algorithms: Serial, Parallel, CMS, G1, ZGC, Shenandoah. Young GC (frequent, fast) vs Full GC (infrequent, slow).
+            </div>
+
+            <h3>Profiling Tools</h3>
+            <ul>
+                <li><strong>JFR (Java Flight Recorder):</strong> Low-overhead profiling built into JVM</li>
+                <li><strong>VisualVM:</strong> GUI tool for monitoring and profiling</li>
+                <li><strong>jcmd, jmap, jstack:</strong> Command-line tools for diagnostics</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Understand JVM memory organization and garbage collection algorithms. Profile applications using JFR, VisualVM, or async-profiler. Monitor performance with jcmd, jmap, jstack.
+            </div>
+        </section>
+
+        <section id="reflection" class="section">
+            <h2>🔍 Reflection, Annotations, SPI</h2>
+            
+            <h3>java.lang.reflect</h3>
+            <div class="code-example">
+Class&lt;?&gt; clazz = MyClass.class;
+Method method = clazz.getDeclaredMethod("methodName", String.class);
+method.invoke(instance, "arg");
+            </div>
+
+            <h3>Custom Annotations</h3>
+            <div class="code-example">
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface MyAnnotation {
+    String value() default "";
+}
+            </div>
+
+            <h3>ServiceLoader</h3>
+            <div class="code-example">
+ServiceLoader&lt;MyService&gt; loader = ServiceLoader.load(MyService.class);
+for (MyService service : loader) {
+    service.doSomething();
+}
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use reflection for runtime inspection and dynamic invocation. Create custom annotations with proper retention and targets. Implement pluggable architectures with ServiceLoader.
+            </div>
+        </section>
+
+        <section id="modules" class="section">
+            <h2>📦 Modules <span class="version-badge">Java 9+</span></h2>
+            
+            <h3>module-info.java</h3>
+            <div class="code-example">
+module com.example.app {
+    requires java.base;
+    exports com.example.api;
+}
+            </div>
+
+            <h3>exports/requires</h3>
+            <ul>
+                <li><strong>exports:</strong> Makes packages available to other modules</li>
+                <li><strong>requires:</strong> Declares dependency on another module</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Organize code into modules with module-info.java. Control module boundaries with exports and requires. Plan migration from classpath to module-path carefully.
+            </div>
+        </section>
+
+        <section id="networking" class="section">
+            <h2>🌐 Networking</h2>
+            
+            <h3>Sockets</h3>
+            <div class="code-example">
+ServerSocket server = new ServerSocket(8080);
+Socket client = server.accept();
+            </div>
+
+            <h3>HttpClient <span class="version-badge">Java 11+</span></h3>
+            <div class="code-example">
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://example.com"))
+    .build();
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use sockets for low-level networking. Prefer HttpClient for HTTP operations with proper error handling. Implement timeouts and retry logic.
+            </div>
+        </section>
+
+        <section id="security" class="section">
+            <h2>🔒 Security Basics</h2>
+            
+            <h3>JCA/JCE</h3>
+            <div class="code-example">
+MessageDigest md = MessageDigest.getInstance("SHA-256");
+byte[] hash = md.digest(data);
+            </div>
+
+            <h3>KeyStore, SSL/TLS</h3>
+            <div class="code-example">
+KeyStore ks = KeyStore.getInstance("JKS");
+SSLContext sslContext = SSLContext.getInstance("TLS");
+            </div>
+
+            <h3>SecureRandom</h3>
+            <div class="code-example">
+SecureRandom random = new SecureRandom();
+byte[] salt = new byte[16];
+random.nextBytes(salt);
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use Java Cryptography Architecture for hashing and encryption. Manage keys with KeyStore and secure communications with TLS. Use SecureRandom for cryptographic operations.
+            </div>
+        </section>
+
+        <section id="database" class="section">
+            <h2>🗄️ Database Access (JDBC)</h2>
+            
+            <h3>Basic JDBC</h3>
+            <div class="code-example">
+Connection conn = DriverManager.getConnection(url);
+Statement stmt = conn.createStatement();
+ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+            </div>
+
+            <h3>Connection Pooling</h3>
+            <div class="code-example">
+HikariConfig config = new HikariConfig();
+config.setJdbcUrl("jdbc:mysql://localhost/db");
+HikariDataSource ds = new HikariDataSource(config);
+            </div>
+
+            <h3>SQL Injection Prevention</h3>
+            <div class="code-example">
+PreparedStatement ps = conn.prepareStatement(
+    "SELECT * FROM users WHERE id = ?");
+ps.setInt(1, userId);
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Access databases using JDBC with proper resource management. Use connection pools like HikariCP for performance. Prevent SQL injection with PreparedStatement.
+            </div>
+        </section>
+
+        <section id="json" class="section">
+            <h2>📄 JSON/XML</h2>
+            
+            <h3>Jackson/Gson for JSON</h3>
+            <div class="code-example">
+ObjectMapper mapper = new ObjectMapper();
+String json = mapper.writeValueAsString(object);
+            </div>
+
+            <h3>XML Processing</h3>
+            <ul>
+                <li><strong>DOM:</strong> In-memory tree representation</li>
+                <li><strong>SAX:</strong> Event-driven parsing</li>
+                <li><strong>StAX:</strong> Pull-parsing API</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use Jackson or Gson for JSON processing. Choose appropriate XML parsing model (DOM/SAX/StAX). Handle serialization edge cases properly.
+            </div>
+        </section>
+
+        <section id="logging" class="section">
+            <h2>📊 Logging</h2>
+            
+            <h3>slf4j Facade</h3>
+            <div class="code-example">
+Logger logger = LoggerFactory.getLogger(MyClass.class);
+logger.info("Application started");
+            </div>
+
+            <h3>Backends</h3>
+            <ul>
+                <li><strong>Logback:</strong> Successor to Log4j, faster and more flexible</li>
+                <li><strong>Log4j2:</strong> High-performance logging with async capabilities</li>
+            </ul>
+
+            <h3>Structured Logging</h3>
+            <div class="code-example">
+logger.info("User login: userId={}, timestamp={}", 
+    userId, Instant.now());
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use slf4j as a logging facade with Logback or Log4j2 backend. Implement structured logging with MDC for correlation. Avoid logging sensitive information.
+            </div>
+        </section>
+
+        <section id="i18n" class="section">
+            <h2>🌍 Internationalization</h2>
+            
+            <h3>ResourceBundle</h3>
+            <div class="code-example">
+ResourceBundle bundle = ResourceBundle.getBundle("messages", 
+    Locale.FRENCH);
+String message = bundle.getString("welcome");
+            </div>
+
+            <h3>Locale-aware Formatting</h3>
+            <div class="code-example">
+NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
+String price = nf.format(19.99);
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Localize applications using ResourceBundle and Locale. Format dates, numbers, and currency per user locale. Support pluralization and right-to-left languages.
+            </div>
+        </section>
+
+        <section id="testing" class="section">
+            <h2>🧪 Testing</h2>
+            
+            <h3>JUnit 5</h3>
+            <div class="code-example">
+@Test
+void testMethod() {
+    assertEquals(expected, actual);
+}
+            </div>
+
+            <h3>Mockito for Mocking</h3>
+            <div class="code-example">
+@Mock
+private UserService userService;
+
+when(userService.findById(1L)).thenReturn(user);
+            </div>
+
+            <h3>Testcontainers</h3>
+            <div class="code-example">
+@Testcontainers
+class DatabaseTest {
+    @Container
+    static PostgreSQLContainer<?> postgres = 
+        new PostgreSQLContainer<>("postgres:13");
+}
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Write unit tests with JUnit 5 including parameterized tests. Mock dependencies with Mockito. Use Testcontainers for integration testing with real databases.
+            </div>
+        </section>
+
+        <section id="build" class="section">
+            <h2>🔨 Build and Dependency Management</h2>
+            
+            <h3>Maven/Gradle</h3>
+            <ul>
+                <li><strong>Maven:</strong> XML-based build tool with lifecycle phases</li>
+                <li><strong>Gradle:</strong> Groovy/Kotlin DSL with incremental builds</li>
+            </ul>
+
+            <h3>Dependency Scopes</h3>
+            <ul>
+                <li><strong>compile:</strong> Default scope, available in all phases</li>
+                <li><strong>test:</strong> Only for testing</li>
+                <li><strong>provided:</strong> Provided by runtime</li>
+                <li><strong>runtime:</strong> Not needed for compilation</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Use Maven or Gradle for build automation and dependency management. Understand dependency scopes and version alignment. Structure multi-module projects effectively.
+            </div>
+        </section>
+
+        <section id="practices" class="section">
+            <h2>💡 Coding Practices</h2>
+            
+            <h3>Immutability</h3>
+            <div class="code-example">
+public final class Person {
+    private final String name;
+    private final int age;
+}
+            </div>
+
+            <h3>equals/hashCode/compareTo</h3>
+            <div class="code-example">
+public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof Person)) return false;
+    Person other = (Person) obj;
+    return Objects.equals(name, other.name);
+}
+            </div>
+
+            <h3>API Design</h3>
+            <div class="code-example">
+public Optional<User> findUserById(Long id) 
+    throws IllegalArgumentException {
+    if (id == null) 
+        throw new IllegalArgumentException("ID cannot be null");
+    return userRepository.findById(id);
+}
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Favor immutable objects and defensive copying. Implement equals/hashCode/compareTo correctly. Design clear, consistent APIs with proper error handling.
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <h2>✨ Language Features by Version</h2>
+            
+            <h3>Modern Features</h3>
+            <ul>
+                <li><strong>var <span class="version-badge">Java 10</span>:</strong> Local variable type inference</li>
+                <li><strong>switch expressions <span class="version-badge">Java 14</span>:</strong> Expression-based switch</li>
+                <li><strong>text blocks <span class="version-badge">Java 15</span>:</strong> Multi-line strings</li>
+                <li><strong>records <span class="version-badge">Java 16</span>:</strong> Data classes with automatic equals/hashCode/toString</li>
+                <li><strong>sealed classes <span class="version-badge">Java 17</span>:</strong> Restricted inheritance</li>
+                <li><strong>pattern matching <span class="version-badge">Java 17+</span>:</strong> Enhanced instanceof with pattern matching</li>
+            </ul>
+
+            <div class="code-example">
+var list = new ArrayList<String>();
+String result = switch (day) {
+    case MONDAY -> "Start of week";
+    default -> "Other day";
+};
+
+public record Person(String name, int age) {}
+public sealed class Shape permits Circle, Rectangle {}
+
+if (obj instanceof String s) {
+    System.out.println(s.toUpperCase());
+}
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Adopt modern Java features like var, switch expressions, and text blocks. Use records for data classes and sealed classes for controlled inheritance. Apply pattern matching where appropriate.
+            </div>
+        </section>
+
+        <section id="patterns" class="section">
+            <h2>🎨 Design Patterns</h2>
+            
+            <h3>Creational Patterns</h3>
+            <ul>
+                <li><strong>Factory:</strong> Create objects without specifying exact classes</li>
+                <li><strong>Builder:</strong> Construct complex objects step by step</li>
+            </ul>
+
+            <h3>Structural Patterns</h3>
+            <ul>
+                <li><strong>Adapter:</strong> Make incompatible interfaces work together</li>
+                <li><strong>Decorator:</strong> Add behavior to objects dynamically</li>
+            </ul>
+
+            <h3>Behavioral Patterns</h3>
+            <ul>
+                <li><strong>Strategy:</strong> Define family of algorithms and make them interchangeable</li>
+                <li><strong>Observer:</strong> Define one-to-many dependency between objects</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Apply design patterns to solve common problems. Prefer composition over inheritance. Use concurrency patterns safely.
+            </div>
+        </section>
+
+        <section id="milestones" class="section">
+            <h2>🎯 Hands-on Milestones</h2>
+            
+            <div class="milestone">
+                <h3>CLI Application</h3>
+                <p>Build command-line tool with argument parsing, file I/O, error handling.</p>
+            </div>
+
+            <div class="milestone">
+                <h3>Collections Utilities</h3>
+                <p>Create utility library with custom collections, algorithms, data structures.</p>
+            </div>
+
+            <div class="milestone">
+                <h3>HTTP Client with Retries</h3>
+                <p>Implement HTTP client with retry logic, timeouts, error handling.</p>
+            </div>
+
+            <div class="milestone">
+                <h3>JDBC Repository</h3>
+                <p>Create data access layer with connection pooling, prepared statements, transactions.</p>
+            </div>
+
+            <div class="milestone">
+                <h3>Performance Profiling</h3>
+                <p>Profile application using JFR, identify bottlenecks, optimize performance.</p>
+            </div>
+
+            <div class="highlight">
+                <strong>Summary:</strong> Build practical applications: CLI tools, utility libraries, HTTP clients, database repositories. Profile and optimize performance using JFR and GC logs.
+            </div>
+        </section>
+
+        <div class="highlight">
+            <h3>🎓 Learning Path Recommendation</h3>
+            <p>Start with <strong>Fundamentals</strong> and <strong>OOP</strong>, then progress through <strong>Collections</strong>, <strong>Exceptions</strong>, and <strong>Generics</strong>. Move to advanced topics like <strong>Concurrency</strong>, <strong>JVM Internals</strong>, and <strong>Modern Features</strong>. Complete with <strong>Hands-on Milestones</strong> to solidify your knowledge.</p>
+        </div>
+    </div>
+</body>
+</html>
