@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity vs DTO - Understanding the Difference</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .concept-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        .architecture-diagram {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .best-practices {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .best-practices h3 {
+            margin-top: 0;
+        }
+        .best-practices ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .best-practices li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .best-practices li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        .best-practices.dont li::before {
+            content: "❌";
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Entity vs DTO: Understanding the Difference</h1>
+        
+        <section class="section">
+            <h2>Conceptual Overview</h2>
+            <p>In Spring Boot applications, <strong>Entity</strong> and <strong>DTO</strong> serve fundamentally different purposes. Understanding this distinction is crucial for building maintainable, secure, and scalable applications.</p>
+        </section>
+
+        <section class="section">
+            <h2>What is an Entity?</h2>
+            <p>An <strong>Entity</strong> represents your database structure. It's a JPA class that maps directly to a database table.</p>
+            
+            <h3>Key Characteristics:</h3>
+            <ul>
+                <li>🔗 <strong>Maps to Database</strong>: Each entity class maps to a database table</li>
+                <li>🏗️ <strong>Contains All Data</strong>: Includes all database columns</li>
+                <li>🔐 <strong>May Contain Sensitive Data</strong>: Can include passwords, internal IDs, audit fields</li>
+                <li>🔗 <strong>Has Relationships</strong>: Defines relationships with other entities (<code>@OneToMany</code>, <code>@ManyToOne</code>, etc.)</li>
+                <li>⚙️ <strong>Has Annotations</strong>: Uses JPA/Hibernate annotations (<code>@Entity</code>, <code>@Column</code>, <code>@Table</code>)</li>
+                <li>🔄 <strong>Managed by ORM</strong>: Lifecycle managed by Hibernate/EntityManager</li>
+            </ul>
+
+            <h3>Example from Arzyabi Project:</h3>
+            <div class="code-example">
+<code>@Entity
+@Table(name = "app_user")
+public class User extends BaseEntity {
+    
+    @Column(name = "user_name", unique = true, nullable = false)
+    private String username;
+    
+    @Column(name = "password")
+    private String password;      // ⚠️ Sensitive data!
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List&lt;UserRole&gt; userRoles;  // Full database objects
+    
+    @OneToOne(mappedBy = "user")
+    private UserInfo userInfo;
+    
+    // Database-specific fields
+    // Relationships
+    // Lifecycle callbacks
+}</code>
+            </div>
+            <p><strong>Location</strong>: <code>src/main/java/ir/building/arzyabi/entity/</code></p>
+        </section>
+
+        <section class="section">
+            <h2>What is a DTO?</h2>
+            <p>A <strong>DTO (Data Transfer Object)</strong> is a simple object that carries data between processes. It doesn't map to a database directly.</p>
+            
+            <h3>Key Characteristics:</h3>
+            <ul>
+                <li>🚫 <strong>No Database Mapping</strong>: Has no <code>@Entity</code> or database annotations</li>
+                <li>🎯 <strong>Purpose-Driven</strong>: Contains only the data needed for a specific purpose</li>
+                <li>🔒 <strong>Safe for API</strong>: Only includes data safe to expose to clients</li>
+                <li>📦 <strong>Lightweight</strong>: Pure data objects without behavior</li>
+                <li>🔄 <strong>Multiple DTOs per Entity</strong>: Different DTOs for different use cases</li>
+            </ul>
+
+            <h3>Example from Arzyabi Project:</h3>
+            
+            <h4>1. <code>UserDto</code> - User registration/update</h4>
+            <div class="code-example">
+<code>public class UserDto {
+    private UserStatus status;
+    private String firstName;
+    private String lastName;
+    private String nationalCode;
+    private String mobileNumber;
+    private String email;
+    private List&lt;UserRoleDto&gt; roles;
+    // NO password field!
+}</code>
+            </div>
+
+            <h4>2. <code>UserLoginDto</code> - Login request</h4>
+            <div class="code-example">
+<code>public class UserLoginDto {
+    private String username;
+    private String password;      // Only during login
+    private CaptchaCheckDto captchaCheck;
+}</code>
+            </div>
+
+            <h4>3. <code>UserProfileResponse</code> - Send to client</h4>
+            <div class="code-example">
+<code>public class UserProfileResponse {
+    private UUID userId;
+    private String username;
+    private UserStatus status;
+    private String firstName;
+    private String lastName;
+    // NO password, NO sensitive data!
+}</code>
+            </div>
+            <p><strong>Location</strong>: <code>src/main/java/ir/building/arzyabi/dto/</code></p>
+        </section>
+
+        <section class="section">
+            <h2>Side-by-Side Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Entity</th>
+                        <th>DTO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>Database persistence</td>
+                        <td>Data transfer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Annotations</strong></td>
+                        <td><code>@Entity</code>, <code>@Column</code>, <code>@OneToMany</code></td>
+                        <td>None or only validation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Structure</strong></td>
+                        <td>Matches database schema</td>
+                        <td>Matches API contract</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data</strong></td>
+                        <td>All database fields</td>
+                        <td>Only exposed fields</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>May contain sensitive data</td>
+                        <td>No sensitive data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Relationships</strong></td>
+                        <td>Full object graphs</td>
+                        <td>Flattened or simplified</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lifecycle</strong></td>
+                        <td>Managed by ORM</td>
+                        <td>Short-lived</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Usage</strong></td>
+                        <td>Service layer, database</td>
+                        <td>Controller, API layer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Files Per Entity</strong></td>
+                        <td>One</td>
+                        <td>Many (one per use case)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Real-World Example: User Management</h2>
+            
+            <h3>Scenario 1: User Registration</h3>
+            <p><strong>DTO Used</strong>: <code>AddUserDto</code></p>
+            <div class="code-example">
+<code>POST /api/v1/user
+{
+  "username": "john_doe",
+  "password": "SecurePass123!",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com"
+}</code>
+            </div>
+            <p>The service layer converts this DTO to the User Entity before saving:</p>
+            <div class="code-example">
+<code>User user = new User(username, status);
+user.setPassword(encryptedPassword);
+// ... map other fields
+userRepository.save(user);</code>
+            </div>
+
+            <h3>Scenario 2: Get User Profile</h3>
+            <p><strong>DTO Used</strong>: <code>UserProfileResponse</code></p>
+            <div class="code-example">
+<code>GET /api/v1/user/profile
+Response:
+{
+  "userId": "123e4567-e89b-12d3-a456-426614174000",
+  "username": "john_doe",
+  "status": "ACTIVE",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "roles": [...]
+}</code>
+            </div>
+            <p class="warning"><strong>Notice:</strong> <strong>NO password field!</strong></p>
+
+            <h3>Why Different DTOs?</h3>
+            <div class="code-example">
+<code>// Login needs password
+class UserLoginDto {
+    String username;
+    String password;
+}
+
+// Profile doesn't need password
+class UserProfileResponse {
+    UUID userId;
+    String username;
+    String firstName;
+    // NO password!
+}
+
+// Search results need minimal info
+class UserSearchResult {
+    UUID userId;
+    String username;
+    String fullName;
+    // NO other sensitive data
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Why This Separation Matters?</h2>
+            
+            <h3>1. <strong>Security</strong> 🔐</h3>
+            <div class="bad">
+                <strong>❌ BAD: Don't return Entity directly</strong>
+                <div class="code-example" style="margin-top: 10px;">
+<code>@GetMapping("/user/{id}")
+public User getUser(Long id) {
+    return userRepository.findById(id);  
+    // Exposes password, internal IDs, etc.
+}</code>
+                </div>
+            </div>
+            <div class="good">
+                <strong>✅ GOOD: Return DTO</strong>
+                <div class="code-example" style="margin-top: 10px;">
+<code>@GetMapping("/user/{id}")
+public UserProfileResponse getUser(Long id) {
+    User user = userRepository.findById(id);
+    return mapper.toUserProfileResponse(user);
+    // Only safe data exposed
+}</code>
+                </div>
+            </div>
+
+            <h3>2. <strong>Performance</strong> ⚡</h3>
+            <div class="code-example">
+<code>// Entity - loads full relationships
+User user = userRepository.findById(id);
+// Loads: userRoles, userInfo, all relationships
+
+// DTO - only what you need
+UserProfileResponse response = new UserProfileResponse();
+response.setUserId(user.getId());
+response.setUsername(user.getUsername());
+// Only necessary fields</code>
+            </div>
+
+            <h3>3. <strong>API Versioning</strong> 📚</h3>
+            <div class="code-example">
+<code>// Can change DTOs without affecting database
+public class UserDtoV1 { ... }  // API v1
+public class UserDtoV2 { ... }  // API v2 (different fields)
+
+// Entity stays the same
+@Entity
+public class User { ... }       // Database unchanged</code>
+            </div>
+
+            <h3>4. <strong>Flexibility</strong> 🔄</h3>
+            <div class="code-example">
+<code>// One Entity, Multiple DTOs
+User Entity:
+  - username, password, status, roles, userInfo, etc.
+
+DTOs:
+  - UserLoginDto      → only username + password
+  - UserDto           → for creating users
+  - UserProfileResponse → for displaying profile
+  - UserSearchResult   → for search results
+  - UserSummaryDto     → for list views</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>How They Work Together in Arzyabi Project</h2>
+            
+            <h3>Architecture Flow:</h3>
+            <div class="architecture-diagram">
+<code>┌─────────────────┐
+│  Controller     │  Receives DTOs
+│  (REST API)     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Service Layer  │  Converts DTO ↔ Entity
+│  (Business      │
+│   Logic)        │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Repository     │  Works with Entities
+│  (Data Access)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Database      │
+│  (PostgreSQL)    │
+└─────────────────┘</code>
+            </div>
+
+            <h3>Code Example:</h3>
+            <div class="code-example">
+<code>@RestController
+public class UsersManagementController {
+    
+    @Autowired
+    private UserService userService;
+    
+    // 1. Controller receives DTO
+    @PostMapping("/api/v1/user")
+    public Response&lt;UserProfileResponse&gt; createUser(
+            @RequestBody AddUserDto addUserDto) {
+        
+        // 2. Service converts DTO to Entity
+        User user = userService.createUser(addUserDto);
+        
+        // 3. Service converts Entity to Response DTO
+        UserProfileResponse response = 
+            userMapper.toUserProfileResponse(user);
+        
+        return new Response&lt;&gt;(response);
+    }
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices</h2>
+            
+            <div class="best-practices">
+                <h3>✅ DO:</h3>
+                <ul>
+                    <li>Use DTOs for all API inputs and outputs</li>
+                    <li>Keep DTOs free of JPA annotations</li>
+                    <li>Include only necessary fields in DTOs</li>
+                    <li>Validate DTOs using <code>@NotNull</code>, <code>@Size</code>, etc.</li>
+                    <li>Map between Entity and DTO in service layer</li>
+                    <li>Use different DTOs for different use cases</li>
+                </ul>
+            </div>
+
+            <div class="best-practices dont">
+                <h3>❌ DON'T:</h3>
+                <ul>
+                    <li>Return Entity objects directly from controllers</li>
+                    <li>Add business logic to DTOs</li>
+                    <li>Include passwords in response DTOs</li>
+                    <li>Use Entities for API contracts</li>
+                    <li>Mix Entity and DTO responsibilities</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Comparison with Android Development</h2>
+            <p>For Android developers, this is similar to:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Spring Boot</th>
+                        <th>Android Equivalent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Entity</strong></td>
+                        <td>Room Entity / Database Model</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DTO</strong></td>
+                        <td>ViewModel / UI Model</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Service Layer</strong></td>
+                        <td>Repository / UseCase</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Controller</strong></td>
+                        <td>Activity / Fragment</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Android Analogy:</h3>
+            <div class="code-example">
+<code>// Entity - Database model
+@Entity(tableName = "user")
+data class UserEntity(
+    @PrimaryKey val id: String,
+    val username: String,
+    val password: String  // Stored in DB
+)
+
+// DTO - UI model  
+data class UserModel(
+    val id: String,
+    val username: String
+    // NO password for UI!
+)</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Summary</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Entity</th>
+                        <th>DTO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>What is it?</strong></td>
+                        <td>Database table representation</td>
+                        <td>Data transfer container</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Where used?</strong></td>
+                        <td>Repository, Service</td>
+                        <td>Controller, API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Annotations?</strong></td>
+                        <td>Yes (JPA/Hibernate)</td>
+                        <td>No (or validation only)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Password field?</strong></td>
+                        <td>Yes</td>
+                        <td>Only in LoginDTO, never in responses</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Relationships?</strong></td>
+                        <td>Full object graphs</td>
+                        <td>Simple/flattened</td>
+                    </tr>
+                    <tr>
+                        <td><strong>How many per Entity?</strong></td>
+                        <td>One</td>
+                        <td>Many (different purposes)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security risk?</strong></td>
+                        <td>Yes (can expose sensitive data)</td>
+                        <td>No (safe for clients)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <div class="highlight">
+                <h2>Key Takeaway 🎯</h2>
+                <p><strong>Entities</strong> are for the database layer - they represent how data is stored.</p>
+                <p><strong>DTOs</strong> are for the API layer - they represent what data is exposed.</p>
+                <p><strong>Always</strong> convert between them. Never return or accept Entities directly in your REST controllers!</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
