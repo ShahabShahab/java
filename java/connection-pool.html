@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Pool: Configuration and Best Practices</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        .property-table code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Connection Pool: Configuration and Best Practices</h1>
+        
+        <section class="section">
+            <h2>What is Connection Pooling?</h2>
+            <p>A <strong>Connection Pool</strong> is a cache of database connections maintained so that connections can be reused when future requests to the database are required. Instead of creating a new connection every time your application needs to access the database, it reuses existing connections from the pool.</p>
+
+            <h3>Why Connection Pooling Matters</h3>
+            <div class="bad">
+                <strong>Without Connection Pooling:</strong>
+                <ul>
+                    <li>❌ Each request creates a new database connection (expensive)</li>
+                    <li>❌ Connection creation overhead: 100-300ms per connection</li>
+                    <li>❌ Database limits on concurrent connections</li>
+                    <li>❌ Wasted resources closing connections frequently</li>
+                    <li>❌ Poor performance under load</li>
+                </ul>
+            </div>
+
+            <div class="good">
+                <strong>With Connection Pooling:</strong>
+                <ul>
+                    <li>✅ Reuse existing connections (fast)</li>
+                    <li>✅ Connection reuse overhead: ~1ms</li>
+                    <li>✅ Controlled number of connections</li>
+                    <li>✅ Efficient resource management</li>
+                    <li>✅ Better performance and scalability</li>
+                </ul>
+            </div>
+
+            <h3>How Connection Pool Works</h3>
+            <div class="code-example">
+                <code>┌─────────────┐
+│ Application │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│ Connection Pool │  ← Pool of ready connections
+│  [conn1, conn2, │
+│   conn3, ...]   │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────┐
+│  Database   │
+└─────────────┘
+
+1. App requests connection from pool
+2. Pool returns available connection (or creates new if needed)
+3. App uses connection
+4. App returns connection to pool (instead of closing)
+5. Pool reuses connection for next request</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>HikariCP: Default in Spring Boot</h2>
+            <p>Spring Boot uses <strong>HikariCP</strong> as the default connection pool. It's one of the fastest, most reliable connection pools available for Java applications.</p>
+
+            <h3>Why HikariCP?</h3>
+            <ul>
+                <li>🚀 <strong>Fast</strong>: Lightweight and optimized for performance</li>
+                <li>🔒 <strong>Reliable</strong>: Battle-tested in production environments</li>
+                <li>📊 <strong>Observable</strong>: Built-in metrics and monitoring</li>
+                <li>🛡️ <strong>Robust</strong>: Automatic connection recovery and validation</li>
+                <li>⚙️ <strong>Configurable</strong>: Fine-tuned control over pool behavior</li>
+            </ul>
+
+            <h3>Automatic Configuration</h3>
+            <p>When you add Spring Boot Starter Data JPA, HikariCP is automatically included:</p>
+            <div class="code-example">
+                <code>&lt;dependency&gt;<br>
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;<br>
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;<br>
+&lt;/dependency&gt;</code>
+            </div>
+            <div class="highlight">
+                <strong>Note:</strong> HikariCP is included by default. No additional dependency needed!
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Configuration in application.properties</h2>
+            <p>Configure HikariCP connection pool using Spring Boot properties:</p>
+
+            <h3>Basic Configuration</h3>
+            <div class="code-example">
+                <code># Database connection URL<br>
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb<br>
+spring.datasource.username=myuser<br>
+spring.datasource.password=mypassword<br>
+spring.datasource.driver-class-name=org.postgresql.Driver</code>
+            </div>
+
+            <h3>Connection Pool Settings</h3>
+            <div class="code-example">
+                <code># HikariCP Configuration<br>
+spring.datasource.hikari.minimum-idle=5<br>
+spring.datasource.hikari.maximum-pool-size=20<br>
+spring.datasource.hikari.idle-timeout=300000<br>
+spring.datasource.hikari.max-lifetime=600000<br>
+spring.datasource.hikari.connection-timeout=30000<br>
+spring.datasource.hikari.leak-detection-threshold=60000</code>
+            </div>
+
+            <h3>Complete Configuration Example</h3>
+            <div class="code-example">
+                <code># PostgreSQL Database Configuration<br>
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb<br>
+spring.datasource.username=myuser<br>
+spring.datasource.password=mypassword<br>
+spring.datasource.driver-class-name=org.postgresql.Driver<br><br>
+# HikariCP Connection Pool Settings<br>
+spring.datasource.hikari.minimum-idle=5<br>
+spring.datasource.hikari.maximum-pool-size=20<br>
+spring.datasource.hikari.idle-timeout=300000<br>
+spring.datasource.hikari.max-lifetime=600000<br>
+spring.datasource.hikari.connection-timeout=30000<br>
+spring.datasource.hikari.validation-timeout=3000<br>
+spring.datasource.hikari.leak-detection-threshold=60000<br>
+spring.datasource.hikari.pool-name=MyHikariPool</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Configuration Properties Explained</h2>
+            <table class="property-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Description</th>
+                        <th>Default</th>
+                        <th>Recommended</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>minimum-idle</code></td>
+                        <td>Minimum number of idle connections maintained in the pool</td>
+                        <td>Same as maximum-pool-size</td>
+                        <td>5-10</td>
+                    </tr>
+                    <tr>
+                        <td><code>maximum-pool-size</code></td>
+                        <td>Maximum number of connections in the pool</td>
+                        <td>10</td>
+                        <td>20-50 (based on load)</td>
+                    </tr>
+                    <tr>
+                        <td><code>connection-timeout</code></td>
+                        <td>Maximum time (ms) to wait for a connection from the pool</td>
+                        <td>30000 (30s)</td>
+                        <td>30000</td>
+                    </tr>
+                    <tr>
+                        <td><code>idle-timeout</code></td>
+                        <td>Maximum time (ms) a connection can sit idle before being removed</td>
+                        <td>600000 (10min)</td>
+                        <td>300000 (5min)</td>
+                    </tr>
+                    <tr>
+                        <td><code>max-lifetime</code></td>
+                        <td>Maximum lifetime (ms) of a connection in the pool</td>
+                        <td>1800000 (30min)</td>
+                        <td>600000 (10min)</td>
+                    </tr>
+                    <tr>
+                        <td><code>validation-timeout</code></td>
+                        <td>Maximum time (ms) to wait for connection validation</td>
+                        <td>5000 (5s)</td>
+                        <td>3000 (3s)</td>
+                    </tr>
+                    <tr>
+                        <td><code>leak-detection-threshold</code></td>
+                        <td>Time (ms) before connection is considered leaked (0 = disabled)</td>
+                        <td>0 (disabled)</td>
+                        <td>60000 (1min) for production</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Connection Pool Size Calculation</h2>
+            <p>Determining the right pool size is crucial for performance:</p>
+
+            <h3>Formula</h3>
+            <div class="code-example">
+                <code>connections = ((core_count * 2) + effective_spindle_count)</code>
+            </div>
+
+            <h3>Example Calculation</h3>
+            <div class="highlight">
+                <p><strong>Scenario:</strong></p>
+                <ul>
+                    <li>CPU cores: 4</li>
+                    <li>Database with SSD: effective_spindle_count = 1</li>
+                    <li>Calculation: (4 * 2) + 1 = <strong>9 connections</strong></li>
+                </ul>
+                <p><strong>Recommendation:</strong> Start with 10-20 connections and adjust based on monitoring.</p>
+            </div>
+
+            <h3>General Guidelines</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Application Type</th>
+                        <th>Recommended Pool Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Small application (low traffic)</td>
+                        <td>5-10 connections</td>
+                    </tr>
+                    <tr>
+                        <td>Medium application (moderate traffic)</td>
+                        <td>10-20 connections</td>
+                    </tr>
+                    <tr>
+                        <td>Large application (high traffic)</td>
+                        <td>20-50 connections</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise application (very high traffic)</td>
+                        <td>50-100 connections (or more)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Too many connections can overwhelm your database. Always monitor and adjust based on actual usage patterns.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices</h2>
+
+            <div class="good">
+                <h3>✅ DO:</h3>
+                <ul>
+                    <li><strong>Enable leak detection</strong> in production: <code>leak-detection-threshold=60000</code></li>
+                    <li><strong>Set appropriate timeouts</strong>: connection-timeout, idle-timeout, max-lifetime</li>
+                    <li><strong>Monitor pool metrics</strong>: active connections, idle connections, wait time</li>
+                    <li><strong>Use connection validation</strong>: ensure connections are still valid before use</li>
+                    <li><strong>Start with conservative values</strong>: increase gradually based on monitoring</li>
+                    <li><strong>Set max-lifetime</strong>: refresh connections periodically to avoid stale connections</li>
+                </ul>
+            </div>
+
+            <div class="bad">
+                <h3>❌ DON'T:</h3>
+                <ul>
+                    <li><strong>Don't set pool size too high</strong>: Can overwhelm database</li>
+                    <li><strong>Don't disable leak detection</strong>: Important for finding connection leaks</li>
+                    <li><strong>Don't use very long max-lifetime</strong>: Connections can become stale</li>
+                    <li><strong>Don't set minimum-idle = maximum-pool-size</strong>: Wastes resources</li>
+                    <li><strong>Don't ignore timeout warnings</strong>: Indicates pool is undersized</li>
+                    <li><strong>Don't share connections across threads</strong>: Connections are not thread-safe</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Advanced Configuration</h2>
+
+            <h3>Custom HikariConfig Bean</h3>
+            <p>For more control, configure HikariCP programmatically:</p>
+            <div class="code-example">
+                <code>@Configuration<br>
+public class DatabaseConfig {<br><br>
+    @Bean<br>
+    @ConfigurationProperties("spring.datasource.hikari")<br>
+    public HikariDataSource dataSource() {<br>
+        HikariConfig config = new HikariConfig();<br>
+        config.setJdbcUrl("jdbc:postgresql://localhost:5432/mydb");<br>
+        config.setUsername("myuser");<br>
+        config.setPassword("mypassword");<br>
+        config.setDriverClassName("org.postgresql.Driver");<br><br>
+        // Pool settings<br>
+        config.setMinimumIdle(5);<br>
+        config.setMaximumPoolSize(20);<br>
+        config.setConnectionTimeout(30000);<br>
+        config.setIdleTimeout(300000);<br>
+        config.setMaxLifetime(600000);<br>
+        config.setLeakDetectionThreshold(60000);<br><br>
+        return new HikariDataSource(config);<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>Connection Validation</h3>
+            <p>Configure connection health checks:</p>
+            <div class="code-example">
+                <code># Validate connections before use<br>
+spring.datasource.hikari.connection-test-query=SELECT 1<br>
+spring.datasource.hikari.validation-timeout=3000<br><br>
+# For PostgreSQL, use connection-init-sql<br>
+spring.datasource.hikari.connection-init-sql=SELECT 1</code>
+            </div>
+
+            <h3>Monitoring and Metrics</h3>
+            <p>Access HikariCP metrics via JMX or Spring Boot Actuator:</p>
+            <div class="code-example">
+                <code># Enable JMX<br>
+spring.jmx.enabled=true<br><br>
+# Enable Actuator endpoints<br>
+management.endpoints.web.exposure.include=metrics,health<br>
+management.metrics.export.prometheus.enabled=true</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Troubleshooting</h2>
+
+            <div class="warning">
+                <h4>Problem: Connection timeout errors</h4>
+                <p><strong>Symptoms:</strong> <code>HikariPool - Connection is not available</code></p>
+                <p><strong>Causes:</strong></p>
+                <ul>
+                    <li>Pool size too small for load</li>
+                    <li>Connections not being returned to pool</li>
+                    <li>Long-running queries blocking connections</li>
+                </ul>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Increase <code>maximum-pool-size</code></li>
+                    <li>Enable leak detection: <code>leak-detection-threshold=60000</code></li>
+                    <li>Optimize slow queries</li>
+                    <li>Use read replicas for read-heavy workloads</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <h4>Problem: Connection leaks</h4>
+                <p><strong>Symptoms:</strong> Connections not being released, pool exhaustion</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Enable leak detection: <code>leak-detection-threshold=60000</code></li>
+                    <li>Always use try-with-resources for connections</li>
+                    <li>Ensure transactions are properly committed/rolled back</li>
+                    <li>Check for unclosed ResultSet, Statement, or Connection objects</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <h4>Problem: Stale connections</h4>
+                <p><strong>Symptoms:</strong> Database errors, "Connection is closed" exceptions</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Set <code>max-lifetime</code> to refresh connections: <code>max-lifetime=600000</code></li>
+                    <li>Enable connection validation: <code>connection-test-query=SELECT 1</code></li>
+                    <li>Configure idle timeout: <code>idle-timeout=300000</code></li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Monitoring Connection Pool</h2>
+
+            <h3>Using Spring Boot Actuator</h3>
+            <div class="code-example">
+                <code># Add to pom.xml or build.gradle<br>
+&lt;dependency&gt;<br>
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;<br>
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;<br>
+&lt;/dependency&gt;</code>
+            </div>
+
+            <h3>Key Metrics to Monitor</h3>
+            <ul>
+                <li><code>hikari.connections.active</code>: Currently active connections</li>
+                <li><code>hikari.connections.idle</code>: Idle connections in pool</li>
+                <li><code>hikari.connections.pending</code>: Threads waiting for connection</li>
+                <li><code>hikari.connections.timeout</code>: Connection timeout count</li>
+                <li><code>hikari.connections.creation</code>: New connections created</li>
+            </ul>
+
+            <h3>Access Metrics via HTTP</h3>
+            <div class="code-example">
+                <code># View all metrics<br>
+GET http://localhost:8080/actuator/metrics<br><br>
+# View HikariCP metrics<br>
+GET http://localhost:8080/actuator/metrics/hikari.connections.active<br>
+GET http://localhost:8080/actuator/metrics/hikari.connections.idle<br>
+GET http://localhost:8080/actuator/metrics/hikari.connections.pending</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Comparison: Connection Pool Libraries</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Library</th>
+                        <th>Performance</th>
+                        <th>Features</th>
+                        <th>Spring Boot Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>HikariCP</strong></td>
+                        <td>⭐⭐⭐⭐⭐ Excellent</td>
+                        <td>Fast, lightweight, robust</td>
+                        <td>✅ Default (Spring Boot 2.x+)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Apache DBCP2</strong></td>
+                        <td>⭐⭐⭐ Good</td>
+                        <td>Feature-rich, mature</td>
+                        <td>⚠️ Not default</td>
+                    </tr>
+                    <tr>
+                        <td><strong>C3P0</strong></td>
+                        <td>⭐⭐ Fair</td>
+                        <td>Legacy, stable</td>
+                        <td>❌ Not recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tomcat JDBC Pool</strong></td>
+                        <td>⭐⭐⭐ Good</td>
+                        <td>Simple, lightweight</td>
+                        <td>⚠️ Alternative option</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>Recommendation:</strong> Stick with HikariCP (default in Spring Boot). It's optimized, reliable, and well-maintained.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Production Configuration Example</h2>
+            <div class="code-example">
+                <code># application-production.properties<br><br>
+# Database Connection<br>
+spring.datasource.url=jdbc:postgresql://db-host:5432/proddb<br>
+spring.datasource.username=${DB_USERNAME}<br>
+spring.datasource.password=${DB_PASSWORD}<br>
+spring.datasource.driver-class-name=org.postgresql.Driver<br><br>
+# HikariCP Production Settings<br>
+spring.datasource.hikari.minimum-idle=10<br>
+spring.datasource.hikari.maximum-pool-size=30<br>
+spring.datasource.hikari.connection-timeout=30000<br>
+spring.datasource.hikari.idle-timeout=300000<br>
+spring.datasource.hikari.max-lifetime=600000<br>
+spring.datasource.hikari.validation-timeout=3000<br>
+spring.datasource.hikari.leak-detection-threshold=60000<br>
+spring.datasource.hikari.connection-test-query=SELECT 1<br>
+spring.datasource.hikari.pool-name=ProductionPool</code>
+            </div>
+
+            <div class="highlight">
+                <h3>Key Takeaways 🎯</h3>
+                <ol>
+                    <li><strong>HikariCP is the default</strong> - No extra dependency needed in Spring Boot</li>
+                    <li><strong>Configure pool size</strong> based on your application load and database capacity</li>
+                    <li><strong>Enable leak detection</strong> in production to catch connection leaks early</li>
+                    <li><strong>Set appropriate timeouts</strong> to handle connection failures gracefully</li>
+                    <li><strong>Monitor metrics</strong> to optimize pool configuration over time</li>
+                    <li><strong>Use try-with-resources</strong> to ensure connections are always returned to pool</li>
+                </ol>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
