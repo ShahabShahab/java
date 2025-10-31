@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail: Best Practices & Advanced Topics</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        .best-practices {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .best-practices h3 {
+            margin-top: 0;
+        }
+        .best-practices ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .best-practices li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .best-practices li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        .best-practices.dont li::before {
+            content: "❌";
+        }
+        .checklist {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 18px;
+        }
+        .nav-links {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 8px;
+        }
+        .nav-links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .troubleshooting {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .troubleshooting h4 {
+            margin-top: 0;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Audit Trail: Best Practices & Advanced Topics</h1>
+        
+        <section class="section">
+            <h2>Best Practices</h2>
+
+            <div class="best-practices">
+                <h3>✅ DO:</h3>
+                
+                <h4>1. Use BaseEntity Pattern</h4>
+                <p>Create a base class to avoid code duplication:</p>
+                <div class="code-example">
+                    <code>@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class BaseEntity {<br>
+    // Audit fields here<br>
+}</code>
+                </div>
+                <p><strong>Benefits:</strong></p>
+                <ul>
+                    <li>Single place to maintain audit fields</li>
+                    <li>All entities automatically get auditing</li>
+                    <li>Easy to add new audit fields later</li>
+                </ul>
+
+                <h4>2. Enable JPA Auditing</h4>
+                <p>Always add <code>@EnableJpaAuditing</code> in configuration:</p>
+                <div class="code-example">
+                    <code>@Configuration<br>
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")<br>
+public class JpaAuditingConfiguration {<br>
+    // ...<br>
+}</code>
+                </div>
+
+                <h4>3. Provide AuditorAware</h4>
+                <p>Implement <code>AuditorAware</code> for <code>@CreatedBy</code>/<code>@LastModifiedBy</code>:</p>
+                <div class="code-example">
+                    <code>@Component<br>
+public class AuditorAwareImpl implements AuditorAware&lt;String&gt; {<br>
+    @Override<br>
+    public Optional&lt;String&gt; getCurrentAuditor() {<br>
+        // Get current user<br>
+        return Optional.of(getCurrentUsername());<br>
+    }<br>
+}</code>
+                </div>
+
+                <h4>4. Use updatable = false</h4>
+                <p>Prevent modification of <code>createdDate</code> and <code>createdBy</code>:</p>
+                <div class="code-example">
+                    <code>@CreatedDate<br>
+@Column(name = "created_date", nullable = false, updatable = false)<br>
+private LocalDateTime createdDate;<br><br>
+@CreatedBy<br>
+@Column(name = "created_by", updatable = false)<br>
+private String createdBy;</code>
+                </div>
+
+                <h4>5. Use Appropriate Types</h4>
+                <p>Use <code>LocalDateTime</code> for timestamps (Java 8+):</p>
+                <div class="code-example">
+                    <code>private LocalDateTime createdDate;  // ✅ Good<br>
+private Date createdDate;           // ⚠️ Legacy, avoid</code>
+                </div>
+
+                <h4>6. Handle Anonymous Users</h4>
+                <p>Provide a default value in <code>AuditorAware</code> for system operations:</p>
+                <div class="code-example">
+                    <code>public Optional&lt;String&gt; getCurrentAuditor() {<br>
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();<br><br>
+    if (auth == null || !auth.isAuthenticated()) {<br>
+        return Optional.of("SYSTEM"); // ✅ Default value<br>
+    }<br><br>
+    return Optional.of(auth.getName());<br>
+}</code>
+                </div>
+
+                <h4>7. Use @Version for Optimistic Locking</h4>
+                <p>Add version field to prevent concurrent update issues:</p>
+                <div class="code-example">
+                    <code>@Version<br>
+@Column(name = "version")<br>
+private Long version;</code>
+                </div>
+            </div>
+
+            <div class="best-practices dont">
+                <h3>❌ DON'T:</h3>
+
+                <h4>1. Don't Set Audit Fields Manually</h4>
+                <div class="bad">
+                    <strong>❌ BAD:</strong>
+                    <div class="code-example">
+                        <code>User user = new User();<br>
+user.setCreatedDate(LocalDateTime.now()); // Don't do this!<br>
+user.setCreatedBy("admin");               // Don't do this!<br>
+userRepository.save(user);</code>
+                    </div>
+                </div>
+                <div class="good">
+                    <strong>✅ GOOD:</strong>
+                    <div class="code-example">
+                        <code>User user = new User();<br>
+userRepository.save(user); // Spring handles it automatically!</code>
+                    </div>
+                </div>
+
+                <h4>2. Don't Forget @EnableJpaAuditing</h4>
+                <p>Auditing won't work without this annotation. Always check your configuration.</p>
+
+                <h4>3. Don't Make Audit Fields Nullable (for createdDate)</h4>
+                <div class="bad">
+                    <strong>❌ BAD:</strong>
+                    <div class="code-example">
+                        <code>@CreatedDate<br>
+@Column(name = "created_date") // nullable by default<br>
+private LocalDateTime createdDate;</code>
+                    </div>
+                </div>
+                <div class="good">
+                    <strong>✅ GOOD:</strong>
+                    <div class="code-example">
+                        <code>@CreatedDate<br>
+@Column(name = "created_date", nullable = false, updatable = false)<br>
+private LocalDateTime createdDate;</code>
+                    </div>
+                </div>
+
+                <h4>4. Don't Expose Audit Fields in DTOs</h4>
+                <p>Keep audit fields internal unless needed for audit reports:</p>
+                <div class="bad">
+                    <strong>❌ BAD:</strong> Exposing audit fields in API response
+                    <div class="code-example">
+                        <code>public class UserDto {<br>
+    private String username;<br>
+    private LocalDateTime createdDate;  // Usually not needed<br>
+    private String createdBy;           // Usually not needed<br>
+}</code>
+                    </div>
+                </div>
+                <div class="good">
+                    <strong>✅ GOOD:</strong> Only expose business fields
+                    <div class="code-example">
+                        <code>public class UserDto {<br>
+    private String username;<br>
+    private String email;<br>
+    // No audit fields unless specifically needed<br>
+}</code>
+                    </div>
+                </div>
+
+                <h4>5. Don't Update Created Fields</h4>
+                <p>Use <code>updatable = false</code> to prevent accidental modifications:</p>
+                <div class="code-example">
+                    <code>@CreatedDate<br>
+@Column(name = "created_date", updatable = false) // ✅ Prevents updates<br>
+private LocalDateTime createdDate;</code>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Advanced Patterns</h2>
+
+            <h3>Pattern 1: BaseEntity with Version (Optimistic Locking)</h3>
+            <div class="code-example">
+                <code>@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class BaseEntity {<br><br>
+    @Id<br>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)<br>
+    private Long id;<br><br>
+    @Version<br>
+    @Column(name = "version")<br>
+    private Long version; // Prevents concurrent update conflicts<br><br>
+    @CreatedDate<br>
+    @Column(name = "created_date", nullable = false, updatable = false)<br>
+    private LocalDateTime createdDate;<br><br>
+    @LastModifiedDate<br>
+    @Column(name = "last_modified_date")<br>
+    private LocalDateTime lastModifiedDate;<br><br>
+    @CreatedBy<br>
+    @Column(name = "created_by", updatable = false)<br>
+    private String createdBy;<br><br>
+    @LastModifiedBy<br>
+    @Column(name = "last_modified_by")<br>
+    private String lastModifiedBy;<br>
+}</code>
+            </div>
+
+            <h3>Pattern 2: BaseEntity with Soft Delete</h3>
+            <div class="code-example">
+                <code>@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class BaseEntity {<br><br>
+    // ... standard audit fields ...<br><br>
+    // Soft delete flag<br>
+    @Column(name = "deleted", nullable = false)<br>
+    private Boolean deleted = false;<br><br>
+    @Column(name = "deleted_date")<br>
+    private LocalDateTime deletedDate;<br><br>
+    @Column(name = "deleted_by")<br>
+    private String deletedBy;<br><br>
+    // Helper methods<br>
+    public void softDelete(String deletedBy) {<br>
+        this.deleted = true;<br>
+        this.deletedDate = LocalDateTime.now();<br>
+        this.deletedBy = deletedBy;<br>
+    }<br><br>
+    public void restore() {<br>
+        this.deleted = false;<br>
+        this.deletedDate = null;<br>
+        this.deletedBy = null;<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>Pattern 3: Separate BaseEntity for Different Audit Needs</h3>
+            <div class="code-example">
+                <code>// Minimal audit (only timestamps)<br>
+@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class TimestampedEntity {<br><br>
+    @Id<br>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)<br>
+    private Long id;<br><br>
+    @CreatedDate<br>
+    @Column(name = "created_date", nullable = false, updatable = false)<br>
+    private LocalDateTime createdDate;<br><br>
+    @LastModifiedDate<br>
+    @Column(name = "last_modified_date")<br>
+    private LocalDateTime lastModifiedDate;<br>
+}<br><br>
+// Full audit (timestamps + user tracking)<br>
+@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class AuditedEntity extends TimestampedEntity {<br><br>
+    @CreatedBy<br>
+    @Column(name = "created_by", updatable = false)<br>
+    private String createdBy;<br><br>
+    @LastModifiedBy<br>
+    @Column(name = "last_modified_by")<br>
+    private String lastModifiedBy;<br>
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Troubleshooting</h2>
+
+            <div class="troubleshooting">
+                <h4>Problem: Audit fields are not being populated</h4>
+                <p><strong>Checklist:</strong></p>
+                <ol>
+                    <li>✅ Is <code>@EnableJpaAuditing</code> present in your configuration?</li>
+                    <li>✅ Is <code>@EntityListeners(AuditingEntityListener.class)</code> on your entity or base class?</li>
+                    <li>✅ Are you using <code>repository.save()</code>? (not raw SQL or other methods)</li>
+                    <li>✅ Are database columns present in the table?</li>
+                    <li>✅ Is the entity actually being saved? (check if transaction is committed)</li>
+                </ol>
+                <p><strong>Solution:</strong></p>
+                <div class="code-example">
+                    <code>// ✅ Use repository.save()<br>
+User user = new User();<br>
+userRepository.save(user); // Audit fields populated<br><br>
+// ❌ Raw SQL won't trigger auditing<br>
+entityManager.createNativeQuery("INSERT INTO ...").executeUpdate();</code>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Problem: <code>@CreatedBy</code> and <code>@LastModifiedBy</code> are null</h4>
+                <p><strong>Checklist:</strong></p>
+                <ol>
+                    <li>✅ Is <code>AuditorAware</code> bean registered?</li>
+                    <li>✅ Does <code>@EnableJpaAuditing(auditorAwareRef = "auditorAware")</code> reference your bean?</li>
+                    <li>✅ Does <code>SecurityContextHolder</code> have an authenticated user?</li>
+                    <li>✅ Does <code>AuditorAware.getCurrentAuditor()</code> return a non-empty <code>Optional</code>?</li>
+                </ol>
+                <p><strong>Solution:</strong></p>
+                <div class="code-example">
+                    <code>@Component<br>
+public class AuditorAwareImpl implements AuditorAware&lt;String&gt; {<br>
+    @Override<br>
+    public Optional&lt;String&gt; getCurrentAuditor() {<br>
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();<br><br>
+        if (auth == null || !auth.isAuthenticated()) {<br>
+            return Optional.of("SYSTEM"); // ✅ Always return a value<br>
+        }<br><br>
+        return Optional.of(auth.getName());<br>
+    }<br>
+}</code>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Problem: Timestamps are in wrong timezone</h4>
+                <p><strong>Solution:</strong> Configure timezone in <code>application.properties</code>:</p>
+                <div class="code-example">
+                    <code># Use UTC timezone<br>
+spring.jpa.properties.hibernate.jdbc.time_zone=UTC</code>
+                </div>
+                <p>Or configure at database level:</p>
+                <div class="code-example">
+                    <code>-- PostgreSQL<br>
+SET timezone = 'UTC';<br><br>
+-- MySQL<br>
+SET time_zone = '+00:00';</code>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Problem: <code>createdDate</code> is null after save</h4>
+                <p><strong>Possible Causes:</strong></p>
+                <ol>
+                    <li><code>@EnableJpaAuditing</code> is missing</li>
+                    <li><code>@EntityListeners(AuditingEntityListener.class)</code> is missing</li>
+                    <li>Using raw SQL instead of <code>repository.save()</code></li>
+                    <li>Transaction not committed (check transaction boundaries)</li>
+                </ol>
+                <p><strong>Solution:</strong></p>
+                <div class="code-example">
+                    <code>@Transactional // Ensure transaction is active<br>
+public User createUser(String username) {<br>
+    User user = new User(username);<br>
+    return userRepository.save(user); // Audit fields should be populated<br>
+}</code>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Problem: Audit fields update on reads</h4>
+                <p><strong>This shouldn't happen!</strong> If it does:</p>
+                <ul>
+                    <li>Check that you're not calling <code>save()</code> after just reading</li>
+                    <li>Verify <code>updatable = false</code> on <code>@CreatedDate</code> and <code>@CreatedBy</code></li>
+                    <li>Check for custom listeners or interceptors that might trigger saves</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Comparison: Without vs With Audit Trail</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Without Audit Trail</th>
+                        <th>With Audit Trail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Know when created</strong></td>
+                        <td>❌ No</td>
+                        <td>✅ Yes (automatic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Know when modified</strong></td>
+                        <td>❌ No</td>
+                        <td>✅ Yes (automatic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Know who created</strong></td>
+                        <td>❌ No</td>
+                        <td>✅ Yes (automatic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Know who modified</strong></td>
+                        <td>❌ No</td>
+                        <td>✅ Yes (automatic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compliance</strong></td>
+                        <td>❌ Not compliant</td>
+                        <td>✅ Compliant</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Debugging</strong></td>
+                        <td>❌ Hard</td>
+                        <td>✅ Easy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Code Maintenance</strong></td>
+                        <td>Manual tracking</td>
+                        <td>Automatic</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Summary Checklist</h2>
+
+            <div class="checklist">
+                <h3>Setup Checklist</h3>
+                <ul>
+                    <li>Created <code>BaseEntity</code> with audit fields</li>
+                    <li>Added <code>@MappedSuperclass</code> annotation</li>
+                    <li>Added <code>@EntityListeners(AuditingEntityListener.class)</code></li>
+                    <li>Used <code>updatable = false</code> on <code>@CreatedDate</code> and <code>@CreatedBy</code></li>
+                    <li>Created <code>JpaAuditingConfiguration</code> class</li>
+                    <li>Added <code>@EnableJpaAuditing</code> annotation</li>
+                    <li>Implemented <code>AuditorAware</code> for user tracking</li>
+                    <li>Registered <code>AuditorAware</code> bean in configuration</li>
+                    <li>Updated database schema with audit columns</li>
+                    <li>Extended <code>BaseEntity</code> in entity classes</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h3>Code Quality Checklist</h3>
+                <ul>
+                    <li>Not setting audit fields manually</li>
+                    <li>Using <code>repository.save()</code> (not raw SQL)</li>
+                    <li><code>createdDate</code> is <code>NOT NULL</code> in database</li>
+                    <li><code>AuditorAware</code> handles anonymous users (returns default)</li>
+                    <li>Audit fields not exposed in DTOs (unless needed)</li>
+                    <li>Testing with authenticated users</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="highlight">
+                <h2>Key Takeaway 🎯</h2>
+                <p><strong>Best Practices Summary:</strong></p>
+                <ol>
+                    <li>✅ <strong>Use BaseEntity pattern</strong> - Avoid duplication</li>
+                    <li>✅ <strong>Enable JPA Auditing</strong> - Required for functionality</li>
+                    <li>✅ <strong>Provide AuditorAware</strong> - For user tracking</li>
+                    <li>✅ <strong>Use updatable = false</strong> - Protect creation fields</li>
+                    <li>✅ <strong>Handle anonymous users</strong> - Always return a value</li>
+                    <li>❌ <strong>Never set audit fields manually</strong> - Let Spring handle it</li>
+                    <li>❌ <strong>Don't expose audit fields</strong> - Keep them internal</li>
+                </ol>
+                <p><strong>Remember</strong>: Audit trail should work automatically. If you're manually setting audit fields, you're doing something wrong!</p>
+            </div>
+        </section>
+
+        <div class="nav-links">
+            <strong>Related Guides:</strong>
+            <a href="audit-trail-introduction.html">← Introduction</a>
+            <a href="audit-trail-setup.html">← Setup</a>
+            <a href="audit-trail-implementation.html">← Implementation</a>
+        </div>
+    </div>
+</body>
+</html>
+

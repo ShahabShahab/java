@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail: Implementation Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .nav-links {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 8px;
+        }
+        .nav-links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .process-flow {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            line-height: 1.8;
+        }
+        .file-list {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .file-list h4 {
+            margin-top: 0;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Audit Trail: Implementation Guide</h1>
+        
+        <section class="section">
+            <h2>Overview</h2>
+            <p>This guide shows you how to:</p>
+            <ol>
+                <li>Configure user tracking with <code>AuditorAware</code></li>
+                <li>Use <code>BaseEntity</code> in your entities</li>
+                <li>See audit trail automatically populate fields</li>
+                <li>Understand how it works under the hood</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Step 1: Configure User Tracking (AuditorAware)</h2>
+            <p>For <code>@CreatedBy</code> and <code>@LastModifiedBy</code> to work, you need to provide an <code>AuditorAware</code> bean that tells Spring who the current user is.</p>
+
+            <h3>AuditorAware Implementation</h3>
+            <div class="code-example">
+                <code>package com.example.config;<br><br>
+import org.springframework.data.domain.AuditorAware;<br>
+import org.springframework.security.core.Authentication;<br>
+import org.springframework.security.core.context.SecurityContextHolder;<br>
+import org.springframework.stereotype.Component;<br><br>
+import java.util.Optional;<br><br>
+@Component<br>
+public class AuditorAwareImpl implements AuditorAware&lt;String&gt; {<br><br>
+    @Override<br>
+    public Optional&lt;String&gt; getCurrentAuditor() {<br>
+        // Get current authenticated user<br>
+        Authentication authentication = <br>
+            SecurityContextHolder.getContext().getAuthentication();<br><br>
+        if (authentication == null || !authentication.isAuthenticated()) {<br>
+            return Optional.of("SYSTEM"); // Default for system operations<br>
+        }<br><br>
+        // Extract username from authentication<br>
+        String username = authentication.getName();<br>
+        return Optional.of(username);<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>Register AuditorAware in Configuration</h3>
+            <p>Update your <code>JpaAuditingConfiguration</code> to reference the <code>AuditorAware</code>:</p>
+            <div class="code-example">
+                <code>package com.example.config;<br><br>
+import org.springframework.context.annotation.Bean;<br>
+import org.springframework.context.annotation.Configuration;<br>
+import org.springframework.data.domain.AuditorAware;<br>
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;<br><br>
+@Configuration<br>
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")<br>
+public class JpaAuditingConfiguration {<br><br>
+    @Bean<br>
+    public AuditorAware&lt;String&gt; auditorAware() {<br>
+        return new AuditorAwareImpl();<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>Alternative: Using UUID for User ID</h3>
+            <p>If your user IDs are UUIDs instead of Strings:</p>
+            <div class="code-example">
+                <code>@Component<br>
+public class AuditorAwareImpl implements AuditorAware&lt;UUID&gt; {<br><br>
+    @Override<br>
+    public Optional&lt;UUID&gt; getCurrentAuditor() {<br>
+        Authentication authentication = <br>
+            SecurityContextHolder.getContext().getAuthentication();<br><br>
+        if (authentication == null || !authentication.isAuthenticated()) {<br>
+            return Optional.empty();<br>
+        }<br><br>
+        // If your user principal has a UUID<br>
+        UserPrincipal userPrincipal = <br>
+            (UserPrincipal) authentication.getPrincipal();<br>
+        return Optional.of(userPrincipal.getUserId());<br>
+    }<br>
+}</code>
+            </div>
+            <div class="warning">
+                <strong>Note</strong>: Make sure <code>BaseEntity</code> uses the same type (<code>String</code> or <code>UUID</code>) for <code>createdBy</code> and <code>lastModifiedBy</code> fields.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Step 2: Use BaseEntity in Your Entities</h2>
+            <p>Now extend <code>BaseEntity</code> in your entity classes:</p>
+
+            <h3>Example: User Entity</h3>
+            <div class="code-example">
+                <code>package com.example.entity;<br><br>
+import javax.persistence.*;<br><br>
+@Entity<br>
+@Table(name = "app_user")<br>
+public class User extends BaseEntity {<br><br>
+    @Column(name = "user_name", unique = true, nullable = false)<br>
+    private String username;<br><br>
+    @Column(name = "email")<br>
+    private String email;<br><br>
+    @Column(name = "password")<br>
+    private String password;<br><br>
+    @Column(name = "status")<br>
+    @Enumerated(EnumType.STRING)<br>
+    private UserStatus status;<br><br>
+    // Constructors, getters, setters...<br>
+}</code>
+            </div>
+
+            <div class="highlight">
+                <strong>Notice</strong>: The <code>User</code> entity automatically inherits:
+                <ul>
+                    <li><code>id</code> (from <code>BaseEntity</code>)</li>
+                    <li><code>createdDate</code> (from <code>BaseEntity</code>)</li>
+                    <li><code>lastModifiedDate</code> (from <code>BaseEntity</code>)</li>
+                    <li><code>createdBy</code> (from <code>BaseEntity</code>)</li>
+                    <li><code>lastModifiedBy</code> (from <code>BaseEntity</code>)</li>
+                </ul>
+                <strong>You don't need to declare these fields again!</strong>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Step 3: How Audit Trail Works</h2>
+
+            <h3>When Creating a New Entity</h3>
+            <div class="code-example">
+                <code>@Service<br>
+public class UserService {<br><br>
+    @Autowired<br>
+    private UserRepository userRepository;<br><br>
+    public User createUser(String username, String email) {<br>
+        // Create new user - NO need to set audit fields manually!<br>
+        User user = new User(username, email, UserStatus.ACTIVE);<br><br>
+        // When saved, Spring automatically sets:<br>
+        // - createdDate = current timestamp<br>
+        // - createdBy = current authenticated user (from AuditorAware)<br>
+        // - lastModifiedDate = current timestamp<br>
+        // - lastModifiedBy = current authenticated user<br>
+        User savedUser = userRepository.save(user);<br><br>
+        return savedUser;<br>
+    }<br>
+}</code>
+            </div>
+
+            <h4>What happens internally:</h4>
+            <div class="process-flow">
+                <code>1. You call userRepository.save(user)<br>
+2. AuditingEntityListener intercepts the save operation<br>
+3. For new entities:<br>
+   - @CreatedDate → Sets createdDate = LocalDateTime.now()<br>
+   - @CreatedBy → Calls AuditorAware.getCurrentAuditor() → Sets createdBy<br>
+   - @LastModifiedDate → Sets lastModifiedDate = LocalDateTime.now()<br>
+   - @LastModifiedBy → Calls AuditorAware.getCurrentAuditor() → Sets lastModifiedBy<br>
+4. Entity is saved to database with all audit fields populated</code>
+            </div>
+
+            <h4>Result in Database:</h4>
+            <div class="code-example">
+                <code>id: 1<br>
+username: "john_doe"<br>
+email: "john@example.com"<br>
+status: "ACTIVE"<br>
+created_date: 2024-01-15 10:30:00      ← Auto-filled!<br>
+created_by: "admin_user"                 ← Auto-filled!<br>
+last_modified_date: 2024-01-15 10:30:00 ← Auto-filled!<br>
+last_modified_by: "admin_user"          ← Auto-filled!</code>
+            </div>
+
+            <h3>When Updating an Entity</h3>
+            <div class="code-example">
+                <code>public User updateUserEmail(Long userId, String newEmail) {<br>
+    User user = userRepository.findById(userId)<br>
+        .orElseThrow(() -> new EntityNotFoundException());<br><br>
+    // Update the email<br>
+    user.setEmail(newEmail);<br><br>
+    // When saved, Spring automatically updates:<br>
+    // - lastModifiedDate = current timestamp<br>
+    // - lastModifiedBy = current authenticated user<br>
+    // Note: createdDate and createdBy remain unchanged (updatable = false)<br>
+    return userRepository.save(user);<br>
+}</code>
+            </div>
+
+            <h4>What happens internally:</h4>
+            <div class="process-flow">
+                <code>1. You call userRepository.save(user) on an existing entity<br>
+2. AuditingEntityListener detects this is an update<br>
+3. For existing entities:<br>
+   - @CreatedDate → NOT updated (because updatable = false)<br>
+   - @CreatedBy → NOT updated (because updatable = false)<br>
+   - @LastModifiedDate → Updates to LocalDateTime.now()<br>
+   - @LastModifiedBy → Calls AuditorAware.getCurrentAuditor() → Updates<br>
+4. Entity is saved with updated audit fields</code>
+            </div>
+
+            <h4>Result in Database:</h4>
+            <div class="code-example">
+                <code>id: 1<br>
+username: "john_doe"<br>
+email: "john_new@example.com"  ← Changed<br>
+status: "ACTIVE"<br>
+created_date: 2024-01-15 10:30:00      ← Unchanged! (updatable = false)<br>
+created_by: "admin_user"               ← Unchanged! (updatable = false)<br>
+last_modified_date: 2024-01-15 14:45:00 ← Updated!<br>
+last_modified_by: "john_doe"            ← Updated! (different user)</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Complete Working Example</h2>
+
+            <div class="file-list">
+                <h4>Full Implementation Files</h4>
+                <p>The following files show a complete working implementation:</p>
+            </div>
+
+            <h3>1. BaseEntity.java</h3>
+            <div class="code-example">
+                <code>package com.example.entity;<br><br>
+import org.springframework.data.annotation.CreatedDate;<br>
+import org.springframework.data.annotation.LastModifiedDate;<br>
+import org.springframework.data.annotation.CreatedBy;<br>
+import org.springframework.data.annotation.LastModifiedBy;<br>
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;<br><br>
+import javax.persistence.*;<br>
+import java.time.LocalDateTime;<br><br>
+@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class BaseEntity {<br><br>
+    @Id<br>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)<br>
+    private Long id;<br><br>
+    @CreatedDate<br>
+    @Column(name = "created_date", nullable = false, updatable = false)<br>
+    private LocalDateTime createdDate;<br><br>
+    @LastModifiedDate<br>
+    @Column(name = "last_modified_date")<br>
+    private LocalDateTime lastModifiedDate;<br><br>
+    @CreatedBy<br>
+    @Column(name = "created_by", updatable = false)<br>
+    private String createdBy;<br><br>
+    @LastModifiedBy<br>
+    @Column(name = "last_modified_by")<br>
+    private String lastModifiedBy;<br><br>
+    // Getters and setters...<br>
+}</code>
+            </div>
+
+            <h3>2. User.java</h3>
+            <div class="code-example">
+                <code>package com.example.entity;<br><br>
+import javax.persistence.*;<br><br>
+@Entity<br>
+@Table(name = "app_user")<br>
+public class User extends BaseEntity {<br><br>
+    @Column(name = "user_name", unique = true, nullable = false)<br>
+    private String username;<br><br>
+    @Column(name = "email")<br>
+    private String email;<br><br>
+    @Column(name = "password")<br>
+    private String password;<br><br>
+    @Column(name = "status")<br>
+    @Enumerated(EnumType.STRING)<br>
+    private UserStatus status;<br><br>
+    // Constructors, getters, setters...<br>
+}</code>
+            </div>
+
+            <h3>3. AuditorAwareImpl.java</h3>
+            <div class="code-example">
+                <code>package com.example.config;<br><br>
+import org.springframework.data.domain.AuditorAware;<br>
+import org.springframework.security.core.Authentication;<br>
+import org.springframework.security.core.context.SecurityContextHolder;<br>
+import org.springframework.stereotype.Component;<br><br>
+import java.util.Optional;<br><br>
+@Component<br>
+public class AuditorAwareImpl implements AuditorAware&lt;String&gt; {<br><br>
+    @Override<br>
+    public Optional&lt;String&gt; getCurrentAuditor() {<br>
+        Authentication authentication = <br>
+            SecurityContextHolder.getContext().getAuthentication();<br><br>
+        if (authentication == null || !authentication.isAuthenticated()) {<br>
+            return Optional.of("SYSTEM");<br>
+        }<br><br>
+        return Optional.of(authentication.getName());<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>4. JpaAuditingConfiguration.java</h3>
+            <div class="code-example">
+                <code>package com.example.config;<br><br>
+import org.springframework.context.annotation.Bean;<br>
+import org.springframework.context.annotation.Configuration;<br>
+import org.springframework.data.domain.AuditorAware;<br>
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;<br><br>
+@Configuration<br>
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")<br>
+public class JpaAuditingConfiguration {<br><br>
+    @Bean<br>
+    public AuditorAware&lt;String&gt; auditorAware() {<br>
+        return new AuditorAwareImpl();<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>5. UserService.java</h3>
+            <div class="code-example">
+                <code>package com.example.service;<br><br>
+import com.example.entity.User;<br>
+import com.example.entity.UserStatus;<br>
+import com.example.repository.UserRepository;<br>
+import org.springframework.beans.factory.annotation.Autowired;<br>
+import org.springframework.stereotype.Service;<br><br>
+@Service<br>
+public class UserService {<br><br>
+    @Autowired<br>
+    private UserRepository userRepository;<br><br>
+    public User createUser(String username, String email) {<br>
+        User user = new User(username, email, UserStatus.ACTIVE);<br>
+        // Audit fields will be auto-populated!<br>
+        return userRepository.save(user);<br>
+    }<br><br>
+    public User updateUser(Long userId, String newEmail) {<br>
+        User user = userRepository.findById(userId)<br>
+            .orElseThrow(() -> new RuntimeException("User not found"));<br><br>
+        user.setEmail(newEmail);<br>
+        // lastModifiedDate and lastModifiedBy will be auto-updated!<br>
+        return userRepository.save(user);<br>
+    }<br>
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Important Notes</h2>
+
+            <div class="good">
+                <h3>✅ DO:</h3>
+                <ul>
+                    <li>Use <code>repository.save()</code> method (auditing works with JPA lifecycle)</li>
+                    <li>Let Spring handle audit fields automatically</li>
+                    <li>Test with authenticated users (for <code>@CreatedBy</code>/<code>@LastModifiedBy</code>)</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <h3>❌ DON'T:</h3>
+                <ul>
+                    <li>Don't set audit fields manually</li>
+                    <li>Don't use raw SQL inserts (auditing won't work)</li>
+                    <li>Don't forget to authenticate users (or provide default in <code>AuditorAware</code>)</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="nav-links">
+            <strong>Navigation:</strong>
+            <a href="audit-trail-introduction.html">← Introduction</a>
+            <a href="audit-trail-setup.html">← Setup</a>
+            <a href="audit-trail-best-practices.html">→ Best Practices</a>
+        </div>
+    </div>
+</body>
+</html>
+

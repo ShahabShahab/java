@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail: Introduction and Concepts</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        .nav-links {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 8px;
+        }
+        .nav-links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Audit Trail: Introduction and Concepts</h1>
+        
+        <section class="section">
+            <h2>What is an Audit Trail?</h2>
+            <p>An <strong>Audit Trail</strong> is a record of changes made to data over time. In Spring Boot applications, it automatically tracks:</p>
+            <ul>
+                <li>📅 <strong>When</strong> an entity was created (<code>createdDate</code>)</li>
+                <li>📅 <strong>When</strong> an entity was last modified (<code>lastModifiedDate</code>)</li>
+                <li>👤 <strong>Who</strong> created the entity (<code>createdBy</code>)</li>
+                <li>👤 <strong>Who</strong> last modified the entity (<code>lastModifiedBy</code>)</li>
+            </ul>
+
+            <h3>Why Audit Trail Matters</h3>
+            
+            <div class="bad">
+                <strong>Without Audit Trail:</strong>
+                <ul>
+                    <li>❌ Can't tell when data was created</li>
+                    <li>❌ Can't tell when data was last changed</li>
+                    <li>❌ Can't identify who made changes</li>
+                    <li>❌ Difficult to debug issues</li>
+                    <li>❌ Non-compliant with regulations</li>
+                </ul>
+            </div>
+
+            <div class="good">
+                <strong>With Audit Trail:</strong>
+                <ul>
+                    <li>✅ Know exactly when records were created</li>
+                    <li>✅ Track all modifications with timestamps</li>
+                    <li>✅ Identify who made each change</li>
+                    <li>✅ Easy debugging and troubleshooting</li>
+                    <li>✅ Compliance-ready for regulations</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Real-World Use Cases</h2>
+            
+            <h3>1. Compliance & Regulations</h3>
+            <p>Many regulations require tracking data changes:</p>
+            <ul>
+                <li><strong>GDPR</strong>: Track personal data access and modifications</li>
+                <li><strong>SOX (Sarbanes-Oxley)</strong>: Financial records must be auditable</li>
+                <li><strong>HIPAA</strong>: Healthcare data changes must be logged</li>
+                <li><strong>PCI-DSS</strong>: Payment card data modifications need tracking</li>
+            </ul>
+
+            <h3>2. Debugging & Troubleshooting</h3>
+            <p><strong>Scenario</strong>: A customer reports their order status changed unexpectedly.</p>
+            
+            <div class="bad">
+                <strong>Without Audit Trail:</strong>
+                <div class="code-example">
+                    <code>Manager: "Who changed this order?"<br>
+Developer: "I don't know... maybe someone yesterday?"</code>
+                </div>
+            </div>
+
+            <div class="good">
+                <strong>With Audit Trail:</strong>
+                <div class="code-example">
+                    <code>Manager: "Who changed this order?"<br>
+Developer: "Let me check... it was changed by 'admin_john' <br>
+           on 2024-01-15 at 14:30:00"</code>
+                </div>
+            </div>
+
+            <h3>3. Security & Detection</h3>
+            <p>Track unauthorized access or suspicious changes:</p>
+            <ul>
+                <li>Detect if someone modified critical data</li>
+                <li>Identify patterns of unauthorized changes</li>
+                <li>Audit logs for security investigations</li>
+            </ul>
+
+            <h3>4. Audit Reports</h3>
+            <p>Generate reports showing:</p>
+            <ul>
+                <li>Change history of records</li>
+                <li>User activity logs</li>
+                <li>Data modification trends</li>
+                <li>Compliance reports</li>
+            </ul>
+
+            <h3>5. Data Recovery</h3>
+            <p>When something breaks:</p>
+            <ul>
+                <li>Know what changed and when</li>
+                <li>Identify which changes caused issues</li>
+                <li>Restore to previous states if needed</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Spring Data JPA Audit Annotations</h2>
+            <p>Spring Data JPA provides four main annotations to automatically manage audit fields:</p>
+
+            <h3>Core Audit Annotations</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Annotation</th>
+                        <th>Purpose</th>
+                        <th>Field Type</th>
+                        <th>Auto-Populated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>@CreatedDate</code></td>
+                        <td>Sets creation timestamp</td>
+                        <td><code>LocalDateTime</code>, <code>Date</code>, <code>Instant</code></td>
+                        <td>✅ On create</td>
+                    </tr>
+                    <tr>
+                        <td><code>@LastModifiedDate</code></td>
+                        <td>Updates modification timestamp</td>
+                        <td><code>LocalDateTime</code>, <code>Date</code>, <code>Instant</code></td>
+                        <td>✅ On every save</td>
+                    </tr>
+                    <tr>
+                        <td><code>@CreatedBy</code></td>
+                        <td>Stores who created the entity</td>
+                        <td><code>String</code>, <code>Long</code>, <code>UUID</code></td>
+                        <td>✅ On create (requires config)</td>
+                    </tr>
+                    <tr>
+                        <td><code>@LastModifiedBy</code></td>
+                        <td>Stores who last modified</td>
+                        <td><code>String</code>, <code>Long</code>, <code>UUID</code></td>
+                        <td>✅ On every save (requires config)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>How Audit Annotations Work</h2>
+
+            <h3>Automatic Timestamp Tracking</h3>
+            <p><strong><code>@CreatedDate</code></strong>:</p>
+            <ul>
+                <li>Automatically set when entity is first saved</li>
+                <li>Never changes after initial creation</li>
+                <li>Should use <code>updatable = false</code></li>
+            </ul>
+
+            <p><strong><code>@LastModifiedDate</code></strong>:</p>
+            <ul>
+                <li>Automatically set when entity is first saved</li>
+                <li>Updates every time entity is saved</li>
+                <li>Always reflects the latest modification time</li>
+            </ul>
+
+            <h3>User Tracking (Requires Configuration)</h3>
+            <p><strong><code>@CreatedBy</code></strong>:</p>
+            <ul>
+                <li>Stores who created the entity</li>
+                <li>Requires <code>AuditorAware</code> implementation</li>
+                <li>Set once on creation, typically non-updatable</li>
+            </ul>
+
+            <p><strong><code>@LastModifiedBy</code></strong>:</p>
+            <ul>
+                <li>Stores who last modified the entity</li>
+                <li>Requires <code>AuditorAware</code> implementation</li>
+                <li>Updates every time entity is modified</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Example: What Gets Tracked</h2>
+
+            <h3>Database Record Before Audit Trail</h3>
+            <div class="code-example">
+                <code>SELECT * FROM app_user WHERE id = 1;<br><br>
+id  | username | email           | status<br>
+----|----------|-----------------|--------<br>
+1   | john_doe | john@example.com| ACTIVE<br><br>
+-- ❌ No information about:<br>
+--    - When was this created?<br>
+--    - Who created it?<br>
+--    - When was it last modified?<br>
+--    - Who modified it?</code>
+            </div>
+
+            <h3>Database Record With Audit Trail</h3>
+            <div class="code-example">
+                <code>SELECT * FROM app_user WHERE id = 1;<br><br>
+id  | username | email           | status | created_date        | created_by | last_modified_date  | last_modified_by<br>
+----|----------|-----------------|--------|---------------------|------------|---------------------|------------------<br>
+1   | john_doe | john@example.com| ACTIVE | 2024-01-15 10:30:00 | admin      | 2024-01-16 14:45:00 | john_doe<br><br>
+-- ✅ Complete information:<br>
+--    - Created: 2024-01-15 10:30:00 by 'admin'<br>
+--    - Last modified: 2024-01-16 14:45:00 by 'john_doe'</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Quick Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Without Audit Trail</th>
+                        <th>With Audit Trail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Creation Time</strong></td>
+                        <td>❌ Unknown</td>
+                        <td>✅ Automatic tracking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modification Time</strong></td>
+                        <td>❌ Unknown</td>
+                        <td>✅ Automatic tracking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Who Created</strong></td>
+                        <td>❌ Unknown</td>
+                        <td>✅ Automatic tracking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Who Modified</strong></td>
+                        <td>❌ Unknown</td>
+                        <td>✅ Automatic tracking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compliance</strong></td>
+                        <td>❌ Not compliant</td>
+                        <td>✅ Compliant</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Debugging</strong></td>
+                        <td>❌ Difficult</td>
+                        <td>✅ Easy traceability</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>❌ No change tracking</td>
+                        <td>✅ Full audit log</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Implementation</strong></td>
+                        <td>Manual timestamps</td>
+                        <td>Automatic via annotations</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <div class="highlight">
+                <h2>Key Takeaway 🎯</h2>
+                <p><strong>Audit Trail</strong> provides automatic, compliance-ready tracking of <strong>who</strong> changed data and <strong>when</strong> - without writing manual tracking code. It's essential for production applications that need traceability, debugging capabilities, and regulatory compliance.</p>
+            </div>
+        </section>
+
+        <div class="nav-links">
+            <strong>Next Steps:</strong>
+            <a href="audit-trail-setup.html">→ Setup Guide</a>
+            <a href="audit-trail-implementation.html">→ Implementation Guide</a>
+            <a href="audit-trail-best-practices.html">→ Best Practices</a>
+        </div>
+    </div>
+</body>
+</html>
+

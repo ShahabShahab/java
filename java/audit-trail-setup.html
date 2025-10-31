@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail: Setup and Base Entity</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .checklist {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 18px;
+        }
+        .nav-links {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 8px;
+        }
+        .nav-links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .annotation-explanation {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .annotation-explanation h4 {
+            margin-top: 0;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Audit Trail: Setup and Base Entity</h1>
+        
+        <section class="section">
+            <h2>Overview</h2>
+            <p>This guide shows you how to set up audit trail in Spring Boot by:</p>
+            <ol>
+                <li>Creating a <code>BaseEntity</code> class with audit fields</li>
+                <li>Enabling JPA Auditing in your application</li>
+                <li>Understanding the key annotations and their purpose</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Step 1: Create BaseEntity</h2>
+            <p>The most common pattern is creating a base entity class that all your entities can extend. This avoids code duplication.</p>
+
+            <h3>BaseEntity.java</h3>
+            <div class="code-example">
+                <code>package com.example.entity;<br><br>
+import org.springframework.data.annotation.CreatedDate;<br>
+import org.springframework.data.annotation.LastModifiedDate;<br>
+import org.springframework.data.annotation.CreatedBy;<br>
+import org.springframework.data.annotation.LastModifiedBy;<br>
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;<br><br>
+import javax.persistence.*;<br>
+import java.time.LocalDateTime;<br><br>
+@MappedSuperclass<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public abstract class BaseEntity {<br><br>
+    @Id<br>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)<br>
+    private Long id;<br><br>
+    @CreatedDate<br>
+    @Column(name = "created_date", nullable = false, updatable = false)<br>
+    private LocalDateTime createdDate;<br><br>
+    @LastModifiedDate<br>
+    @Column(name = "last_modified_date")<br>
+    private LocalDateTime lastModifiedDate;<br><br>
+    @CreatedBy<br>
+    @Column(name = "created_by", updatable = false)<br>
+    private String createdBy;<br><br>
+    @LastModifiedBy<br>
+    @Column(name = "last_modified_by")<br>
+    private String lastModifiedBy;<br><br>
+    // Getters and Setters...<br>
+}</code>
+            </div>
+
+            <h3>Key Annotations Explained</h3>
+
+            <div class="annotation-explanation">
+                <h4><code>@MappedSuperclass</code></h4>
+                <ul>
+                    <li>Tells JPA this is not an entity itself</li>
+                    <li>Fields will be inherited by entities that extend this class</li>
+                    <li>No table is created for <code>BaseEntity</code></li>
+                </ul>
+            </div>
+
+            <div class="annotation-explanation">
+                <h4><code>@EntityListeners(AuditingEntityListener.class)</code></h4>
+                <ul>
+                    <li>Enables automatic audit field population</li>
+                    <li>Listens to entity lifecycle events (save, update)</li>
+                    <li>Automatically fills audit fields when entity is saved</li>
+                </ul>
+            </div>
+
+            <div class="annotation-explanation">
+                <h4><code>@CreatedDate</code></h4>
+                <ul>
+                    <li>Automatically sets the creation timestamp</li>
+                    <li>Only set once when entity is first saved</li>
+                    <li>Uses <code>updatable = false</code> to prevent changes</li>
+                </ul>
+            </div>
+
+            <div class="annotation-explanation">
+                <h4><code>@LastModifiedDate</code></h4>
+                <ul>
+                    <li>Automatically updates the modification timestamp</li>
+                    <li>Updates every time the entity is saved</li>
+                </ul>
+            </div>
+
+            <div class="annotation-explanation">
+                <h4><code>@CreatedBy</code> / <code>@LastModifiedBy</code></h4>
+                <ul>
+                    <li>Track who created/modified the entity</li>
+                    <li>Requires <code>AuditorAware</code> implementation (see next guide)</li>
+                    <li><code>@CreatedBy</code> uses <code>updatable = false</code> to prevent changes</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Step 2: Enable JPA Auditing</h2>
+            <p>You must enable JPA auditing in your Spring Boot application. Choose one of these methods:</p>
+
+            <h3>Option A: Configuration Class (Recommended)</h3>
+            <p>Create a dedicated configuration class:</p>
+            <div class="code-example">
+                <code>package com.example.config;<br><br>
+import org.springframework.context.annotation.Configuration;<br>
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;<br><br>
+@Configuration<br>
+@EnableJpaAuditing<br>
+public class JpaAuditingConfiguration {<br>
+    // This enables JPA auditing for the entire application<br>
+}</code>
+            </div>
+
+            <h3>Option B: Main Application Class</h3>
+            <p>Add the annotation to your main application class:</p>
+            <div class="code-example">
+                <code>package com.example;<br><br>
+import org.springframework.boot.SpringApplication;<br>
+import org.springframework.boot.autoconfigure.SpringBootApplication;<br>
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;<br><br>
+@SpringBootApplication<br>
+@EnableJpaAuditing<br>
+public class Application {<br>
+    public static void main(String[] args) {<br>
+        SpringApplication.run(Application.class, args);<br>
+    }<br>
+}</code>
+            </div>
+
+            <div class="highlight">
+                <strong>Recommendation</strong>: Use Option A (separate configuration class) for better organization.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Database Schema</h2>
+            <p>Your database tables need columns for audit fields. Here's an example schema:</p>
+
+            <h3>SQL Schema Example</h3>
+            <div class="code-example">
+                <code>CREATE TABLE app_user (<br>
+    id BIGSERIAL PRIMARY KEY,<br>
+    user_name VARCHAR(255) UNIQUE NOT NULL,<br>
+    email VARCHAR(255),<br>
+    password VARCHAR(255),<br>
+    status VARCHAR(50),<br>
+    <br>
+    -- Audit fields<br>
+    created_date TIMESTAMP NOT NULL,<br>
+    last_modified_date TIMESTAMP,<br>
+    created_by VARCHAR(255),<br>
+    last_modified_by VARCHAR(255)<br>
+);</code>
+            </div>
+
+            <h3>Important Points</h3>
+            <ol>
+                <li><strong><code>created_date</code></strong>: Should be <code>NOT NULL</code> - every record must have a creation time</li>
+                <li><strong><code>last_modified_date</code></strong>: Can be nullable (will be set on first save)</li>
+                <li><strong><code>created_by</code></strong>: Can be nullable (depends on your requirements)</li>
+                <li><strong><code>last_modified_by</code></strong>: Can be nullable (depends on your requirements)</li>
+                <li><strong>Timestamp Type</strong>: Use <code>TIMESTAMP</code> or <code>TIMESTAMP WITH TIME ZONE</code> depending on your database</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Quick Setup Checklist</h2>
+            <div class="checklist">
+                <ul>
+                    <li>Create <code>BaseEntity</code> class with audit fields</li>
+                    <li>Add <code>@MappedSuperclass</code> annotation</li>
+                    <li>Add <code>@EntityListeners(AuditingEntityListener.class)</code></li>
+                    <li>Add audit annotations (<code>@CreatedDate</code>, <code>@LastModifiedDate</code>, etc.)</li>
+                    <li>Create <code>JpaAuditingConfiguration</code> class</li>
+                    <li>Add <code>@EnableJpaAuditing</code> annotation</li>
+                    <li>Update database schema with audit columns</li>
+                    <li>Test with a simple entity (see next guide)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Common Issues</h2>
+
+            <h3>Issue: Audit fields not being populated</h3>
+            <p><strong>Checklist:</strong></p>
+            <ol>
+                <li>✅ Is <code>@EnableJpaAuditing</code> present?</li>
+                <li>✅ Is <code>@EntityListeners(AuditingEntityListener.class)</code> on your base class?</li>
+                <li>✅ Are you using <code>repository.save()</code> method?</li>
+                <li>✅ Are database columns present in the table?</li>
+            </ol>
+
+            <h3>Issue: <code>created_date</code> is null</h3>
+            <p><strong>Solution</strong>:</p>
+            <ul>
+                <li>Ensure <code>@CreatedDate</code> annotation is present</li>
+                <li>Check that <code>@EnableJpaAuditing</code> is enabled</li>
+                <li>Verify <code>updatable = false</code> is set (though this shouldn't cause null values)</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Alternative: Individual Entity Auditing</h2>
+            <p>If you don't want to use a base class, you can add auditing directly to individual entities:</p>
+
+            <div class="code-example">
+                <code>@Entity<br>
+@Table(name = "product")<br>
+@EntityListeners(AuditingEntityListener.class)<br>
+public class Product {<br><br>
+    @Id<br>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)<br>
+    private Long id;<br><br>
+    @Column(name = "name")<br>
+    private String name;<br><br>
+    @CreatedDate<br>
+    @Column(name = "created_date", nullable = false, updatable = false)<br>
+    private LocalDateTime createdDate;<br><br>
+    @LastModifiedDate<br>
+    @Column(name = "last_modified_date")<br>
+    private LocalDateTime lastModifiedDate;<br><br>
+    // ... other fields<br>
+}</code>
+            </div>
+
+            <div class="warning">
+                <strong>Note</strong>: This approach leads to code duplication. The <code>BaseEntity</code> pattern is recommended.
+            </div>
+        </section>
+
+        <div class="nav-links">
+            <strong>Navigation:</strong>
+            <a href="audit-trail-introduction.html">← Introduction</a>
+            <a href="audit-trail-implementation.html">→ Implementation Guide</a>
+            <a href="audit-trail-best-practices.html">→ Best Practices</a>
+        </div>
+    </div>
+</body>
+</html>
+
