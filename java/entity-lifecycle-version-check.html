@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Lifecycle: Version Check and Concurrency Control</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .state-table {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .state-table th {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .state-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .flow-diagram {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .timeline-table {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Entity Lifecycle: From Database to Memory and Version Checking</h1>
+        
+        <section class="section">
+            <h2>Overview</h2>
+            <p>This document explains how entities are loaded from the database into memory, modified, and how version checking prevents concurrent update conflicts.</p>
+            <div class="highlight">
+                <strong>Location</strong>: <code>src/main/java/ir/building/arzyabi/entity/BaseEntity.java</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>The Process: Load → Modify → Save</h2>
+
+            <h3>Step 1: Load Entity from Database to Memory</h3>
+            <div class="code-example">
+                <code>@Transactional<br>
+public void updateBuilding(UUID id, BuildingDto dto) {<br>
+    // Load entity: Database → Memory (RAM)<br>
+    Building building = buildingRepository.findById(id)<br>
+        .orElseThrow(...);<br>
+}</code>
+            </div>
+
+            <p><strong>What Happens</strong>:</p>
+            <ul>
+                <li>Hibernate executes: <code>SELECT * FROM bld__building WHERE id = ?</code></li>
+                <li>Database record is copied into a Java object in memory (RAM)</li>
+                <li>Entity object now exists in your application's memory</li>
+            </ul>
+
+            <h4>State After Load</h4>
+            <div class="state-table">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Database</th>
+                            <th>Memory (Java Object)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id = 123</td>
+                            <td>building.id = 123</td>
+                        </tr>
+                        <tr>
+                            <td>name = "Old"</td>
+                            <td>building.name = "Old"</td>
+                        </tr>
+                        <tr>
+                            <td>version = 5</td>
+                            <td>building.version = 5 ← Copied from DB</td>
+                        </tr>
+                        <tr>
+                            <td>area = 100.0</td>
+                            <td>building.area = 100.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Step 2: Modify Entity in Memory</h3>
+            <div class="code-example">
+                <code>building.setName("New Name");<br>
+building.setArea(150.0);</code>
+            </div>
+
+            <p><strong>What Happens</strong>:</p>
+            <ul>
+                <li>You modify fields in the Java object (in memory)</li>
+                <li><strong>Database is NOT changed yet</strong></li>
+                <li><strong>Version in memory stays the same</strong> (still 5)</li>
+            </ul>
+
+            <h4>State After Modification</h4>
+            <div class="state-table">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Database</th>
+                            <th>Memory (Java Object)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id = 123</td>
+                            <td>building.id = 123</td>
+                        </tr>
+                        <tr>
+                            <td>name = "Old"</td>
+                            <td>building.name = "New Name" ← Changed</td>
+                        </tr>
+                        <tr>
+                            <td>version = 5</td>
+                            <td>building.version = 5 ← Still 5!</td>
+                        </tr>
+                        <tr>
+                            <td>area = 100.0</td>
+                            <td>building.area = 150.0 ← Changed</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="warning">
+                <strong>Key Point</strong>: The <code>version</code> field in memory is still <code>5</code> because it was copied when you loaded the entity. It hasn't been refreshed from the database.
+            </div>
+
+            <h3>Step 3: Save - Version Check Happens</h3>
+            <div class="code-example">
+                <code>buildingRepository.save(building);</code>
+            </div>
+
+            <p><strong>What Hibernate Does</strong>:</p>
+            <ol>
+                <li><strong>Checks Version</strong>: Compares version in memory with version in database</li>
+                <li><strong>Generates SQL</strong>: Creates UPDATE statement with version check in WHERE clause</li>
+                <li><strong>Executes</strong>: Database checks if version matches</li>
+            </ol>
+
+            <h4>Generated SQL</h4>
+            <div class="code-example">
+                <code>UPDATE bld__building <br>
+SET name = 'New Name',<br>
+    area = 150.0,<br>
+    row_version = row_version + 1,  -- Will become 6<br>
+    updated = NOW()<br>
+WHERE id = '123' <br>
+  AND row_version = 5;  -- ← Version check happens here!</code>
+            </div>
+
+            <h4>Two Possible Outcomes</h4>
+
+            <div class="good">
+                <h4>✅ Success: Version Matches</h4>
+                <div class="code-example">
+                    <code>Memory version: 5<br>
+Database version: 5<br>
+→ Match! UPDATE affects 1 row<br>
+→ Version becomes 6 in database</code>
+                </div>
+            </div>
+
+            <div class="bad">
+                <h4>❌ Conflict: Version Doesn't Match</h4>
+                <div class="code-example">
+                    <code>Memory version: 5<br>
+Database version: 6  (someone else updated it)<br>
+→ No match! UPDATE affects 0 rows<br>
+→ Hibernate detects this and throws OptimisticLockException</code>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Visual Flow Diagram</h2>
+            <div class="flow-diagram">
+                <code>┌─────────────────────────────────────────────────────┐<br>
+│ STEP 1: Load from Database                          │<br>
+│ ─────────────────────────────────────────────────── │<br>
+│ Database → Memory                                    │<br>
+│                                                      │<br>
+│ Database:           Memory:                          │<br>
+│ version = 5    →    building.version = 5             │<br>
+│ name = "Old"   →    building.name = "Old"           │<br>
+└─────────────────────────────────────────────────────┘<br>
+                    │<br>
+                    ▼<br>
+┌─────────────────────────────────────────────────────┐<br>
+│ STEP 2: Modify in Memory                            │<br>
+│ ─────────────────────────────────────────────────── │<br>
+│ building.setName("New Name")                        │<br>
+│ building.setArea(150.0)                             │<br>
+│                                                      │<br>
+│ Memory State:                                       │<br>
+│ building.version = 5  ← STILL 5 (not incremented)   │<br>
+│ building.name = "New Name"                           │<br>
+│ building.area = 150.0                                │<br>
+│                                                      │<br>
+│ Database: (unchanged)                               │<br>
+│ version = 5                                         │<br>
+│ name = "Old"                                        │<br>
+└─────────────────────────────────────────────────────┘<br>
+                    │<br>
+                    ▼<br>
+┌─────────────────────────────────────────────────────┐<br>
+│ STEP 3: Save - Version Check                        │<br>
+│ ─────────────────────────────────────────────────── │<br>
+│ SQL:                                                │<br>
+│ UPDATE ...                                          │<br>
+│ SET row_version = row_version + 1                   │<br>
+│ WHERE id = ? AND row_version = 5  ← Check!          │<br>
+│                                                      │<br>
+│ If version matches (5 == 5):                         │<br>
+│   ✅ Success → version becomes 6                     │<br>
+│                                                      │<br>
+│ If version doesn't match (5 != 6):                  │<br>
+│   ❌ OptimisticLockException                         │<br>
+└─────────────────────────────────────────────────────┘</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Real-World Example: Concurrent Updates</h2>
+            <div class="timeline-table">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 8px;">Time</th>
+                            <th style="padding: 8px;">Action</th>
+                            <th style="padding: 8px;">Database</th>
+                            <th style="padding: 8px;">Memory (User A)</th>
+                            <th style="padding: 8px;">Memory (User B)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>T1</td>
+                            <td>User A loads</td>
+                            <td>v=5</td>
+                            <td>building.v=5</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>T2</td>
+                            <td>User A modifies</td>
+                            <td>v=5</td>
+                            <td>building.v=5</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>T3</td>
+                            <td></td>
+                            <td>v=5</td>
+                            <td></td>
+                            <td>User B loads</td>
+                        </tr>
+                        <tr>
+                            <td>T4</td>
+                            <td></td>
+                            <td>v=5</td>
+                            <td></td>
+                            <td>building.v=5</td>
+                        </tr>
+                        <tr>
+                            <td>T5</td>
+                            <td></td>
+                            <td>v=5</td>
+                            <td></td>
+                            <td>User B modifies</td>
+                        </tr>
+                        <tr>
+                            <td>T6</td>
+                            <td></td>
+                            <td>v=5</td>
+                            <td></td>
+                            <td>User B saves</td>
+                        </tr>
+                        <tr>
+                            <td>T7</td>
+                            <td></td>
+                            <td>v=6</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>T8</td>
+                            <td>User A saves</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr style="background: #fee2e2;">
+                            <td></td>
+                            <td>❌ Version check fails (5 ≠ 6)</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr style="background: #fee2e2;">
+                            <td></td>
+                            <td>OptimisticLockException</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Key Concepts</h2>
+
+            <h3>"Version in Memory"</h3>
+            <p>The <code>version</code> field stored in your Java object (in RAM) after loading from database.</p>
+            <ul>
+                <li><strong>Loaded</strong>: When you call <code>findById()</code>, version is copied from database to memory</li>
+                <li><strong>Modified</strong>: When you change other fields, version in memory stays the same</li>
+                <li><strong>Checked</strong>: When you call <code>save()</code>, Hibernate compares memory version vs database version</li>
+            </ul>
+
+            <h3>Version Check Mechanism</h3>
+            <p>Hibernate includes version in the UPDATE WHERE clause:</p>
+            <div class="code-example">
+                <code>WHERE id = ? AND row_version = ?</code>
+            </div>
+            <ul>
+                <li><strong>If match</strong>: UPDATE affects 1 row → Success</li>
+                <li><strong>If no match</strong>: UPDATE affects 0 rows → Hibernate throws exception</li>
+            </ul>
+
+            <h3>Why Version Doesn't Auto-Sync</h3>
+            <div class="highlight">
+                <p>The version in your Java object is a snapshot from when you loaded it. It doesn't automatically refresh when someone else updates the database. This is by design - it allows Hibernate to detect conflicts.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Code Example</h2>
+            <div class="code-example">
+                <code>@Transactional<br>
+public void updateBuilding(UUID id, BuildingDto dto) {<br>
+    // STEP 1: Load from database to memory<br>
+    Building building = buildingRepository.findById(id)<br>
+        .orElseThrow(() -> new BusinessException(...));<br><br>
+    // At this point:<br>
+    // - building object exists in memory<br>
+    // - building.version = 5 (copied from database)<br>
+    // - Database still has version = 5<br><br>
+    // STEP 2: Modify in memory<br>
+    building.setArea(dto.getArea());<br>
+    // building.version is STILL 5 (hasn't changed)<br>
+    // Database still has version = 5<br><br>
+    // STEP 3: Save - version check happens<br>
+    buildingRepository.save(building);<br>
+    // Hibernate generates:<br>
+    // UPDATE ... WHERE id = ? AND row_version = 5<br>
+    // <br>
+    // If database version is still 5:<br>
+    //   ✅ Match → UPDATE succeeds → version becomes 6<br>
+    // <br>
+    // If database version is 6 (someone else updated):<br>
+    //   ❌ No match → UPDATE affects 0 rows → OptimisticLockException<br>
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="highlight">
+                <h2>Summary 🎯</h2>
+                <ol>
+                    <li><strong>Load</strong>: Entity copied from database to memory (version copied too)</li>
+                    <li><strong>Modify</strong>: Change fields in memory (version in memory stays same)</li>
+                    <li><strong>Save</strong>: Hibernate checks if memory version matches database version
+                        <ul>
+                            <li><strong>Match</strong>: Save succeeds, version increments</li>
+                            <li><strong>No Match</strong>: <code>OptimisticLockException</code> thrown</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p><strong>Important</strong>: The version field in memory is a snapshot - it doesn't auto-refresh. This allows conflict detection.</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
