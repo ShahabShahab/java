@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimistic vs Pessimistic Locking: Concurrency Control</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .good {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .bad {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        .timeline {
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Optimistic vs Pessimistic Locking: Understanding Concurrency Control</h1>
+        
+        <section class="section">
+            <h2>Overview</h2>
+            <p>When multiple users or threads try to modify the same database record simultaneously, you need a strategy to prevent data corruption. There are two main approaches: <strong>Optimistic Locking</strong> and <strong>Pessimistic Locking</strong>.</p>
+            <div class="highlight">
+                <strong>Current Project Status</strong>: Most Spring Boot projects use <strong>Optimistic Locking</strong> via the <code>@Version</code> annotation in <code>BaseEntity</code>.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>The Problem: Concurrent Updates</h2>
+            <p>Imagine two users editing the same building record:</p>
+            <div class="code-example">
+                <code>User A: Loads Building → Changes area to 150.0 → Saves<br>
+User B: Loads Building → Changes name to "New Name" → Saves</code>
+            </div>
+            <div class="bad">
+                <strong>Without locking</strong>: Last save wins, potentially losing User A's or User B's changes silently.
+            </div>
+            <div class="good">
+                <strong>With locking</strong>: We detect and handle conflicts appropriately.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Optimistic Locking</h2>
+            
+            <h3>Conceptual Overview</h3>
+            <p><strong>Optimistic Locking</strong> assumes conflicts are rare. It allows multiple users to work on the same record simultaneously, but <strong>detects conflicts</strong> when saving.</p>
+            <div class="highlight">
+                <strong>Philosophy</strong>: "Let everyone work freely, but check for conflicts when saving."
+            </div>
+
+            <h3>How It Works</h3>
+            <ol>
+                <li><strong>Load</strong>: Entity is loaded from database (no lock applied)</li>
+                <li><strong>Modify</strong>: Changes are made to the entity in memory</li>
+                <li><strong>Save</strong>: Before saving, check if the record was modified by someone else</li>
+                <li><strong>Conflict Detection</strong>: If modified → throw exception; If not → save successfully</li>
+            </ol>
+
+            <h3>Visual Timeline</h3>
+            <div class="timeline">
+                <code>Time | User A                          | Database State      | User B<br>
+-----|--------------------------------|---------------------|------------------<br>
+T1   | Loads Building (version=5)      | version = 5         |<br>
+T2   | Modifies area → 150.0          | version = 5         | Loads Building (version=5)<br>
+T3   |                                | version = 5         | Modifies name → "New Name"<br>
+T4   |                                |                     | Saves → SUCCESS ✅<br>
+T5   |                                | version = 6         |<br>
+T6   | Tries to save...                |                     |<br>
+     | ❌ OptimisticLockException!     |                     |<br>
+     | (version mismatch: 5 ≠ 6)       |                     |</code>
+            </div>
+            <p><strong>Result</strong>:</p>
+            <ul>
+                <li>User B's change is saved successfully</li>
+                <li>User A's change is rejected (but User A is notified)</li>
+            </ul>
+
+            <h3>Implementation with @Version</h3>
+            <div class="code-example">
+                <code>@MappedSuperclass<br>
+public abstract class BaseEntity implements Serializable {<br><br>
+    @Version<br>
+    @Column(name = "row_version", nullable = false)<br>
+    private int version;<br><br>
+    // ... other fields<br>
+}</code>
+            </div>
+            <p><strong>How it works</strong>:</p>
+            <ul>
+                <li>Every entity that extends <code>BaseEntity</code> automatically gets a <code>version</code> field</li>
+                <li>On first save: <code>version = 0</code> (or <code>1</code>)</li>
+                <li>On each update: Hibernate automatically increments <code>version</code></li>
+                <li>Before save: Hibernate checks if version in memory matches version in database</li>
+            </ul>
+
+            <h3>SQL Behind the Scenes</h3>
+            <p>When you call <code>save()</code>:</p>
+            <div class="code-example">
+                <code>UPDATE bld__building <br>
+SET area = 150.0,<br>
+    row_version = row_version + 1,  -- Auto-incremented<br>
+    updated = NOW()<br>
+WHERE id = '123' <br>
+  AND row_version = 5;  -- ← Version check happens here!</code>
+            </div>
+            <p><strong>If version matches</strong>:</p>
+            <ul>
+                <li>✅ UPDATE affects 1 row → Success</li>
+                <li>Version becomes 6</li>
+            </ul>
+            <p><strong>If version doesn't match</strong>:</p>
+            <ul>
+                <li>❌ UPDATE affects 0 rows → Hibernate detects this</li>
+                <li>Throws <code>OptimisticLockException</code></li>
+            </ul>
+
+            <h3>Handling OptimisticLockException</h3>
+            <div class="code-example">
+                <code>@Transactional<br>
+public void updateBuilding(UUID id, BuildingDto dto) {<br>
+    int maxRetries = 3;<br><br>
+    for (int attempt = 0; attempt &lt; maxRetries; attempt++) {<br>
+        try {<br>
+            Building building = findBuildingById(id);<br>
+            building.update(dto);<br>
+            buildingRepository.save(building);<br>
+            return;  // Success!<br><br>
+        } catch (OptimisticLockException e) {<br>
+            if (attempt == maxRetries - 1) {<br>
+                throw new BusinessException(<br>
+                    ErrorConstants.CONCURRENT_UPDATE_ERROR_CODE,<br>
+                    "Record was modified by another user. Please refresh and try again."<br>
+                );<br>
+            }<br>
+            // Wait before retry<br>
+            Thread.sleep(50 * (attempt + 1));<br>
+        }<br>
+    }<br>
+}</code>
+            </div>
+
+            <div class="good">
+                <h3>✅ Advantages</h3>
+                <ul>
+                    <li><strong>High Concurrency</strong>: Multiple users can read and work simultaneously</li>
+                    <li><strong>No Database Locks</strong>: Doesn't block other transactions</li>
+                    <li><strong>Better Performance</strong>: No waiting for locks</li>
+                    <li><strong>No Deadlocks</strong>: Can't cause deadlock situations</li>
+                    <li><strong>Good for Read-Heavy</strong>: Ideal when reads >> writes</li>
+                </ul>
+            </div>
+
+            <div class="bad">
+                <h3>❌ Disadvantages</h3>
+                <ul>
+                    <li><strong>Conflicts Possible</strong>: Users can be rejected at save time</li>
+                    <li><strong>Requires Handling</strong>: Must implement conflict resolution</li>
+                    <li><strong>User Experience</strong>: Users may need to refresh and retry</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Pessimistic Locking</h2>
+            
+            <h3>Conceptual Overview</h3>
+            <p><strong>Pessimistic Locking</strong> assumes conflicts are likely. It <strong>prevents</strong> multiple users from working on the same record simultaneously by locking it.</p>
+            <div class="highlight">
+                <strong>Philosophy</strong>: "Lock the record, work on it, then unlock. No conflicts possible."
+            </div>
+
+            <h3>How It Works</h3>
+            <ol>
+                <li><strong>Load with Lock</strong>: Entity is loaded AND locked in the database</li>
+                <li><strong>Block Others</strong>: Other threads trying to access the same record MUST WAIT</li>
+                <li><strong>Modify</strong>: Changes are made to the locked entity</li>
+                <li><strong>Save</strong>: Save the changes</li>
+                <li><strong>Unlock</strong>: Lock is released when transaction commits</li>
+            </ol>
+
+            <h3>Visual Timeline</h3>
+            <div class="timeline">
+                <code>Time | User A                          | Database State      | User B<br>
+-----|--------------------------------|---------------------|------------------<br>
+T1   | Loads Building WITH LOCK ✅     | LOCKED by User A    |<br>
+T2   | Modifies area → 150.0           | LOCKED by User A    | Tries to load...<br>
+T3   |                                | LOCKED by User A    | WAITING... ⏳<br>
+T4   |                                | LOCKED by User A    | (still waiting)<br>
+T5   | Saves → SUCCESS ✅              | version = 6         |<br>
+T6   | Transaction commits             | UNLOCKED           | (can now load)<br>
+T7   |                                |                     | Loads Building<br>
+T8   |                                |                     | Modifies name → "New Name"<br>
+T9   |                                |                     | Saves → SUCCESS ✅</code>
+            </div>
+
+            <h3>Implementation Options</h3>
+            
+            <h4>Option 1: Lock on Repository Method</h4>
+            <div class="code-example">
+                <code>@Repository<br>
+public interface BuildingRepository extends JpaRepository&lt;Building, UUID&gt; {<br><br>
+    @Lock(LockModeType.PESSIMISTIC_WRITE)<br>
+    @Query("SELECT b FROM Building b WHERE b.id = :id")<br>
+    Optional&lt;Building&gt; findByIdWithLock(@Param("id") UUID id);<br>
+}</code>
+            </div>
+
+            <h4>Option 2: Query with Lock</h4>
+            <div class="code-example">
+                <code>@Repository<br>
+public interface BuildingRepository extends JpaRepository&lt;Building, UUID&gt; {<br><br>
+    @Query("SELECT b FROM Building b WHERE b.id = :id")<br>
+    @Lock(LockModeType.PESSIMISTIC_WRITE)<br>
+    Optional&lt;Building&gt; findByIdPessimistic(@Param("id") UUID id);<br>
+}</code>
+            </div>
+
+            <h3>Lock Mode Types</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lock Mode</th>
+                        <th>Description</th>
+                        <th>SQL (PostgreSQL)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>PESSIMISTIC_WRITE</code></td>
+                        <td>Exclusive lock - blocks reads AND writes</td>
+                        <td><code>SELECT ... FOR UPDATE</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>PESSIMISTIC_READ</code></td>
+                        <td>Shared lock - blocks writes, allows reads</td>
+                        <td><code>SELECT ... FOR SHARE</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>PESSIMISTIC_FORCE_INCREMENT</code></td>
+                        <td>Like PESSIMISTIC_WRITE + increments version</td>
+                        <td><code>SELECT ... FOR UPDATE</code> + version++</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Complete Pessimistic Implementation</h3>
+            <div class="code-example">
+                <code>@Repository<br>
+public interface BuildingRepository extends JpaRepository&lt;Building, UUID&gt; {<br><br>
+    @Lock(LockModeType.PESSIMISTIC_WRITE)<br>
+    @Query("SELECT b FROM Building b WHERE b.id = :id")<br>
+    Optional&lt;Building&gt; findByIdWithPessimisticLock(@Param("id") UUID id);<br>
+}<br><br>
+@Service<br>
+public class BuildingService {<br><br>
+    @Transactional<br>
+    public void updateBuilding(UUID id, BuildingDto dto) {<br>
+        // Load with lock - blocks other threads<br>
+        Building building = buildingRepository.findByIdWithPessimisticLock(id)<br>
+            .orElseThrow(() -> new BusinessException(...));<br><br>
+        // At this point, no other thread can access this building<br>
+        // They will wait until this transaction commits<br><br>
+        building.update(dto);<br>
+        buildingRepository.save(building);<br><br>
+        // Lock released automatically when transaction commits<br>
+    }<br>
+}</code>
+            </div>
+
+            <h3>Lock Timeout Configuration</h3>
+            <div class="code-example">
+                <code># application.yml<br>
+spring:<br>
+  jpa:<br>
+    properties:<br>
+      javax.persistence.lock.timeout: 5000  # 5 seconds in milliseconds</code>
+            </div>
+
+            <div class="good">
+                <h3>✅ Advantages</h3>
+                <ul>
+                    <li><strong>No Conflicts</strong>: Prevents concurrent modifications completely</li>
+                    <li><strong>Predictable</strong>: First come, first served</li>
+                    <li><strong>Simple Logic</strong>: No exception handling needed</li>
+                    <li><strong>Data Integrity</strong>: Guarantees no lost updates</li>
+                    <li><strong>Good for Critical Updates</strong>: Financial transactions, inventory counts</li>
+                </ul>
+            </div>
+
+            <div class="bad">
+                <h3>❌ Disadvantages</h3>
+                <ul>
+                    <li><strong>Blocks Other Users</strong>: Threads must wait for lock release</li>
+                    <li><strong>Lower Concurrency</strong>: Only one user can work at a time</li>
+                    <li><strong>Performance Impact</strong>: Waiting threads consume resources</li>
+                    <li><strong>Deadlock Risk</strong>: Can cause deadlocks if not careful</li>
+                    <li><strong>User Experience</strong>: Users may experience delays</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Side-by-Side Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Optimistic Locking</th>
+                        <th>Pessimistic Locking</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Philosophy</strong></td>
+                        <td>"Conflicts are rare, detect them"</td>
+                        <td>"Conflicts are likely, prevent them"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lock Type</strong></td>
+                        <td>Version check (no actual lock)</td>
+                        <td>Database lock (SELECT FOR UPDATE)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Concurrent Reads</strong></td>
+                        <td>✅ Allowed</td>
+                        <td>✅ Allowed (PESSIMISTIC_READ)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Concurrent Writes</strong></td>
+                        <td>✅ Allowed (detected at save)</td>
+                        <td>❌ Blocked (must wait)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Blocking</strong></td>
+                        <td>❌ No blocking</td>
+                        <td>✅ Blocks other transactions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td>✅ High (no locks)</td>
+                        <td>❌ Lower (locks cause waits)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deadlock Risk</strong></td>
+                        <td>✅ None</td>
+                        <td>⚠️ Possible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conflict Resolution</strong></td>
+                        <td>Exception handling required</td>
+                        <td>Not needed (prevented)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Read-heavy, low conflict rate</td>
+                        <td>Write-heavy, critical updates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Implementation</strong></td>
+                        <td><code>@Version</code> annotation</td>
+                        <td><code>@Lock</code> annotation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>When to Use Which?</h2>
+            
+            <div class="good">
+                <h3>✅ Use Optimistic Locking When:</h3>
+                <ul>
+                    <li><strong>Read-Heavy Applications</strong>: Many reads, few writes</li>
+                    <li><strong>Low Conflict Rate</strong>: Concurrent edits are rare</li>
+                    <li><strong>Good User Experience Needed</strong>: Don't want users waiting</li>
+                    <li><strong>High Concurrency Required</strong>: Need to support many simultaneous users</li>
+                    <li><strong>Non-Critical Updates</strong>: Profile updates, preferences, comments</li>
+                </ul>
+                <p><strong>Examples</strong>: User profile updates, blog post editing, document comments, social media posts</p>
+            </div>
+
+            <div class="good">
+                <h3>✅ Use Pessimistic Locking When:</h3>
+                <ul>
+                    <li><strong>Write-Heavy Applications</strong>: Many concurrent updates</li>
+                    <li><strong>Critical Data Integrity</strong>: Financial transactions, inventory</li>
+                    <li><strong>Simple Logic Needed</strong>: Don't want to handle conflicts</li>
+                    <li><strong>Updates Must Be Sequential</strong>: Need guaranteed order</li>
+                    <li><strong>Prevent Lost Updates</strong>: Can't afford to lose any update</li>
+                </ul>
+                <p><strong>Examples</strong>: Inventory stock management, bank account transfers, ticket booking systems, seat reservations</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices</h2>
+            
+            <h3>For Optimistic Locking:</h3>
+            <ol>
+                <li>✅ <strong>Always Handle Exceptions</strong>: Catch <code>OptimisticLockException</code></li>
+                <li>✅ <strong>Implement Retry Logic</strong>: With exponential backoff</li>
+                <li>✅ <strong>Keep Transactions Short</strong>: Reduces conflict window</li>
+                <li>✅ <strong>Refresh on Conflict</strong>: Reload entity and re-apply changes</li>
+                <li>✅ <strong>Inform Users</strong>: Tell them when conflicts occur</li>
+                <li>✅ <strong>Use @Version</strong>: Always include version field</li>
+            </ol>
+
+            <h3>For Pessimistic Locking:</h3>
+            <ol>
+                <li>✅ <strong>Set Lock Timeout</strong>: Prevent indefinite waits</li>
+                <li>✅ <strong>Keep Transactions Short</strong>: Release locks quickly</li>
+                <li>✅ <strong>Use Appropriate Lock Mode</strong>: PESSIMISTIC_READ vs PESSIMISTIC_WRITE</li>
+                <li>✅ <strong>Order Locks Consistently</strong>: Prevent deadlocks (always lock in same order)</li>
+                <li>✅ <strong>Handle LockTimeoutException</strong>: If timeout occurs</li>
+                <li>✅ <strong>Monitor Lock Contention</strong>: Watch for performance issues</li>
+            </ol>
+
+            <h3>Deadlock Prevention</h3>
+            <div class="warning">
+                <strong>Important:</strong> When using pessimistic locking, always acquire locks in the same order to prevent deadlocks.
+            </div>
+            <div class="code-example">
+                <code>// ❌ BAD: Different lock order can cause deadlock<br>
+// Thread A: Lock Building(id=1) → Lock Building(id=2)<br>
+// Thread B: Lock Building(id=2) → Lock Building(id=1)<br>
+// Result: DEADLOCK!<br><br>
+// ✅ GOOD: Always lock in consistent order (e.g., by ID)<br>
+if (id1.compareTo(id2) &lt; 0) {<br>
+    lock(id1);<br>
+    lock(id2);<br>
+} else {<br>
+    lock(id2);<br>
+    lock(id1);<br>
+}</code>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="highlight">
+                <h2>Key Takeaway 🎯</h2>
+                <ul>
+                    <li><strong>Optimistic Locking</strong> = Detect conflicts (good for most cases)</li>
+                    <li><strong>Pessimistic Locking</strong> = Prevent conflicts (good for critical cases)</li>
+                </ul>
+                <p><strong>Choose based on your use case, but remember:</strong> Optimistic is the default choice for most applications due to better performance and user experience.</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
