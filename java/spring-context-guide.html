@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Context Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Spring Context Guide</h1>
+        
+<section class="section">
+<h1>Spring Context Guide</h1>
+</section>
+
+<section class="section">
+<h2>What is a Spring Context?</h2>
+<p>A <strong>Spring Context</strong> (also called Application Context) is a container that:<br />
+- <strong>Manages all Spring beans</strong> (Java objects that Spring creates and manages)<br />
+- <strong>Handles dependency injection</strong> (automatically providing dependencies to objects)<br />
+- <strong>Applies Spring configurations</strong> (like auto-configuration, component scanning, etc.)<br />
+- <strong>Manages the lifecycle</strong> of beans (creation, initialization, destruction)</p>
+<p>Think of it as Spring's "brain" that knows about all components in your application and how they relate to each other.</p>
+</section>
+
+<section class="section">
+<h2>Context Types in Testing</h2>
+<p>In Spring Boot testing, you have <strong>two main categories</strong> of contexts:</p>
+<h3>1. <strong>Full Application Context</strong> - <code>@SpringBootTest</code> (Only ONE)</h3>
+<ul>
+<li>Loads the complete application</li>
+<li>Single annotation for full context</li>
+</ul>
+<h3>2. <strong>Test Slices</strong> - Multiple specialized contexts (MANY options)</h3>
+<ul>
+<li><code>@JsonTest</code> - JSON serialization/deserialization</li>
+<li><code>@WebMvcTest</code> - Web/MVC layer</li>
+<li><code>@DataJpaTest</code> - JPA/Repository layer</li>
+<li><code>@DataJdbcTest</code> - JDBC layer</li>
+<li><code>@RestClientTest</code> - REST clients</li>
+<li><code>@JdbcTest</code> - Raw JDBC operations</li>
+<li>And more...</li>
+</ul>
+<p><strong>Key Point:</strong> There is <strong>ONE full context annotation</strong> (<code>@SpringBootTest</code>) but <strong>MANY test slice annotations</strong> for focused testing.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>1. <code>@SpringBootTest</code> - Full Application Context</h2>
+<h3>What it does:</h3>
+<ul>
+<li>Loads the <strong>complete Spring application context</strong></li>
+<li>Starts your entire Spring Boot application (almost like running it)</li>
+<li>Loads all configurations, beans, auto-configurations</li>
+<li>Includes web server, database connections, security, etc.</li>
+</ul>
+<h3>Example:</h3>
+<pre><code class="language-java">@SpringBootTest
+class ApplicationTests {
+    @Test
+    void contextLoads() {
+        // Verifies the entire application can start
+    }
+}
+</code></pre>
+<h3>What gets loaded:</h3>
+<p>✅ Main application class (annotated with <code>@SpringBootApplication</code>)<br />
+✅ All <code>@Component</code>, <code>@Service</code>, <code>@Repository</code>, <code>@Controller</code> beans<br />
+✅ All Spring Boot auto-configurations<br />
+✅ Application properties<br />
+✅ Database configurations (if any)<br />
+✅ Web server (if any)<br />
+✅ Security configurations (if any)  </p>
+<h3>Usage:</h3>
+<ul>
+<li><strong>Integration tests</strong> that need the full application</li>
+<li>Testing component interactions across layers</li>
+<li>Verifying application startup (<code>contextLoads()</code> test)</li>
+<li>Testing with real database connections</li>
+<li>Testing REST controllers with full Spring MVC stack</li>
+</ul>
+<h3>Pros:</h3>
+<ul>
+<li>Tests closer to production environment</li>
+<li>Can test full integration between components</li>
+</ul>
+<h3>Cons:</h3>
+<ul>
+<li><strong>Slow</strong> (takes time to load everything)</li>
+<li><strong>Heavy</strong> (loads components you might not need)</li>
+<li>May require external dependencies (database, services)</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>2. Test Slices - Focused Contexts</h2>
+<p>Test slices are <strong>specialized, lightweight contexts</strong> that load only specific parts of your application. They're faster than <code>@SpringBootTest</code> because they exclude everything not related to what you're testing.</p>
+<h3>2.1. <code>@JsonTest</code> - JSON Test Slice</h3>
+<h3>What it does:</h3>
+<ul>
+<li>Loads a <strong>minimal Spring context</strong> focused only on JSON operations</li>
+<li>Only includes Jackson (JSON library) and related components</li>
+<li><strong>Excludes</strong> web server, database, security, etc.</li>
+</ul>
+<h3>Example:</h3>
+<pre><code class="language-java">@JsonTest
+class UserJsonTest {
+    @Autowired
+    private JacksonTester&lt;User&gt; json;  // Available due to @JsonTest
+
+    @Test
+    void userSerializationTest() throws IOException {
+        User user = new User(1L, &quot;John Doe&quot;);
+        assertThat(json.write(user)).isStrictlyEqualToJson(&quot;expected.json&quot;);
+    }
+}
+</code></pre>
+<h3>What gets loaded:</h3>
+<p>✅ Jackson <code>ObjectMapper</code> configuration<br />
+✅ <code>JacksonTester</code> beans for dependency injection<br />
+✅ JSON serialization/deserialization support<br />
+❌ Web server<br />
+❌ Database connections<br />
+❌ Security<br />
+❌ Most other Spring Boot auto-configurations  </p>
+<h3>Usage:</h3>
+<ul>
+<li>Testing JSON serialization (Java object → JSON)</li>
+<li>Testing JSON deserialization (JSON → Java object)</li>
+<li>Verifying JSON structure and content</li>
+<li>Validating Jackson annotations work correctly</li>
+</ul>
+<h3>Pros:</h3>
+<ul>
+<li><strong>Fast</strong> (loads only what's needed)</li>
+<li><strong>Focused</strong> (tests only JSON concerns)</li>
+<li><strong>Lightweight</strong> (no external dependencies needed)</li>
+</ul>
+<h3>Cons:</h3>
+<ul>
+<li>Can't test web controllers</li>
+<li>Can't test database operations</li>
+<li>Limited to JSON functionality</li>
+</ul>
+<hr />
+<h3>2.2. Other Common Spring Boot Test Slices</h3>
+<p>Here are additional test slices available in Spring Boot:</p>
+<h3>2.3. <code>@WebMvcTest</code> - Web Layer Slice</h3>
+<p><strong>Purpose:</strong> Tests Spring MVC controllers (REST endpoints)</p>
+<p><strong>What it loads:</strong><br />
+- Controller beans (<code>@RestController</code>, <code>@Controller</code>)<br />
+- Spring MVC configuration<br />
+- Mock web server<br />
+- Exception handlers, interceptors</p>
+<p><strong>What it excludes:</strong><br />
+- Database repositories<br />
+- Service layer components<br />
+- Security configuration (unless explicitly included)</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-java">@WebMvcTest(UserController.class)
+class UserControllerTest {
+    @Autowired
+    private MockMvc mockMvc;  // For testing HTTP endpoints
+
+    @Test
+    void shouldReturnUser() throws Exception {
+        mockMvc.perform(get(&quot;/api/users/1&quot;))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath(&quot;$.id&quot;).value(1));
+    }
+}
+</code></pre>
+<p><strong>Usage:</strong> Testing REST API endpoints, request/response handling, HTTP status codes</p>
+<hr />
+<h3>2.4. <code>@DataJpaTest</code> - Data Layer Slice</h3>
+<p><strong>Purpose:</strong> Tests JPA repositories and database operations</p>
+<p><strong>What it loads:</strong><br />
+- Repository beans (<code>@Repository</code>)<br />
+- JPA/Hibernate configuration<br />
+- In-memory database (H2 by default)<br />
+- Database schema</p>
+<p><strong>What it excludes:</strong><br />
+- Web layer<br />
+- Security<br />
+- Service layer</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-java">@DataJpaTest
+class UserRepositoryTest {
+    @Autowired
+    private UserRepository repository;
+
+    @Test
+    void shouldSaveUser() {
+        User saved = repository.save(new User(1L, &quot;John Doe&quot;));
+        assertThat(saved.getId()).isNotNull();
+    }
+}
+</code></pre>
+<p><strong>Usage:</strong> Testing database queries, repository methods, entity mappings</p>
+<hr />
+<h3>2.5. <code>@DataJdbcTest</code> - JDBC Test Slice</h3>
+<p><strong>Purpose:</strong> Similar to <code>@DataJpaTest</code> but for Spring Data JDBC (simpler than JPA)</p>
+<p><strong>Usage:</strong> Testing JDBC repositories (no JPA/Hibernate)</p>
+<hr />
+<h3>2.6. <code>@RestClientTest</code> - REST Client Slice</h3>
+<p><strong>Purpose:</strong> Tests REST clients (like <code>RestTemplate</code>, <code>WebClient</code>)</p>
+<p><strong>What it loads:</strong><br />
+- REST client configuration<br />
+- Mock HTTP server<br />
+- JSON serialization</p>
+<p><strong>Usage:</strong> Testing external API calls, HTTP client configurations</p>
+<hr />
+<h3>2.7. <code>@JdbcTest</code> - JDBC Test Slice</h3>
+<p><strong>Purpose:</strong> Tests raw JDBC operations (no ORM)</p>
+<p><strong>Usage:</strong> Testing direct SQL operations, JDBC templates</p>
+<hr />
+<h3>2.8. <code>@AutoConfigureTestDatabase</code> - Database Configuration</h3>
+<p><strong>Purpose:</strong> Often used with other annotations to configure test database</p>
+<p><strong>Options:</strong><br />
+- <code>@AutoConfigureTestDatabase(replace = Replace.NONE)</code> - Use real database<br />
+- <code>@AutoConfigureTestDatabase(replace = Replace.AUTO_CONFIGURED)</code> - Use in-memory H2</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Context Comparison Table</h2>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Speed</th>
+<th>Context Size</th>
+<th>Use Case</th>
+<th>Loads Web?</th>
+<th>Loads DB?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootTest</code></td>
+<td>Slow</td>
+<td>Full</td>
+<td>Integration tests</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>@JsonTest</code></td>
+<td>Fast</td>
+<td>Minimal</td>
+<td>JSON serialization</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>@WebMvcTest</code></td>
+<td>Fast</td>
+<td>Medium</td>
+<td>Controller tests</td>
+<td>✅ (Mock)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>@DataJpaTest</code></td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Repository tests</td>
+<td>❌</td>
+<td>✅ (H2)</td>
+</tr>
+<tr>
+<td><code>@DataJdbcTest</code></td>
+<td>Medium</td>
+<td>Medium</td>
+<td>JDBC tests</td>
+<td>❌</td>
+<td>✅ (H2)</td>
+</tr>
+<tr>
+<td><code>@RestClientTest</code></td>
+<td>Fast</td>
+<td>Minimal</td>
+<td>REST client tests</td>
+<td>✅ (Mock)</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</section>
+
+<section class="section">
+<h2>How to Choose the Right Context</h2>
+<h3>Use <code>@SpringBootTest</code> when:</h3>
+<ul>
+<li>You need the full application running</li>
+<li>Testing integration between multiple layers</li>
+<li>Verifying application startup</li>
+<li>Need real database connections</li>
+<li>Testing end-to-end scenarios</li>
+</ul>
+<h3>Use <code>@JsonTest</code> when:</h3>
+<ul>
+<li>Testing JSON serialization/deserialization</li>
+<li>Validating Jackson configurations</li>
+<li>Verifying JSON structure matches expectations</li>
+</ul>
+<h3>Use <code>@WebMvcTest</code> when:</h3>
+<ul>
+<li>Testing REST controllers</li>
+<li>Testing HTTP request/response handling</li>
+<li>Don't need database or services</li>
+</ul>
+<h3>Use <code>@DataJpaTest</code> when:</h3>
+<ul>
+<li>Testing database repositories</li>
+<li>Testing JPA queries</li>
+<li>Testing entity relationships</li>
+<li>Don't need web layer or services</li>
+</ul>
+<h3>General Rule:</h3>
+<p><strong>Use the most specific test slice that fits your needs.</strong> Start narrow (<code>@JsonTest</code>, <code>@WebMvcTest</code>) and only go broader (<code>@SpringBootTest</code>) if needed.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Context Loading Behavior</h2>
+<h3>What Happens When a Test Runs:</h3>
+<ol>
+<li><strong>JUnit detects the annotation</strong> (<code>@SpringBootTest</code>, <code>@JsonTest</code>, etc.)</li>
+<li><strong>Spring Boot Test framework activates</strong></li>
+<li><strong>Context is built</strong> based on the annotation:</li>
+<li><code>@SpringBootTest</code>: Loads everything</li>
+<li><code>@JsonTest</code>: Loads only JSON-related components</li>
+<li><strong>Dependency injection occurs</strong> (<code>@Autowired</code> fields are populated)</li>
+<li><strong>Test method executes</strong></li>
+<li><strong>Context is destroyed</strong> (after all tests in class complete)</li>
+</ol>
+<h3>Context Caching:</h3>
+<ul>
+<li>Spring caches contexts between tests <strong>if they have the same configuration</strong></li>
+<li>Same <code>@JsonTest</code> configuration = reused context = faster tests</li>
+<li>Different configurations = new context</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>General Examples</h2>
+<h3>Example 1: Full Context Test</h3>
+<pre><code class="language-java">@SpringBootTest  // ← Full application context
+class ApplicationTests {
+    @Test
+    void contextLoads() {
+        // If this passes, the entire application can start
+        // All beans are loaded and wired correctly
+    }
+}
+</code></pre>
+<h3>Example 2: Focused Context Test</h3>
+<pre><code class="language-java">@JsonTest  // ← Minimal JSON-only context
+class UserJsonTest {
+    @Autowired
+    private JacksonTester&lt;User&gt; json;  // ← Available because of @JsonTest
+
+    @Test
+    void userSerializationTest() throws IOException {
+        User user = new User(1L, &quot;John Doe&quot;);
+        assertThat(json.write(user)).isStrictlyEqualToJson(&quot;expected.json&quot;);
+        // Only tests JSON, doesn't need full app
+    }
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Best Practices</h2>
+<ol>
+<li><strong>Use test slices by default</strong> - They're faster and more focused</li>
+<li><strong>Use <code>@SpringBootTest</code> sparingly</strong> - Only when you truly need the full context</li>
+<li><strong>Combine annotations if needed</strong> - Some test slices can be combined</li>
+<li><strong>Mock external dependencies</strong> - Even in <code>@SpringBootTest</code>, mock external services</li>
+<li><strong>Use profiles</strong> - <code>@ActiveProfiles("test")</code> for test-specific configurations</li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<p><strong>The Big Picture:</strong><br />
+- <strong>Spring Context</strong> = Container that manages all Spring beans and dependencies<br />
+- <strong>Two Categories:</strong><br />
+  1. <strong>Full Context</strong>: <code>@SpringBootTest</code> (ONE annotation - loads everything)<br />
+  2. <strong>Test Slices</strong>: Many specialized annotations (load only what you need)<br />
+     - <code>@JsonTest</code> - JSON operations<br />
+     - <code>@WebMvcTest</code> - Web controllers<br />
+     - <code>@DataJpaTest</code> - Database repositories<br />
+     - <code>@DataJdbcTest</code> - JDBC operations<br />
+     - <code>@RestClientTest</code> - REST clients<br />
+     - <code>@JdbcTest</code> - Raw JDBC<br />
+     - And more...</p>
+<p><strong>Key Point:</strong> There is <strong>ONE full context annotation</strong> (<code>@SpringBootTest</code>) and <strong>MANY test slice annotations</strong> for different concerns.</p>
+<p><strong>Choose the right tool</strong> = Use the narrowest context that meets your test needs. Start with a test slice, only use <code>@SpringBootTest</code> if you truly need the full application.</p>
+<p>The key is understanding what each context provides and selecting the one that gives you exactly what you need for your test, nothing more.</p>
+</section>
+    </div>
+</body>
+</html>
