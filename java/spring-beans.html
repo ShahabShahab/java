@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Beans: Origin, Meaning, and Current Usage</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Spring Beans: Origin, Meaning, and Current Usage</h1>
+        
+<section class="section">
+<h1>Spring Beans: Origin, Meaning, and Current Usage</h1>
+</section>
+
+<section class="section">
+<h2>Conceptual Overview</h2>
+<p><strong>Spring Beans</strong> are the fundamental building blocks of Spring Framework applications. A <strong>bean</strong> is simply an object that is instantiated, assembled, and managed by the Spring IoC (Inversion of Control) container. Understanding beans is essential for mastering Spring Boot development.</p>
+<p><strong>Key Concepts:</strong><br />
+- 🏗️ <strong>Foundation</strong>: Beans are the objects that Spring creates and manages<br />
+- 🔄 <strong>Dependency Injection</strong>: Beans enable loose coupling through DI<br />
+- 🎯 <strong>IoC Container</strong>: Spring manages bean lifecycle automatically<br />
+- 📦 <strong>Configuration</strong>: Beans can be created via annotations or XML<br />
+- 🌱 <strong>Singleton by Default</strong>: Most beans are single instances shared across the application</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>The Origin: JavaBeans Specification</h2>
+<h3>Historical Context</h3>
+<p>The term <strong>"bean"</strong> originates from the <strong>JavaBeans specification</strong> (Java 1.1, 1997). JavaBeans were designed as reusable software components for Java.</p>
+<h4>JavaBeans Requirements:</h4>
+<ol>
+<li><strong>No-argument constructor</strong>: Must have a public default constructor</li>
+<li><strong>Properties</strong>: Private fields with public getter/setter methods</li>
+<li><strong>Serializable</strong>: Should implement <code>Serializable</code> interface</li>
+<li><strong>BeanInfo</strong>: Optional metadata about the bean</li>
+</ol>
+<p><strong>Example of a Traditional JavaBean:</strong></p>
+<pre><code class="language-java">public class User implements Serializable {
+    // Private fields
+    private String name;
+    private int age;
+
+    // No-argument constructor (required)
+    public User() {
+    }
+
+    // Parameterized constructor (optional)
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    // Getter methods (required pattern: getPropertyName)
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    // Setter methods (required pattern: setPropertyName)
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+</code></pre>
+<p><strong>Why "Bean"?</strong></p>
+<p>The term "bean" comes from the idea of <strong>coffee beans</strong> - small, reusable, packaged components. Just like coffee beans can be combined to make coffee, JavaBeans can be combined to build applications.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>What is a Spring Bean?</h2>
+<h3>Definition</h3>
+<p>A <strong>Spring Bean</strong> is an object that is:<br />
+1. <strong>Instantiated</strong> by the Spring IoC container<br />
+2. <strong>Assembled</strong> (dependencies injected) by Spring<br />
+3. <strong>Managed</strong> (lifecycle controlled) by Spring</p>
+<h3>Key Differences from JavaBeans:</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>JavaBean</th>
+<th>Spring Bean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Reusable component specification</td>
+<td>Managed object in Spring container</td>
+</tr>
+<tr>
+<td><strong>Management</strong></td>
+<td>Created manually with <code>new</code></td>
+<td>Created and managed by Spring</td>
+</tr>
+<tr>
+<td><strong>Lifecycle</strong></td>
+<td>Manual (you control)</td>
+<td>Automatic (Spring controls)</td>
+</tr>
+<tr>
+<td><strong>Dependencies</strong></td>
+<td>Manual wiring</td>
+<td>Automatic dependency injection</td>
+</tr>
+<tr>
+<td><strong>Scope</strong></td>
+<td>Always new instance</td>
+<td>Configurable (singleton, prototype, etc.)</td>
+</tr>
+</tbody>
+</table>
+<h3>Simple Analogy:</h3>
+<p><strong>Without Spring (Traditional Java):</strong></p>
+<pre><code class="language-java">// You create objects manually
+UserService userService = new UserService();
+UserRepository userRepository = new UserRepository();
+userService.setRepository(userRepository);  // Manual wiring
+</code></pre>
+<p><strong>With Spring (Spring Beans):</strong></p>
+<pre><code class="language-java">// Spring creates and wires objects automatically
+@Autowired
+private UserService userService;  // Spring provides the bean
+
+// Inside UserService:
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository repository;  // Spring injects this bean
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>How Spring Creates Beans</h2>
+<p>Spring Boot uses several mechanisms to discover and create beans. The Spring container scans for classes annotated with <strong>stereotypes</strong> or methods annotated with <code>@Bean</code>.</p>
+<h3>1. Component Scanning (Automatic Discovery)</h3>
+<p>Spring automatically scans for classes annotated with:<br />
+- <code>@Component</code> - Generic Spring component<br />
+- <code>@Service</code> - Business logic layer<br />
+- <code>@Repository</code> - Data access layer<br />
+- <code>@Controller</code> / <code>@RestController</code> - Web layer<br />
+- <code>@Configuration</code> - Configuration class</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-java">@Service
+public class UserService {
+    public User findUser(Long id) {
+        // Business logic
+        return userRepository.findById(id);
+    }
+}
+
+@Repository
+public class UserRepository {
+    public User findById(Long id) {
+        // Data access logic
+        return null;
+    }
+}
+
+@Component
+public class EmailService {
+    public void sendEmail(String to, String message) {
+        // Email sending logic
+    }
+}
+</code></pre>
+<p><strong>How Spring Finds Them:</strong></p>
+<pre><code class="language-java">@SpringBootApplication  // This enables component scanning
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+</code></pre>
+<p>The <code>@SpringBootApplication</code> annotation includes <code>@ComponentScan</code>, which scans:<br />
+- The package containing the main class<br />
+- All sub-packages</p>
+<p><strong>Custom Scanning:</strong></p>
+<pre><code class="language-java">@SpringBootApplication
+@ComponentScan(basePackages = {&quot;com.example.services&quot;, &quot;com.example.repositories&quot;})
+public class MyApplication {
+    // ...
+}
+</code></pre>
+<h3>2. @Bean Method (Manual Configuration)</h3>
+<p>You can explicitly define beans using <code>@Bean</code> methods in <code>@Configuration</code> classes:</p>
+<pre><code class="language-java">@Configuration
+public class AppConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        // Create and configure DataSource
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(&quot;jdbc:mysql://localhost:3306/mydb&quot;);
+        dataSource.setUsername(&quot;root&quot;);
+        dataSource.setPassword(&quot;password&quot;);
+        return dataSource;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        // Configure restTemplate
+        return restTemplate;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
+    }
+}
+</code></pre>
+<p><strong>When to Use @Bean:</strong><br />
+- Creating beans from third-party libraries (can't add annotations)<br />
+- Complex configuration (multiple steps)<br />
+- Conditional bean creation<br />
+- Creating multiple beans of the same type</p>
+<p><strong>Example: Third-Party Library Bean</strong></p>
+<pre><code class="language-java">@Configuration
+public class ThirdPartyConfig {
+
+    @Bean
+    public Gson gson() {
+        // Gson is a third-party library - can't add @Component to it
+        return new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
+    }
+}
+</code></pre>
+<h3>3. @Import and @ImportResource</h3>
+<p><strong>Import Other Configuration:</strong></p>
+<pre><code class="language-java">@Configuration
+@Import({DatabaseConfig.class, SecurityConfig.class})
+public class AppConfig {
+    // Other beans
+}
+</code></pre>
+<p><strong>Import XML Configuration:</strong></p>
+<pre><code class="language-java">@Configuration
+@ImportResource(&quot;classpath:application-context.xml&quot;)
+public class AppConfig {
+    // Beans defined in XML will be loaded
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Bean Annotations Hierarchy</h2>
+<pre><code>@Component (base annotation)
+    ├── @Service (business logic)
+    ├── @Repository (data access)
+    ├── @Controller (MVC controller)
+    └── @RestController (REST controller = @Controller + @ResponseBody)
+</code></pre>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="language-java">// Generic component
+@Component
+public class MyComponent {
+    // Spring will manage this
+}
+
+// Service layer (business logic)
+@Service
+public class OrderService {
+    public Order createOrder(OrderDto dto) {
+        // Business logic
+    }
+}
+
+// Data access layer
+@Repository
+public class OrderRepository extends JpaRepository&lt;Order, Long&gt; {
+    // JPA repository
+}
+
+// Web controller
+@RestController
+@RequestMapping(&quot;/api/orders&quot;)
+public class OrderController {
+    @Autowired
+    private OrderService orderService;
+
+    @GetMapping(&quot;/{id}&quot;)
+    public Order getOrder(@PathVariable Long id) {
+        return orderService.findById(id);
+    }
+}
+</code></pre>
+<p><strong>Why Different Annotations?</strong></p>
+<p>While they're functionally equivalent (all create beans), using specific annotations:<br />
+- ✅ <strong>Improves code readability</strong> - Shows intent (service, repository, controller)<br />
+- ✅ <strong>Enables AOP</strong> - Spring can apply specific aspects (e.g., <code>@Repository</code> enables exception translation)<br />
+- ✅ <strong>Better tooling</strong> - IDEs can provide better support<br />
+- ✅ <strong>Documentation</strong> - Self-documenting code</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Bean Scopes</h2>
+<p><strong>Scope</strong> determines how many instances of a bean Spring creates and how they're shared.</p>
+<h3>Standard Scopes:</h3>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>singleton</strong> (default)</td>
+<td>One instance per container</td>
+<td>Stateless services, repositories</td>
+</tr>
+<tr>
+<td><strong>prototype</strong></td>
+<td>New instance every time</td>
+<td>Stateful objects, requires new instance each time</td>
+</tr>
+<tr>
+<td><strong>request</strong></td>
+<td>One instance per HTTP request</td>
+<td>Request-scoped data</td>
+</tr>
+<tr>
+<td><strong>session</strong></td>
+<td>One instance per HTTP session</td>
+<td>User session data</td>
+</tr>
+<tr>
+<td><strong>application</strong></td>
+<td>One instance per ServletContext</td>
+<td>Web application context</td>
+</tr>
+<tr>
+<td><strong>websocket</strong></td>
+<td>One instance per WebSocket session</td>
+<td>WebSocket connections</td>
+</tr>
+</tbody>
+</table>
+<h3>1. Singleton Scope (Default)</h3>
+<p><strong>One instance per Spring container</strong> - created once, shared everywhere.</p>
+<pre><code class="language-java">@Service  // Default scope is singleton
+public class UserService {
+    // Only ONE instance of UserService exists in the entire application
+}
+</code></pre>
+<p><strong>How It Works:</strong></p>
+<pre><code class="language-java">@RestController
+public class OrderController {
+    @Autowired
+    private UserService userService1;  // Gets the same instance
+
+    @Autowired
+    private UserService userService2;  // Gets the same instance
+
+    // userService1 == userService2 (same object reference)
+}
+</code></pre>
+<p><strong>When to Use:</strong><br />
+- ✅ Stateless services (most services)<br />
+- ✅ Repositories<br />
+- ✅ Configuration classes<br />
+- ✅ Utility classes</p>
+<h3>2. Prototype Scope</h3>
+<p><strong>New instance every time</strong> the bean is requested.</p>
+<pre><code class="language-java">@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class ShoppingCart {
+    private List&lt;Item&gt; items = new ArrayList&lt;&gt;();
+
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    // Each ShoppingCart has its own items list
+}
+</code></pre>
+<p><strong>How It Works:</strong></p>
+<pre><code class="language-java">@Service
+public class OrderService {
+
+    @Autowired
+    private ApplicationContext applicationContext;  // To get prototype beans
+
+    public Order createOrder() {
+        // Get a NEW ShoppingCart instance each time
+        ShoppingCart cart = applicationContext.getBean(ShoppingCart.class);
+        cart.addItem(new Item());
+        return new Order(cart);
+    }
+}
+</code></pre>
+<p><strong>When to Use:</strong><br />
+- ✅ Stateful objects (each needs its own state)<br />
+- ✅ Objects that shouldn't be shared<br />
+- ✅ Objects with mutable state</p>
+<h3>3. Request Scope (Web Applications)</h3>
+<p><strong>One instance per HTTP request.</strong></p>
+<pre><code class="language-java">@Component
+@Scope(WebApplicationContext.SCOPE_REQUEST)
+public class RequestContext {
+    private String requestId;
+    private LocalDateTime timestamp;
+
+    @PostConstruct
+    public void init() {
+        this.requestId = UUID.randomUUID().toString();
+        this.timestamp = LocalDateTime.now();
+    }
+
+    // Each HTTP request gets its own RequestContext
+}
+</code></pre>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="language-java">@RestController
+public class ApiController {
+    @Autowired
+    private RequestContext requestContext;  // Different instance per request
+
+    @GetMapping(&quot;/api/data&quot;)
+    public String getData() {
+        return &quot;Request ID: &quot; + requestContext.getRequestId();
+    }
+}
+</code></pre>
+<h3>4. Session Scope (Web Applications)</h3>
+<p><strong>One instance per HTTP session.</strong></p>
+<pre><code class="language-java">@Component
+@Scope(WebApplicationContext.SCOPE_SESSION)
+public class UserSession {
+    private User currentUser;
+    private List&lt;String&gt; preferences;
+
+    // Each user session has its own UserSession instance
+}
+</code></pre>
+<p><strong>When to Use:</strong><br />
+- User-specific data<br />
+- Shopping cart (traditional web apps)<br />
+- User preferences</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Dependency Injection with Beans</h2>
+<p><strong>Dependency Injection (DI)</strong> is the process where Spring provides dependencies to beans automatically.</p>
+<h3>Types of Dependency Injection:</h3>
+<h4>1. Constructor Injection (Recommended)</h4>
+<pre><code class="language-java">@Service
+public class UserService {
+    private final UserRepository userRepository;
+    private final EmailService emailService;
+
+    // Constructor injection
+    public UserService(UserRepository userRepository, EmailService emailService) {
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+    }
+}
+</code></pre>
+<p><strong>Benefits:</strong><br />
+- ✅ <strong>Immutable</strong> - Fields can be <code>final</code><br />
+- ✅ <strong>Required dependencies</strong> - Constructor ensures all dependencies provided<br />
+- ✅ <strong>Testable</strong> - Easy to mock in tests<br />
+- ✅ <strong>No reflection</strong> - Better performance</p>
+<h4>2. Field Injection (Not Recommended)</h4>
+<pre><code class="language-java">@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+}
+</code></pre>
+<p><strong>Drawbacks:</strong><br />
+- ❌ Can't make fields <code>final</code><br />
+- ❌ Harder to test (requires reflection)<br />
+- ❌ Hides dependencies<br />
+- ❌ Can cause <code>NullPointerException</code> if not injected</p>
+<p><strong>When Field Injection is Acceptable:</strong><br />
+- Test classes<br />
+- Configuration classes<br />
+- Legacy code migration</p>
+<h4>3. Setter Injection (Optional Dependencies)</h4>
+<pre><code class="language-java">@Service
+public class UserService {
+    private UserRepository userRepository;
+    private EmailService emailService;
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired(required = false)  // Optional dependency
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+}
+</code></pre>
+<p><strong>When to Use:</strong><br />
+- Optional dependencies<br />
+- Circular dependency resolution<br />
+- Legacy code</p>
+<h3>Dependency Injection Examples</h3>
+<p><strong>Complete Example:</strong></p>
+<pre><code class="language-java">// Repository Bean
+@Repository
+public class UserRepository {
+    public User findById(Long id) {
+        // Database query
+        return new User();
+    }
+}
+
+// Service Bean with Dependency Injection
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+
+    // Constructor injection (recommended)
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User getUser(Long id) {
+        return userRepository.findById(id);
+    }
+}
+
+// Controller Bean with Dependency Injection
+@RestController
+@RequestMapping(&quot;/api/users&quot;)
+public class UserController {
+    private final UserService userService;
+
+    // Constructor injection
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public User getUser(@PathVariable Long id) {
+        return userService.getUser(id);
+    }
+}
+</code></pre>
+<p><strong>Spring Boot automatically:</strong><br />
+1. Creates <code>UserRepository</code> bean<br />
+2. Creates <code>UserService</code> bean and injects <code>UserRepository</code><br />
+3. Creates <code>UserController</code> bean and injects <code>UserService</code></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Bean Lifecycle</h2>
+<p>Spring manages the entire lifecycle of beans. Understanding this helps you hook into initialization and cleanup.</p>
+<h3>Lifecycle Phases:</h3>
+<pre><code>1. Bean Instantiation
+        ↓
+2. Populate Properties (Dependency Injection)
+        ↓
+3. Bean Post-Processors (@PostConstruct, afterPropertiesSet)
+        ↓
+4. Bean Ready (In Use)
+        ↓
+5. Bean Destruction (@PreDestroy, destroy)
+</code></pre>
+<h3>Lifecycle Callbacks:</h3>
+<h4>1. @PostConstruct</h4>
+<p><strong>Called after dependency injection</strong>, before bean is used.</p>
+<pre><code class="language-java">@Service
+public class DataInitializer {
+
+    @PostConstruct
+    public void init() {
+        // Initialize data
+        System.out.println(&quot;Bean initialized and ready to use&quot;);
+        loadInitialData();
+    }
+
+    private void loadInitialData() {
+        // Load data from files, database, etc.
+    }
+}
+</code></pre>
+<h4>2. @PreDestroy</h4>
+<p><strong>Called before bean is destroyed</strong> (when application shuts down).</p>
+<pre><code class="language-java">@Service
+public class DatabaseConnectionManager {
+
+    private Connection connection;
+
+    @PostConstruct
+    public void init() {
+        connection = createConnection();
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        // Close connections, release resources
+        if (connection != null) {
+            connection.close();
+        }
+        System.out.println(&quot;Resources cleaned up&quot;);
+    }
+}
+</code></pre>
+<h4>3. InitializingBean and DisposableBean Interfaces</h4>
+<p><strong>Alternative approach</strong> (less common):</p>
+<pre><code class="language-java">@Service
+public class ResourceManager implements InitializingBean, DisposableBean {
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // Called after properties set (like @PostConstruct)
+        initializeResources();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        // Called before destruction (like @PreDestroy)
+        cleanupResources();
+    }
+}
+</code></pre>
+<p><strong>Complete Lifecycle Example:</strong></p>
+<pre><code class="language-java">@Service
+public class LifecycleExample {
+
+    public LifecycleExample() {
+        System.out.println(&quot;1. Constructor called&quot;);
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;3. @PostConstruct called&quot;);
+    }
+
+    public void doSomething() {
+        System.out.println(&quot;4. Bean in use&quot;);
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        System.out.println(&quot;5. @PreDestroy called&quot;);
+    }
+}
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code>1. Constructor called
+2. Dependencies injected
+3. @PostConstruct called
+4. Bean in use
+5. @PreDestroy called
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Bean Naming</h2>
+<p>By default, Spring uses <strong>class name with first letter lowercase</strong> as bean name.</p>
+<h3>Default Naming:</h3>
+<pre><code class="language-java">@Service
+public class UserService {
+    // Bean name: &quot;userService&quot;
+}
+
+@Repository
+public class UserRepository {
+    // Bean name: &quot;userRepository&quot;
+}
+</code></pre>
+<h3>Custom Bean Names:</h3>
+<pre><code class="language-java">@Service(&quot;userServiceBean&quot;)  // Custom name
+public class UserService {
+    // Bean name: &quot;userServiceBean&quot;
+}
+
+@Repository(&quot;userRepo&quot;)  // Custom name
+public class UserRepository {
+    // Bean name: &quot;userRepo&quot;
+}
+</code></pre>
+<h3>@Bean Method Naming:</h3>
+<pre><code class="language-java">@Configuration
+public class Config {
+
+    @Bean(&quot;myDataSource&quot;)  // Custom name
+    public DataSource dataSource() {
+        return new HikariDataSource();
+    }
+
+    @Bean  // Default name: &quot;objectMapper&quot; (method name)
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+}
+</code></pre>
+<h3>Accessing Beans by Name:</h3>
+<pre><code class="language-java">@Service
+public class MyService {
+
+    @Autowired
+    @Qualifier(&quot;userServiceBean&quot;)  // Specify bean name
+    private UserService userService;
+
+    // Or using ApplicationContext
+    @Autowired
+    private ApplicationContext context;
+
+    public void doSomething() {
+        UserService service = context.getBean(&quot;userServiceBean&quot;, UserService.class);
+    }
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Conditional Bean Creation</h2>
+<p>Sometimes you want to create beans only under certain conditions.</p>
+<h3>1. @ConditionalOnProperty</h3>
+<p><strong>Create bean based on property value:</strong></p>
+<pre><code class="language-java">@Configuration
+public class FeatureConfig {
+
+    @Bean
+    @ConditionalOnProperty(name = &quot;feature.email.enabled&quot;, havingValue = &quot;true&quot;)
+    public EmailService emailService() {
+        return new EmailService();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = &quot;feature.sms.enabled&quot;, havingValue = &quot;true&quot;)
+    public SmsService smsService() {
+        return new SmsService();
+    }
+}
+</code></pre>
+<p><strong>application.properties:</strong></p>
+<pre><code class="language-properties">feature.email.enabled=true
+feature.sms.enabled=false
+</code></pre>
+<h3>2. @ConditionalOnClass</h3>
+<p><strong>Create bean if class exists:</strong></p>
+<pre><code class="language-java">@Bean
+@ConditionalOnClass(name = &quot;com.example.SomeClass&quot;)
+public SomeService someService() {
+    return new SomeService();
+}
+</code></pre>
+<h3>3. @ConditionalOnMissingBean</h3>
+<p><strong>Create bean only if another bean doesn't exist:</strong></p>
+<pre><code class="language-java">@Configuration
+public class CacheConfig {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CacheManager cacheManager() {
+        // Only create if no other CacheManager bean exists
+        return new SimpleCacheManager();
+    }
+}
+</code></pre>
+<h3>4. @Profile</h3>
+<p><strong>Create bean for specific profile:</strong></p>
+<pre><code class="language-java">@Configuration
+@Profile(&quot;development&quot;)
+public class DevConfig {
+
+    @Bean
+    public DataSource devDataSource() {
+        // Only in development profile
+        return new H2DataSource();
+    }
+}
+
+@Configuration
+@Profile(&quot;production&quot;)
+public class ProdConfig {
+
+    @Bean
+    public DataSource prodDataSource() {
+        // Only in production profile
+        return new MySQLDataSource();
+    }
+}
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash">java -jar app.jar --spring.profiles.active=development
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Common Patterns and Best Practices</h2>
+<h3>1. Constructor Injection (Preferred)</h3>
+<p>✅ <strong>DO:</strong></p>
+<pre><code class="language-java">@Service
+public class UserService {
+    private final UserRepository repository;
+
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
+}
+</code></pre>
+<p>❌ <strong>DON'T:</strong></p>
+<pre><code class="language-java">@Service
+public class UserService {
+    @Autowired
+    private UserRepository repository;  // Field injection (not recommended)
+}
+</code></pre>
+<h3>2. Use Specific Annotations</h3>
+<p>✅ <strong>DO:</strong></p>
+<pre><code class="language-java">@Service
+public class OrderService { }  // Shows it's a service
+
+@Repository
+public class OrderRepository { }  // Shows it's a repository
+</code></pre>
+<p>❌ <strong>DON'T:</strong></p>
+<pre><code class="language-java">@Component
+public class OrderService { }  // Too generic
+</code></pre>
+<h3>3. Keep Beans Stateless (Use Singleton)</h3>
+<p>✅ <strong>DO:</strong></p>
+<pre><code class="language-java">@Service  // Singleton (default)
+public class UserService {
+    // Stateless - no instance variables that change
+    public User findUser(Long id) {
+        return repository.findById(id);
+    }
+}
+</code></pre>
+<p>❌ <strong>DON'T:</strong></p>
+<pre><code class="language-java">@Service
+public class UserService {
+    private User currentUser;  // State - problematic in singleton!
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;  // One user affects all requests!
+    }
+}
+</code></pre>
+<h3>4. Avoid Circular Dependencies</h3>
+<p>❌ <strong>Problem:</strong></p>
+<pre><code class="language-java">@Service
+public class ServiceA {
+    @Autowired
+    private ServiceB serviceB;
+}
+
+@Service
+public class ServiceB {
+    @Autowired
+    private ServiceA serviceA;  // Circular dependency!
+}
+</code></pre>
+<p>✅ <strong>Solution:</strong><br />
+- Use constructor injection (Spring can detect and warn)<br />
+- Refactor to remove circular dependency<br />
+- Use <code>@Lazy</code> annotation</p>
+<pre><code class="language-java">@Service
+public class ServiceA {
+    private final ServiceB serviceB;
+
+    public ServiceA(@Lazy ServiceB serviceB) {
+        this.serviceB = serviceB;
+    }
+}
+</code></pre>
+<h3>5. Use @Primary for Multiple Beans of Same Type</h3>
+<p><strong>When you have multiple implementations:</strong></p>
+<pre><code class="language-java">@Repository(&quot;jpaUserRepository&quot;)
+public class JpaUserRepository implements UserRepository {
+    // JPA implementation
+}
+
+@Repository(&quot;mongoUserRepository&quot;)
+public class MongoUserRepository implements UserRepository {
+    // MongoDB implementation
+}
+
+// Mark one as primary
+@Repository(&quot;jpaUserRepository&quot;)
+@Primary
+public class JpaUserRepository implements UserRepository {
+    // This will be injected by default
+}
+</code></pre>
+<p><strong>Or use @Qualifier:</strong></p>
+<pre><code class="language-java">@Service
+public class UserService {
+
+    @Autowired
+    @Qualifier(&quot;mongoUserRepository&quot;)  // Specify which one
+    private UserRepository repository;
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Real-World Example: Complete Spring Boot Application</h2>
+<p><strong>Project Structure:</strong></p>
+<pre><code>com.example.app/
+├── Application.java (Main class)
+├── controller/
+│   └── UserController.java
+├── service/
+│   └── UserService.java
+├── repository/
+│   └── UserRepository.java
+├── model/
+│   └── User.java
+└── config/
+    └── AppConfig.java
+</code></pre>
+<p><strong>Complete Example:</strong></p>
+<pre><code class="language-java">// Main Application Class
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+
+// Entity (Not a Spring Bean)
+@Entity
+public class User {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String name;
+    // Getters and setters
+}
+
+// Repository Bean
+@Repository
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+}
+
+// Service Bean
+@Service
+public class UserService {
+    private final UserRepository repository;
+
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
+
+    public User createUser(String name) {
+        User user = new User();
+        user.setName(name);
+        return repository.save(user);
+    }
+
+    public User findUser(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -&gt; new UserNotFoundException(id));
+    }
+}
+
+// Controller Bean
+@RestController
+@RequestMapping(&quot;/api/users&quot;)
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    public User createUser(@RequestBody String name) {
+        return userService.createUser(name);
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public User getUser(@PathVariable Long id) {
+        return userService.findUser(id);
+    }
+}
+
+// Configuration Bean
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = &quot;app.cache.enabled&quot;, havingValue = &quot;true&quot;)
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager(&quot;users&quot;);
+    }
+}
+</code></pre>
+<p><strong>How Spring Boot Creates and Wires Beans:</strong></p>
+<pre><code>1. Spring starts Application.java
+2. Component scan finds:
+   - @Repository → UserRepository bean created
+   - @Service → UserService bean created
+   - @RestController → UserController bean created
+   - @Configuration → AppConfig bean created
+3. Dependency injection:
+   - UserService gets UserRepository injected
+   - UserController gets UserService injected
+4. All beans ready to use!
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Origin</strong></td>
+<td>Term comes from JavaBeans specification (1997) - reusable components</td>
+</tr>
+<tr>
+<td><strong>Spring Bean</strong></td>
+<td>Object managed by Spring IoC container</td>
+</tr>
+<tr>
+<td><strong>Creation Methods</strong></td>
+<td><code>@Component/@Service/@Repository</code>, <code>@Bean</code> methods, XML</td>
+</tr>
+<tr>
+<td><strong>Default Scope</strong></td>
+<td>Singleton (one instance per container)</td>
+</tr>
+<tr>
+<td><strong>Dependency Injection</strong></td>
+<td>Constructor (recommended), Field, Setter</td>
+</tr>
+<tr>
+<td><strong>Lifecycle</strong></td>
+<td>Constructor → DI → @PostConstruct → Ready → @PreDestroy</td>
+</tr>
+<tr>
+<td><strong>Best Practice</strong></td>
+<td>Constructor injection, specific annotations, stateless beans</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Takeaways:</strong><br />
+- 🏗️ Beans are the foundation of Spring applications<br />
+- 🔄 Spring manages bean lifecycle automatically<br />
+- 📦 Use constructor injection for dependencies<br />
+- 🎯 Prefer specific annotations (@Service, @Repository)<br />
+- ✅ Keep beans stateless (singleton scope)</p>
+<p><strong>Spring Beans enable:</strong><br />
+- Loose coupling through dependency injection<br />
+- Easy testing (mock dependencies)<br />
+- Configuration externalization<br />
+- Aspect-oriented programming (AOP)<br />
+- Lifecycle management</p>
+<p>Understanding beans is essential for mastering Spring Boot! 🌱</p>
+</section>
+    </div>
+</body>
+</html>
