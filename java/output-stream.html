@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java `OutputStream`: A Deep Dive</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java `OutputStream`: A Deep Dive</h1>
+        
+<section class="section">
+<h1>Java <code>OutputStream</code>: A Deep Dive</h1>
+<p><code>OutputStream</code> is Java's foundational abstraction for writing raw bytes. It powers most blocking write I/O in the JDK and is frequently composed (decorator pattern) for buffering, checksums, compression, encryption, and higher-level encodings.</p>
+</section>
+
+<section class="section">
+<h2>1) Type and Design Overview</h2>
+<ul>
+<li><strong>Role</strong>: Abstract sink for 8-bit bytes; no character encoding.</li>
+<li><strong>Design</strong>: Minimal core API + concrete sources + decorators for capabilities.</li>
+<li><strong>Hierarchy (common classes)</strong>:</li>
+<li><code>OutputStream</code> (abstract)<ul>
+<li>Sinks: <code>FileOutputStream</code>, <code>ByteArrayOutputStream</code>, <code>PipedOutputStream</code></li>
+<li>Decorators: <code>FilterOutputStream</code></li>
+<li><code>BufferedOutputStream</code>, <code>DataOutputStream</code>, <code>PrintStream</code>, <code>CheckedOutputStream</code>, <code>DeflaterOutputStream</code> (and <code>GZIPOutputStream</code>), <code>CipherOutputStream</code>, <code>DigestOutputStream</code>, <code>ObjectOutputStream</code></li>
+</ul>
+</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Core Methods and Semantics</h2>
+<ul>
+<li><code>void write(int b)</code></li>
+<li>Writes the low 8 bits of <code>b</code>. Typically inefficient in loops; prefer bulk writes.</li>
+<li><code>void write(byte[] b)</code> and <code>void write(byte[] b, int off, int len)</code></li>
+<li>Must eventually write all <code>len</code> bytes or throw <code>IOException</code>. Implementations may buffer.</li>
+<li><code>void flush()</code></li>
+<li>Forces buffered bytes to the underlying sink. Some streams flush implicitly (e.g., <code>PrintStream</code> on newline when autoFlush set), others do nothing, but calling is safe.</li>
+<li><code>void close()</code></li>
+<li>Idempotent. Must release resources and typically flush pending data. After close, further writes should throw <code>IOException</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>3) Buffering and Performance</h2>
+<ul>
+<li>Wrap slow sinks (disk/network) with <code>BufferedOutputStream</code> to reduce syscalls.</li>
+<li>Choose buffer sizes based on workload: 8–64 KiB are common. Measure.</li>
+<li>Avoid repeated single-byte writes; prefer bulk writes or <code>OutputStream#transferTo</code> complements (<code>InputStream#transferTo</code>).</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>4) Error Handling</h2>
+<ul>
+<li>Writes can fail late (e.g., disk full) — ensure exceptions propagate and are not swallowed.</li>
+<li><code>PrintStream</code> historically swallows exceptions; use <code>checkError()</code> or prefer <code>BufferedWriter/PrintWriter</code> with care.</li>
+<li>Use try-with-resources to ensure <code>close()</code> executes.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Ordering, Atomicity, and Visibility</h2>
+<ul>
+<li><code>write(byte[])</code> is not guaranteed to be atomic at OS level; for concurrency, synchronize externally and avoid concurrent writes to the same stream.</li>
+<li><code>flush()</code> provides ordering to the underlying sink but not durability guarantees (depends on sink; e.g., use <code>FileDescriptor#sync()</code> for stronger guarantees).</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>6) Common Implementations</h2>
+<ul>
+<li><code>ByteArrayOutputStream</code>: in-memory accumulation; exposes <code>toByteArray()</code>/<code>toString(charset)</code>.</li>
+<li><code>FileOutputStream</code>: file-backed; use <code>getChannel()</code> for NIO features and <code>getFD().sync()</code> for durability.</li>
+<li><code>BufferedOutputStream</code>: adds buffering; improves throughput.</li>
+<li><code>DataOutputStream</code>: writes Java primitives in big-endian order.</li>
+<li><code>PrintStream</code>: text printing, optional auto-flush, legacy error swallowing behavior.</li>
+<li><code>GZIPOutputStream</code> / <code>DeflaterOutputStream</code>: compression; must <code>close()</code> to finish trailer.</li>
+<li><code>ObjectOutputStream</code>: Java serialization; not recommended for long-term or cross-service interoperability.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) OutputStream vs Writer</h2>
+<ul>
+<li><code>OutputStream</code> deals with bytes; <code>Writer</code> with characters. For text, use <code>OutputStreamWriter</code> with explicit charset (e.g., UTF-8).</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>8) Best Practices Checklist</h2>
+<ul>
+<li>Use try-with-resources; always close.</li>
+<li>Prefer buffered + bulk writes.</li>
+<li>Call <code>flush()</code> at logical boundaries; avoid excessive flushing.</li>
+<li>Be explicit about text encodings via <code>OutputStreamWriter</code>.</li>
+<li>For durability, consider <code>getFD().sync()</code> and transactional patterns.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>9) Examples</h2>
+<h3>9.1 Write bytes to a file (basic)</h3>
+<pre><code class="language-java">void writeBytes(Path path, byte[] data) throws IOException {
+    try (OutputStream out = Files.newOutputStream(path)) {
+        out.write(data);
+    }
+}
+</code></pre>
+<h3>9.2 Buffered copy from InputStream</h3>
+<pre><code class="language-java">long copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
+    byte[] buffer = new byte[bufferSize];
+    long total = 0;
+    int read;
+    while ((read = in.read(buffer)) != -1) {
+        out.write(buffer, 0, read);
+        total += read;
+    }
+    out.flush();
+    return total;
+}
+</code></pre>
+<h3>9.3 Writing text with charset</h3>
+<pre><code class="language-java">void writeText(OutputStream out, CharSequence text, Charset cs) throws IOException {
+    try (Writer writer = new OutputStreamWriter(out, cs)) {
+        writer.write(text.toString());
+    }
+}
+</code></pre>
+<h3>9.4 GZIP compress bytes</h3>
+<pre><code class="language-java">byte[] gzip(byte[] data) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (GZIPOutputStream gz = new GZIPOutputStream(baos)) {
+        gz.write(data);
+    }
+    return baos.toByteArray();
+}
+</code></pre>
+<h3>9.5 Ensure durability on disk</h3>
+<pre><code class="language-java">void writeDurable(Path path, byte[] data) throws IOException {
+    try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
+        fos.write(data);
+        fos.getFD().sync(); // stronger durability signal
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>10) Pitfalls to Avoid</h2>
+<ul>
+<li>Forgetting to <code>close()</code> compressed/encrypted streams; trailers/footers may be missing.</li>
+<li>Excessive <code>flush()</code> calls destroying throughput.</li>
+<li>Using <code>PrintStream</code> and ignoring errors; always check <code>checkError()</code> or avoid it.</li>
+<li>Concurrent writes without synchronization leading to interleaving/corruption.</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>11) Testing the OutputStream API (Strategies and Patterns)</h2>
+<p>Write tests that validate correctness, buffering, flushing, error propagation, and resource closing. Use deterministic in-memory streams when possible; use filesystem/sockets only when behavior depends on them.</p>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Prefer <code>ByteArrayOutputStream</code> for assertions on produced bytes.</li>
+<li>Validate that <code>write(byte[], off, len)</code> writes exactly <code>len</code> bytes and that <code>flush()</code>/<code>close()</code> semantics hold.</li>
+<li>Inject failures to ensure exceptions surface and resources are closed.</li>
+<li>When testing wrappers (buffered, gzip, data), assert both side effects and resulting bytes.</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>ByteArrayOutputStream</code> as an oracle for expected output.</li>
+<li>A custom <code>FailingOutputStream</code> to throw on demand (on <code>write</code>/<code>flush</code>/<code>close</code>).</li>
+<li>A <code>CountingOutputStream</code> to assert call patterns (single vs bulk writes, flush counts).</li>
+</ul>
+<h3>Scenarios You Should Cover</h3>
+<p>1) Bulk writes and exactness</p>
+<pre><code class="language-java">@Test
+void writesExactBytes() throws IOException {
+    byte[] data = new byte[1024];
+    new Random(123).nextBytes(data);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (OutputStream out = baos) {
+        out.write(data);
+    }
+    assertArrayEquals(data, baos.toByteArray());
+}
+</code></pre>
+<p>2) Offset/length correctness</p>
+<pre><code class="language-java">@Test
+void writesWithOffsetAndLength() throws IOException {
+    byte[] data = &quot;abcdefgh&quot;.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (OutputStream out = baos) {
+        out.write(data, 2, 4); // cdef
+    }
+    assertEquals(&quot;cdef&quot;, baos.toString(StandardCharsets.UTF_8));
+}
+</code></pre>
+<p>3) Buffering reduces underlying calls</p>
+<pre><code class="language-java">static final class CountingOutputStream extends FilterOutputStream {
+    int singleWrites; int bulkWrites; int flushes; int closes;
+    CountingOutputStream(OutputStream out) { super(out); }
+    @Override public void write(int b) throws IOException { singleWrites++; super.write(b); }
+    @Override public void write(byte[] b, int off, int len) throws IOException { bulkWrites++; super.write(b, off, len); }
+    @Override public void flush() throws IOException { flushes++; super.flush(); }
+    @Override public void close() throws IOException { closes++; super.close(); }
+}
+
+@Test
+void bufferedReducesSyscalls() throws IOException {
+    CountingOutputStream counting = new CountingOutputStream(new ByteArrayOutputStream());
+    try (OutputStream out = new BufferedOutputStream(counting, 4096)) {
+        out.write(new byte[8192]);
+        out.flush();
+    }
+    assertTrue(counting.singleWrites == 0);
+    assertTrue(counting.bulkWrites &lt;= 3); // implementation dependent but small
+    assertTrue(counting.closes &gt;= 1);
+}
+</code></pre>
+<p>4) Flush semantics</p>
+<pre><code class="language-java">@Test
+void flushPropagates() throws IOException {
+    AtomicBoolean flushed = new AtomicBoolean(false);
+    OutputStream obs = new OutputStream() {
+        @Override public void write(int b) {}
+        @Override public void flush() { flushed.set(true); }
+    };
+    try (OutputStream out = new BufferedOutputStream(obs)) {
+        out.write(1);
+        out.flush();
+    }
+    assertTrue(flushed.get());
+}
+</code></pre>
+<p>5) Error propagation</p>
+<pre><code class="language-java">static final class FailingOutputStream extends OutputStream {
+    @Override public void write(int b) throws IOException { throw new IOException(&quot;boom&quot;); }
+}
+
+@Test
+void propagatesIoException() {
+    try (OutputStream out = new FailingOutputStream()) {
+        assertThrows(IOException.class, () -&gt; out.write(1));
+    } catch (IOException e) {
+        // try-with-resources handles suppressed exceptions
+    }
+}
+</code></pre>
+<p>6) Compression integrity</p>
+<pre><code class="language-java">@Test
+void gzipProducesValidStream() throws IOException {
+    byte[] input = &quot;hello&quot;.getBytes(StandardCharsets.UTF_8);
+    byte[] gz;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (GZIPOutputStream gout = new GZIPOutputStream(baos)) {
+        gout.write(input);
+    }
+    gz = baos.toByteArray();
+
+    try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(gz))) {
+        assertArrayEquals(input, in.readAllBytes());
+    }
+}
+</code></pre>
+<p>7) Durability (integration)</p>
+<pre><code class="language-java">@Test
+void fileSyncEnsuresDurability() throws IOException {
+    Path tmp = Files.createTempFile(&quot;durable&quot;, &quot;.bin&quot;);
+    byte[] data = new byte[1024];
+    try (FileOutputStream fos = new FileOutputStream(tmp.toFile())) {
+        fos.write(data);
+        fos.getFD().sync();
+    }
+    assertTrue(Files.size(tmp) == 1024);
+}
+</code></pre>
+<h3>Practical Tips</h3>
+<ul>
+<li>Use <code>@TempDir</code> to isolate filesystem side effects.</li>
+<li>Avoid per-test large allocations; reuse buffers via fields or test fixtures.</li>
+<li>Clearly separate unit (in-memory) vs integration (filesystem/network) tests.</li>
+<li>For <code>PrintStream</code>, verify <code>checkError()</code> when testing failure scenarios.</li>
+<li>Name tests by behavior: "writesExactBytes", "flushPropagates", "gzipProducesValidStream".</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
