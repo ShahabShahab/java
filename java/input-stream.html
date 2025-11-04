@@ -301,6 +301,147 @@ try (InputStream in = socket.getInputStream()) {
 <li>Mark/reset: check <code>markSupported()</code> first</li>
 </ul>
 </section>
+
+<section class="section">
+<h2>14) Testing the InputStream API (Strategies and Patterns)</h2>
+<p>Design tests to validate semantics under real-world I/O behaviors: blocking, partial reads, EOF, mark/reset, exceptions, and resource handling. Prefer hermetic, deterministic tests with clear lifecycles.</p>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Prefer deterministic, in-memory sources when possible; use the filesystem or sockets only when the behavior under test requires them.</li>
+<li>Assert semantics, not implementation: partial reads, EOF at <code>-1</code>, idempotent <code>close()</code>, mark/reset constraints.</li>
+<li>Exercise composition: verify behavior when wrapped with <code>BufferedInputStream</code>, <code>DataInputStream</code>, <code>GZIPInputStream</code>, etc.</li>
+<li>Use try-with-resources in tests to validate proper closing and suppressed exceptions.</li>
+</ul>
+<h3>Core Test Fixtures and Doubles</h3>
+<ul>
+<li>Byte arrays via <code>ByteArrayInputStream</code> for deterministic data.</li>
+<li>Temp files via <code>Files.createTempFile</code> + <code>FileInputStream</code> when OS interaction matters.</li>
+<li>Custom stub streams to simulate partial reads, errors on demand, or unsupported mark/reset.</li>
+<li><code>PipedInputStream</code>/<code>PipedOutputStream</code> to simulate producer/consumer and blocking behavior.</li>
+</ul>
+<h3>Scenarios You Should Cover</h3>
+<p>1) Correctness of bulk reads and partial reads<br />
+- Ensure your read loops handle fewer-than-requested bytes.</p>
+<pre><code class="language-java">@Test
+void readsInChunksUntilEof() throws IOException {
+    byte[] data = new byte[1024];
+    new Random(42).nextBytes(data);
+
+    try (InputStream in = new ByteArrayInputStream(data)) {
+        byte[] buf = new byte[150];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            out.write(buf, 0, n);
+        }
+        assertArrayEquals(data, out.toByteArray());
+    }
+}
+</code></pre>
+<p>2) EOF semantics<br />
+- <code>read(...)</code> returns <code>-1</code> at EOF, never <code>0</code> (unless <code>len == 0</code>).</p>
+<pre><code class="language-java">@Test
+void eofReturnsMinusOne() throws IOException {
+    try (InputStream in = new ByteArrayInputStream(new byte[0])) {
+        assertEquals(-1, in.read());
+        assertEquals(-1, in.read(new byte[8]));
+    }
+}
+</code></pre>
+<p>3) Mark/reset behavior and <code>readlimit</code><br />
+- Only rely on mark/reset when <code>markSupported()</code> is true.</p>
+<pre><code class="language-java">@Test
+void markResetWithinReadlimit() throws IOException {
+    byte[] data = &quot;abcdef&quot;.getBytes(StandardCharsets.UTF_8);
+    try (InputStream in = new BufferedInputStream(new ByteArrayInputStream(data))) {
+        assertTrue(in.markSupported());
+        in.mark(3);
+        assertEquals('a', in.read());
+        assertEquals('b', in.read());
+        assertEquals('c', in.read());
+        in.reset();
+        assertEquals('a', in.read());
+    }
+}
+</code></pre>
+<p>4) Buffering effects<br />
+- Wrap slow sources with <code>BufferedInputStream</code> and assert fewer underlying reads using a counting stub.</p>
+<pre><code class="language-java">static final class CountingInputStream extends FilterInputStream {
+    int singleReads; int bulkReads;
+    CountingInputStream(InputStream in) { super(in); }
+    @Override public int read() throws IOException { singleReads++; return super.read(); }
+    @Override public int read(byte[] b, int off, int len) throws IOException { bulkReads++; return super.read(b, off, len); }
+}
+
+@Test
+void bufferedReducesSyscalls() throws IOException {
+    byte[] data = new byte[8192];
+    CountingInputStream counting = new CountingInputStream(new ByteArrayInputStream(data));
+    try (InputStream in = new BufferedInputStream(counting, 4096)) {
+        in.readAllBytes();
+    }
+    assertTrue(counting.singleReads == 0); // bulk path only
+    assertTrue(counting.bulkReads &lt;= 3);   // depends on JDK; should be small
+}
+</code></pre>
+<p>5) Error injection and exception flows<br />
+- Verify your logic propagates <code>IOException</code> correctly and closes resources.</p>
+<pre><code class="language-java">static final class FailingInputStream extends InputStream {
+    @Override public int read() throws IOException { throw new IOException(&quot;boom&quot;); }
+}
+
+@Test
+void propagatesIoException() {
+    try (InputStream in = new FailingInputStream()) {
+        assertThrows(IOException.class, in::read);
+    } catch (IOException e) {
+        // try-with-resources suppresses close errors if any; nothing to do
+    }
+}
+</code></pre>
+<p>6) GZIP or framed formats<br />
+- Use tiny known inputs and assert round-trip integrity.</p>
+<pre><code class="language-java">@Test
+void gzipRoundTrip() throws IOException {
+    byte[] input = &quot;hello&quot;.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream gz = new ByteArrayOutputStream();
+    try (GZIPOutputStream gout = new GZIPOutputStream(gz)) {
+        gout.write(input);
+    }
+    try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(gz.toByteArray()))) {
+        assertArrayEquals(input, in.readAllBytes());
+    }
+}
+</code></pre>
+<p>7) Timeouts and blocking reads (integration)<br />
+- For sockets, use <code>ServerSocket</code> on loopback, set <code>setSoTimeout</code>, and assert timeout behavior; mark as integration and keep bounds tight.</p>
+<pre><code class="language-java">@Test
+void socketReadHonorsTimeout() throws Exception {
+    try (ServerSocket server = new ServerSocket(0)) {
+        Future&lt;?&gt; accept = Executors.newSingleThreadExecutor().submit(() -&gt; {
+            try (Socket s = server.accept()) { Thread.sleep(10_000); } catch (Exception ignored) {}
+            return null;
+        });
+        try (Socket client = new Socket(&quot;127.0.0.1&quot;, server.getLocalPort())) {
+            client.setSoTimeout(100);
+            InputStream in = client.getInputStream();
+            assertThrows(SocketTimeoutException.class, () -&gt; in.read());
+        }
+        accept.cancel(true);
+    }
+}
+</code></pre>
+<p>8) Property-based and fuzz tests<br />
+- Generate random byte sequences; assert parser invariants (no crashes, idempotent decode/encode when applicable).</p>
+<h3>Practical Tips</h3>
+<ul>
+<li>Use <code>@TempDir</code> (JUnit 5) for filesystem isolation.</li>
+<li>Keep buffers reusable; avoid per-test allocations in hot loops.</li>
+<li>Name tests by behavior: "returnsMinusOneOnEof", "respectsReadlimitOnReset".</li>
+<li>Separate unit vs integration; run flaky/network tests selectively.</li>
+<li>When verifying wrappers, prefer thin custom stubs over heavy mocking.</li>
+</ul>
+</section>
     </div>
 </body>
 </html>
