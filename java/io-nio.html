@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java I/O and NIO.2 Learning Journey</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java I/O and NIO.2 Learning Journey</h1>
+        
+<section class="section">
+<h1>Java I/O and NIO.2 Learning Journey</h1>
+</section>
+
+<section class="section">
+<h2>📚 <strong>Lesson 1: Understanding Java I/O APIs</strong></h2>
+<h3><strong>Core Concepts Mastered:</strong></h3>
+<h4><strong>1. Byte-Oriented Streams (Binary Data)</strong></h4>
+<ul>
+<li><strong><code>InputStream</code></strong> - Abstract base class for reading binary data</li>
+<li><strong><code>OutputStream</code></strong> - Abstract base class for writing binary data</li>
+<li><strong>Key implementations</strong>: <code>FileInputStream</code>, <code>FileOutputStream</code>, <code>BufferedInputStream</code></li>
+</ul>
+<h4><strong>2. Character-Oriented Streams (Text Data)</strong></h4>
+<ul>
+<li><strong><code>Reader</code></strong> - Abstract base class for reading text data</li>
+<li><strong><code>Writer</code></strong> - Abstract base class for writing text data</li>
+<li><strong>Key implementations</strong>: <code>FileReader</code>, <code>FileWriter</code>, <code>BufferedReader</code>, <code>BufferedWriter</code></li>
+</ul>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ Basic API structure and imports</li>
+<li>✅ Method signatures and object creation</li>
+<li>✅ Exception handling structure</li>
+<li>✅ Understanding stream types and their purposes</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>📚 <strong>Lesson 2: Understanding Stream Hierarchy and Relationships</strong></h2>
+<h3><strong>Core Concepts Mastered:</strong></h3>
+<h4><strong>1. Stream Hierarchy</strong></h4>
+<ul>
+<li><strong><code>InputStream</code></strong> → <code>FileInputStream</code>, <code>BufferedInputStream</code></li>
+<li><strong><code>OutputStream</code></strong> → <code>FileOutputStream</code>, <code>BufferedOutputStream</code></li>
+<li><strong><code>Reader</code></strong> → <code>FileReader</code>, <code>BufferedReader</code></li>
+<li><strong><code>Writer</code></strong> → <code>FileWriter</code>, <code>BufferedWriter</code></li>
+</ul>
+<h4><strong>2. Key Relationships</strong></h4>
+<ul>
+<li><strong>Buffered streams wrap other streams</strong> for performance</li>
+<li><strong>Character streams can wrap byte streams</strong> (with encoding)</li>
+<li><strong>All streams implement <code>AutoCloseable</code></strong> (important for try-with-resources)</li>
+</ul>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ Stream wrapping and chaining patterns</li>
+<li>✅ Performance optimization through buffering</li>
+<li>✅ Understanding the hierarchy and relationships</li>
+<li>✅ How streams can be combined for better functionality</li>
+</ul>
+<h3><strong>Wrapping Pattern Example:</strong></h3>
+<pre><code class="language-java">public void showStreamHierarchy() {
+    // Byte streams - wrapped for performance
+    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;src/io_nio/test.txt&quot;));
+         BufferedReader br = new BufferedReader(new FileReader(&quot;src/io_nio/test.txt&quot;))) {
+
+        // Streams are automatically closed here
+        // This is the proper way to handle resources
+
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+}
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>🌊 <strong>What is a Stream in Java I/O?</strong></h2>
+<h3><strong>Simple Definition:</strong></h3>
+<p>A <strong>Stream</strong> is a <strong>sequence of data</strong> that flows from one place to another, like water flowing through a pipe.</p>
+<h3><strong>Key Characteristics:</strong></h3>
+<h4><strong>1. Data Flow</strong></h4>
+<ul>
+<li><strong>Input Stream</strong>: Data flows <strong>INTO</strong> your program (reading)</li>
+<li><strong>Output Stream</strong>: Data flows <strong>OUT OF</strong> your program (writing)</li>
+</ul>
+<h4><strong>2. Two Types of Data</strong></h4>
+<ul>
+<li><strong>Byte Streams</strong>: Handle <strong>binary data</strong> (images, videos, any file)</li>
+<li><strong>Character Streams</strong>: Handle <strong>text data</strong> (strings, documents)</li>
+</ul>
+<h4><strong>3. Sequential Processing</strong></h4>
+<ul>
+<li>Data is processed <strong>one piece at a time</strong></li>
+<li>Like reading a book <strong>page by page</strong></li>
+<li>Not loading the entire file into memory at once</li>
+</ul>
+<h3><strong>Real-World Analogy:</strong></h3>
+<p>Think of a <strong>water hose</strong>:<br />
+- <strong>Water flows through</strong> the hose (data flows through stream)<br />
+- You can <strong>control the flow</strong> (read/write operations)<br />
+- <strong>Different hoses</strong> for different purposes (byte vs character streams)<br />
+- <strong>Buffering</strong> is like having a <strong>water tank</strong> for better performance</p>
+<h3><strong>Why Use Streams?</strong></h3>
+<p>✅ <strong>Memory efficient</strong> - Don't load entire files at once<br />
+✅ <strong>Flexible</strong> - Can process data of any size<br />
+✅ <strong>Reliable</strong> - Handle data flow consistently<br />
+✅ <strong>Composable</strong> - Can chain streams together (like your buffered examples)  </p>
+<h3><strong>In Your Code:</strong></h3>
+<pre><code class="language-java">// This creates a &quot;pipe&quot; for reading text data
+try (BufferedReader br = new BufferedReader(new FileReader(&quot;src/io_nio/test.txt&quot;))) {
+    // Stream is automatically closed here
+    // Data flows from file to program through this &quot;pipe&quot;
+} catch (IOException e) {
+    System.err.println(&quot;Error: &quot; + e.getMessage());
+}
+</code></pre>
+<p><strong>The stream is the "pipe" that connects your program to the file, allowing data to flow between them!</strong></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>📚 <strong>Lesson 3: Basic I/O Operations and Method Implementations</strong></h2>
+<h3><strong>Core Concepts Mastered:</strong></h3>
+<h4><strong>1. Reading Operations</strong></h4>
+<ul>
+<li><strong><code>read()</code></strong> - Read single byte/character</li>
+<li><strong><code>read(byte[] buffer)</code></strong> - Read into buffer array</li>
+<li><strong><code>readLine()</code></strong> - Read entire line (BufferedReader)</li>
+</ul>
+<h4><strong>2. Writing Operations</strong></h4>
+<ul>
+<li><strong><code>write(int data)</code></strong> - Write single byte/character</li>
+<li><strong><code>write(byte[] data)</code></strong> - Write byte array</li>
+<li><strong><code>write(String data)</code></strong> - Write string data</li>
+</ul>
+<h4><strong>3. Essential Methods</strong></h4>
+<ul>
+<li><strong><code>close()</code></strong> - Close the stream (handled by try-with-resources)</li>
+<li><strong><code>available()</code></strong> - Check bytes available to read</li>
+<li><strong><code>flush()</code></strong> - Force data to be written</li>
+</ul>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ <strong>FileInputStream</strong> for reading binary data</li>
+<li>✅ <strong>FileOutputStream</strong> for writing binary data</li>
+<li>✅ <strong>Byte-by-byte reading</strong> with proper loop control</li>
+<li>✅ <strong>ASCII table conversion</strong> from int to char</li>
+<li>✅ <strong>Idiomatic Java I/O patterns</strong> with assignment in condition</li>
+</ul>
+<h3><strong>Code Implementation:</strong></h3>
+<h4><strong>Reading File Byte by Byte:</strong></h4>
+<pre><code class="language-java">public void demonstrateReading() {
+    try (FileInputStream fis = new FileInputStream(&quot;src/io_nio/test.txt&quot;)) {
+        int data = 0;
+        System.out.println(&quot;Reading file byte by byte:&quot;);
+        while ((data = fis.read()) != -1) {
+            System.out.print((char) data);
+        }
+        System.out.println(&quot;\n--- End of file ---&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error reading file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h4><strong>Writing Data to File:</strong></h4>
+<pre><code class="language-java">public void demonstrateWriting() {
+    try (FileOutputStream fos = new FileOutputStream(&quot;output.txt&quot;)) {
+        String data = &quot;Hello from Java I/O!\nThis is written using FileOutputStream.&quot;;
+        byte[] bytes = data.getBytes();
+        fos.write(bytes);
+        System.out.println(&quot;Data written to output.txt successfully!&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error writing file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h3><strong>Advanced Concepts:</strong></h3>
+<ul>
+<li><strong>Assignment in condition</strong>: <code>(data = fis.read()) != -1</code></li>
+<li><strong>ASCII conversion</strong>: <code>(char) data</code> for character display</li>
+<li><strong>Resource management</strong>: try-with-resources for automatic cleanup</li>
+<li><strong>Error handling</strong>: IOException with meaningful messages</li>
+</ul>
+<h3><strong>Stream Concept Deep Dive:</strong></h3>
+<ul>
+<li><strong>Reading</strong>: True streaming (byte by byte) - unknown file size</li>
+<li><strong>Writing</strong>: Batch processing (all at once) - known data size</li>
+<li><strong>Stream definition</strong>: Data flow direction, not processing method</li>
+<li><strong>Performance</strong>: Batch writing is more efficient than byte-by-byte</li>
+<li><strong>Professional approach</strong>: Use appropriate method for each operation</li>
+</ul>
+<h3><strong>Key Insight:</strong></h3>
+<pre><code class="language-java">// Reading: Stream because we don't know what's coming
+while ((data = fis.read()) != -1) {  // Unknown size, read gradually
+
+// Writing: Stream because data flows from program to file  
+fos.write(bytes);  // Known size, write efficiently
+</code></pre>
+<p><strong>"Stream" = Data flow direction, not "one byte at a time"</strong></p>
+<h3><strong>Reading Methods Comparison:</strong></h3>
+<h4><strong>1. Byte-by-Byte Reading:</strong></h4>
+<pre><code class="language-java">public void demonstrateReading() {
+    try (FileInputStream fis = new FileInputStream(&quot;src/io_nio/test.txt&quot;)) {
+        int data = 0;
+        System.out.println(&quot;Reading file byte by byte:&quot;);
+        while ((data = fis.read()) != -1) {
+            System.out.print((char) data);
+        }
+        System.out.println(&quot;\n--- End of file ---&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error reading file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h4><strong>2. Buffer Reading:</strong></h4>
+<pre><code class="language-java">public void demonstrateBufferReading() {
+    try (FileInputStream fis = new FileInputStream(&quot;src/io_nio/test.txt&quot;)) {
+        byte[] buffer = new byte[1024];  // 1KB buffer
+        int bytesRead;
+        System.out.println(&quot;Reading file with buffer:&quot;);
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            // Convert buffer to string and display
+            String content = new String(buffer, 0, bytesRead);
+            System.out.print(content);
+        }
+        System.out.println(&quot;\n--- End of file (buffer method) ---&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error reading file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h3><strong>Performance Comparison:</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Performance</th>
+<th>Use Case</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Byte-by-byte</strong></td>
+<td>Slower</td>
+<td>Learning, small files</td>
+<td>Simple</td>
+</tr>
+<tr>
+<td><strong>Buffer</strong></td>
+<td>Faster</td>
+<td>Production, large files</td>
+<td>More complex</td>
+</tr>
+</tbody>
+</table>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ <strong>Buffer reading</strong> is more efficient for large files</li>
+<li>✅ <strong>Byte-by-byte</strong> is better for learning and small files</li>
+<li>✅ <strong>Professional approach</strong> uses buffer reading in production</li>
+<li>✅ <strong>System calls</strong> are reduced with buffer reading</li>
+</ul>
+<h3><strong>Buffered Stream Capabilities:</strong></h3>
+<h4><strong>1. BufferedInputStream:</strong></h4>
+<pre><code class="language-java">public void demonstrateBufferedInputStream() {
+    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;src/io_nio/test.txt&quot;))) {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        System.out.println(&quot;Reading with BufferedInputStream:&quot;);
+        while ((bytesRead = bis.read(buffer)) != -1) {
+            String content = new String(buffer, 0, bytesRead);
+            System.out.print(content);
+        }
+        System.out.println(&quot;\n--- End of file (BufferedInputStream) ---&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error reading file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h4><strong>2. BufferedOutputStream:</strong></h4>
+<pre><code class="language-java">public void demonstrateBufferedOutputStream() {
+    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(&quot;buffered_output.txt&quot;))) {
+        String data = &quot;Hello from BufferedOutputStream!\nThis is more efficient than FileOutputStream.&quot;;
+        byte[] bytes = data.getBytes();
+        bos.write(bytes);
+        bos.flush(); // Force data to be written
+        System.out.println(&quot;Data written to buffered_output.txt successfully!&quot;);
+    } catch (IOException e) {
+        System.err.println(&quot;Error writing file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h4><strong>3. Performance Comparison:</strong></h4>
+<pre><code class="language-java">public void demonstratePerformanceComparison() {
+    System.out.println(&quot;=== Performance Comparison ===&quot;);
+
+    // Test 1: FileInputStream (no buffering)
+    long startTime = System.currentTimeMillis();
+    try (FileInputStream fis = new FileInputStream(&quot;src/io_nio/test.txt&quot;)) {
+        int data;
+        while ((data = fis.read()) != -1) {
+            // Just reading, not processing
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error: &quot; + e.getMessage());
+    }
+    long fileInputStreamTime = System.currentTimeMillis() - startTime;
+
+    // Test 2: BufferedInputStream (with buffering)
+    startTime = System.currentTimeMillis();
+    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;src/io_nio/test.txt&quot;))) {
+        int data;
+        while ((data = bis.read()) != -1) {
+            // Just reading, not processing
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error: &quot; + e.getMessage());
+    }
+    long bufferedInputStreamTime = System.currentTimeMillis() - startTime;
+
+    System.out.println(&quot;FileInputStream time: &quot; + fileInputStreamTime + &quot;ms&quot;);
+    System.out.println(&quot;BufferedInputStream time: &quot; + bufferedInputStreamTime + &quot;ms&quot;);
+    if (bufferedInputStreamTime &gt; 0) {
+        System.out.println(&quot;BufferedInputStream is &quot; + (fileInputStreamTime / bufferedInputStreamTime) + &quot;x faster!&quot;);
+    }
+}
+</code></pre>
+<h3><strong>Buffered Stream Benefits:</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>FileInputStream</th>
+<th>BufferedInputStream</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Calls</strong></td>
+<td>One per read()</td>
+<td>Batched internally</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Slower</td>
+<td>Faster</td>
+</tr>
+<tr>
+<td><strong>Memory Usage</strong></td>
+<td>Lower</td>
+<td>Higher (buffer)</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>Small files</td>
+<td>Large files</td>
+</tr>
+</tbody>
+</table>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ <strong>Buffering concept</strong> - How internal buffers work</li>
+<li>✅ <strong>Performance benefits</strong> - Measurable speed improvements</li>
+<li>✅ <strong>When to use</strong> - Buffered vs non-buffered streams</li>
+<li>✅ <strong>Flush method</strong> - Forcing data to be written</li>
+<li>✅ <strong>Real performance</strong> - Actual timing comparisons</li>
+</ul>
+<h3><strong>Deep Dive: Buffered Streams Mastery</strong></h3>
+<h4><strong>1. Buffering Concept - How Internal Buffers Work</strong></h4>
+<h5><strong>The Problem with Direct I/O:</strong></h5>
+<pre><code class="language-java">// Without buffering - SLOW!
+FileInputStream fis = new FileInputStream(&quot;large_file.txt&quot;);
+int data;
+while ((data = fis.read()) != -1) {
+    // Each read() = 1 system call to OS
+    // 1000 bytes = 1000 system calls!
+}
+</code></pre>
+<h5><strong>How Buffering Solves It:</strong></h5>
+<pre><code class="language-java">// With buffering - FAST!
+BufferedInputStream bis = new BufferedInputStream(fis);
+// Internal buffer (usually 8KB)
+// Reads 8KB at once, then serves from memory
+</code></pre>
+<h5><strong>Internal Buffer Mechanism:</strong></h5>
+<pre><code>┌─────────────────────────────────────┐
+│  BufferedInputStream Internal Buffer │
+├─────────────────────────────────────┤
+│ [Data][Data][Data][Data][Data]...   │  ← 8KB buffer
+│     ↑                               │
+│   Current Position                   │
+└─────────────────────────────────────┘
+</code></pre>
+<p><strong>What Happens:</strong><br />
+1. <strong>First read()</strong> → Fills entire 8KB buffer from disk<br />
+2. <strong>Next 8KB reads</strong> → Served from memory buffer<br />
+3. <strong>Buffer empty</strong> → Another 8KB read from disk<br />
+4. <strong>Result</strong>: 1000 bytes = ~1 system call instead of 1000!</p>
+<h4><strong>2. Performance Benefits - Measurable Speed Improvements</strong></h4>
+<h5><strong>Real Performance Test:</strong></h5>
+<pre><code class="language-java">public void demonstrateRealPerformance() {
+    // Create a large test file first
+    createLargeTestFile();
+
+    // Test 1: Direct FileInputStream
+    long start = System.nanoTime();
+    try (FileInputStream fis = new FileInputStream(&quot;large_test.txt&quot;)) {
+        int data;
+        while ((data = fis.read()) != -1) {
+            // Just reading
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error: &quot; + e.getMessage());
+    }
+    long directTime = System.nanoTime() - start;
+
+    // Test 2: BufferedInputStream
+    start = System.nanoTime();
+    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;large_test.txt&quot;))) {
+        int data;
+        while ((data = bis.read()) != -1) {
+            // Just reading
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error: &quot; + e.getMessage());
+    }
+    long bufferedTime = System.nanoTime() - start;
+
+    System.out.println(&quot;Direct FileInputStream: &quot; + directTime + &quot; nanoseconds&quot;);
+    System.out.println(&quot;BufferedInputStream: &quot; + bufferedTime + &quot; nanoseconds&quot;);
+    System.out.println(&quot;Speed improvement: &quot; + (directTime / bufferedTime) + &quot;x faster!&quot;);
+}
+
+private void createLargeTestFile() {
+    try (FileWriter writer = new FileWriter(&quot;large_test.txt&quot;)) {
+        for (int i = 0; i &lt; 10000; i++) {
+            writer.write(&quot;This is line &quot; + i + &quot; with some content to make it larger.\n&quot;);
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error creating test file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h5><strong>Typical Performance Results:</strong></h5>
+<ul>
+<li><strong>Small files (&lt; 1KB)</strong>: Minimal difference</li>
+<li><strong>Medium files (1KB - 1MB)</strong>: 2-5x faster</li>
+<li><strong>Large files (&gt; 1MB)</strong>: 10-50x faster</li>
+<li><strong>Very large files (&gt; 100MB)</strong>: 100x+ faster</li>
+</ul>
+<h4><strong>3. When to Use - Buffered vs Non-Buffered Streams</strong></h4>
+<h5><strong>Use BufferedInputStream When:</strong></h5>
+<pre><code class="language-java">// ✅ Reading large files
+BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;database_backup.sql&quot;));
+
+// ✅ Frequent small reads
+while ((data = bis.read()) != -1) {
+    processCharacter(data);
+}
+
+// ✅ Network streams
+BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+</code></pre>
+<h5><strong>Use FileInputStream When:</strong></h5>
+<pre><code class="language-java">// ✅ Reading very small files (&lt; 1KB)
+FileInputStream fis = new FileInputStream(&quot;config.properties&quot;);
+
+// ✅ One-time bulk read
+byte[] allData = new byte[(int) file.length()];
+fis.read(allData); // Single system call
+
+// ✅ Memory-constrained environments
+// (BufferedInputStream uses extra memory)
+</code></pre>
+<h5><strong>Decision Matrix:</strong></h5>
+<table>
+<thead>
+<tr>
+<th>File Size</th>
+<th>Read Pattern</th>
+<th>Use Case</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt; 1KB</td>
+<td>Any</td>
+<td>Config files</td>
+<td>FileInputStream</td>
+</tr>
+<tr>
+<td>1KB - 1MB</td>
+<td>Sequential</td>
+<td>Log files</td>
+<td>BufferedInputStream</td>
+</tr>
+<tr>
+<td>&gt; 1MB</td>
+<td>Any</td>
+<td>Database dumps</td>
+<td>BufferedInputStream</td>
+</tr>
+<tr>
+<td>Any</td>
+<td>Random access</td>
+<td>Database files</td>
+<td>FileInputStream</td>
+</tr>
+</tbody>
+</table>
+<h4><strong>4. Flush Method - Forcing Data to be Written</strong></h4>
+<h5><strong>The Problem:</strong></h5>
+<pre><code class="language-java">BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(&quot;output.txt&quot;));
+bos.write(&quot;Hello World&quot;.getBytes());
+// Data is still in buffer, not written to disk yet!
+// If program crashes here, data is lost!
+</code></pre>
+<h5><strong>The Solution:</strong></h5>
+<pre><code class="language-java">BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(&quot;output.txt&quot;));
+bos.write(&quot;Hello World&quot;.getBytes());
+bos.flush(); // Force data to disk immediately
+// Data is now safely written!
+</code></pre>
+<h5><strong>When to Use Flush:</strong></h5>
+<pre><code class="language-java">// ✅ Critical data that must be saved
+bos.write(criticalData);
+bos.flush(); // Don't lose this data!
+
+// ✅ Real-time logging
+bos.write(logEntry);
+bos.flush(); // Log entry is immediately visible
+
+// ✅ Network communication
+bos.write(message);
+bos.flush(); // Send message immediately
+
+// ✅ Before closing (automatic in try-with-resources)
+bos.write(finalData);
+bos.flush(); // Ensure final data is written
+</code></pre>
+<h5><strong>Flush vs Close:</strong></h5>
+<pre><code class="language-java">// flush() - Forces buffer to disk, keeps stream open
+bos.flush();
+
+// close() - Flushes buffer AND closes stream
+bos.close();
+
+// try-with-resources - Automatic close() = automatic flush()
+try (BufferedOutputStream bos = ...) {
+    // Automatic flush when leaving try block
+}
+</code></pre>
+<h4><strong>5. Real Performance - Actual Timing Comparisons</strong></h4>
+<h5><strong>Comprehensive Performance Test:</strong></h5>
+<pre><code class="language-java">public void comprehensivePerformanceTest() {
+    System.out.println(&quot;=== Comprehensive Performance Test ===&quot;);
+
+    // Test different file sizes
+    int[] fileSizes = {1024, 10240, 102400, 1024000}; // 1KB, 10KB, 100KB, 1MB
+
+    for (int size : fileSizes) {
+        createTestFile(size);
+
+        // Test FileInputStream
+        long start = System.nanoTime();
+        try (FileInputStream fis = new FileInputStream(&quot;test_&quot; + size + &quot;.txt&quot;)) {
+            int data;
+            while ((data = fis.read()) != -1) {
+                // Just reading
+            }
+        } catch (IOException e) {
+            System.err.println(&quot;Error: &quot; + e.getMessage());
+        }
+        long fileTime = System.nanoTime() - start;
+
+        // Test BufferedInputStream
+        start = System.nanoTime();
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(&quot;test_&quot; + size + &quot;.txt&quot;))) {
+            int data;
+            while ((data = bis.read()) != -1) {
+                // Just reading
+            }
+        } catch (IOException e) {
+            System.err.println(&quot;Error: &quot; + e.getMessage());
+        }
+        long bufferedTime = System.nanoTime() - start;
+
+        double improvement = (double) fileTime / bufferedTime;
+        System.out.printf(&quot;File size: %d bytes, Improvement: %.2fx faster%n&quot;, size, improvement);
+    }
+}
+
+private void createTestFile(int size) {
+    try (FileWriter writer = new FileWriter(&quot;test_&quot; + size + &quot;.txt&quot;)) {
+        for (int i = 0; i &lt; size / 50; i++) { // Approximate size
+            writer.write(&quot;This is line &quot; + i + &quot; with some content.\n&quot;);
+        }
+    } catch (IOException e) {
+        System.err.println(&quot;Error creating test file: &quot; + e.getMessage());
+    }
+}
+</code></pre>
+<h5><strong>Expected Results:</strong></h5>
+<pre><code>File size: 1024 bytes, Improvement: 1.2x faster
+File size: 10240 bytes, Improvement: 3.5x faster  
+File size: 102400 bytes, Improvement: 8.2x faster
+File size: 1024000 bytes, Improvement: 15.7x faster
+</code></pre>
+<h3><strong>Key Takeaways:</strong></h3>
+<p>✅ <strong>Buffering</strong> reduces system calls from N to N/8192<br />
+✅ <strong>Performance</strong> improves dramatically with file size<br />
+✅ <strong>Memory trade-off</strong> - Uses more RAM for speed<br />
+✅ <strong>Flush</strong> ensures critical data reaches disk<br />
+✅ <strong>Real measurements</strong> show actual performance gains  </p>
+<p><strong>The bigger the file, the bigger the performance gain!</strong> 🚀</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>📝 <strong>What is Character Encoding?</strong></h2>
+<h3><strong>Simple Definition:</strong></h3>
+<p><strong>Encoding</strong> is the way computers represent text characters as numbers. It's like a "translation table" that converts between human-readable text and computer-readable numbers.</p>
+<h3><strong>Why Encoding Matters:</strong></h3>
+<ul>
+<li><strong>Different languages</strong> use different character sets</li>
+<li><strong>Computers only understand numbers</strong> (0s and 1s)</li>
+<li><strong>Encoding bridges the gap</strong> between human text and computer numbers</li>
+<li><strong>Wrong encoding</strong> = garbled text (like "â€" instead of "€")</li>
+</ul>
+<h3><strong>Common Encoding Types:</strong></h3>
+<h4><strong>1. ASCII (American Standard Code)</strong></h4>
+<ul>
+<li><strong>Range</strong>: 0-127 (7 bits)</li>
+<li><strong>Characters</strong>: English letters, numbers, basic symbols</li>
+<li><strong>Example</strong>: 'A' = 65, 'a' = 97, '0' = 48</li>
+<li><strong>Limitation</strong>: Only English characters</li>
+</ul>
+<h4><strong>2. UTF-8 (Unicode Transformation Format)</strong></h4>
+<ul>
+<li><strong>Range</strong>: 1-4 bytes per character</li>
+<li><strong>Characters</strong>: All languages worldwide</li>
+<li><strong>Example</strong>: 'A' = 65, '€' = 226, '中' = 228</li>
+<li><strong>Advantage</strong>: Backward compatible with ASCII</li>
+</ul>
+<h4><strong>3. UTF-16 (16-bit Unicode)</strong></h4>
+<ul>
+<li><strong>Range</strong>: 2-4 bytes per character</li>
+<li><strong>Characters</strong>: All languages worldwide</li>
+<li><strong>Example</strong>: 'A' = 65, '€' = 8364, '中' = 20013</li>
+<li><strong>Use case</strong>: Java's internal character representation</li>
+</ul>
+<h4><strong>4. ISO-8859-1 (Latin-1)</strong></h4>
+<ul>
+<li><strong>Range</strong>: 0-255 (8 bits)</li>
+<li><strong>Characters</strong>: Western European languages</li>
+<li><strong>Example</strong>: 'A' = 65, 'é' = 233, 'ñ' = 241</li>
+<li><strong>Limitation</strong>: No Asian or Arabic characters</li>
+</ul>
+<h3><strong>Encoding in Java I/O:</strong></h3>
+<h4><strong>Byte Streams (Manual Encoding):</strong></h4>
+<pre><code class="language-java">// You must handle encoding manually
+String text = &quot;Hello 世界&quot;;
+byte[] bytes = text.getBytes(&quot;UTF-8&quot;);  // Specify encoding
+</code></pre>
+<h4><strong>Character Streams (Automatic Encoding):</strong></h4>
+<pre><code class="language-java">// Encoding is handled automatically
+FileReader reader = new FileReader(&quot;file.txt&quot;);  // Uses system default
+BufferedReader reader = new BufferedReader(new FileReader(&quot;file.txt&quot;));
+</code></pre>
+<h3><strong>Key Learning Points:</strong></h3>
+<ul>
+<li>✅ <strong>Encoding</strong> converts text to numbers and back</li>
+<li>✅ <strong>UTF-8</strong> is the most common encoding worldwide</li>
+<li>✅ <strong>Character streams</strong> handle encoding automatically</li>
+<li>✅ <strong>Byte streams</strong> require manual encoding management</li>
+<li>✅ <strong>Wrong encoding</strong> causes text corruption</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>🎯 <strong>Next Steps:</strong></h2>
+<ul>
+<li><strong>Lesson 4</strong>: Character-oriented streams (Reader/Writer)</li>
+<li><strong>Lesson 5</strong>: Buffered I/O for performance</li>
+<li><strong>Lesson 6</strong>: Exception handling and resource management</li>
+<li><strong>Lesson 7</strong>: Introduction to try-with-resources</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
