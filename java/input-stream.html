@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java `InputStream`: A Deep Dive</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java `InputStream`: A Deep Dive</h1>
+        
+<section class="section">
+<h1>Java <code>InputStream</code>: A Deep Dive</h1>
+<p>Java's <code>InputStream</code> is the foundational abstraction for reading raw bytes. It underpins most blocking I/O in the JDK and is designed to be extended and composed (decorator pattern) for capabilities like buffering, data framing, and deserialization.</p>
+</section>
+
+<section class="section">
+<h2>1) Type and Design Overview</h2>
+<ul>
+<li><strong>Role</strong>: Abstract base for byte input. Reads 8-bit bytes; no character decoding.</li>
+<li><strong>Key design</strong>: Small core API + many concrete streams + decorators.</li>
+<li><strong>Hierarchy (common classes)</strong>:</li>
+<li><code>InputStream</code> (abstract)<ul>
+<li>Sources: <code>ByteArrayInputStream</code>, <code>FileInputStream</code>, <code>PipedInputStream</code>, <code>SequenceInputStream</code> (combines streams)</li>
+<li>Decorators: <code>FilterInputStream</code></li>
+<li><code>BufferedInputStream</code>, <code>DataInputStream</code>, <code>PushbackInputStream</code>, <code>CheckedInputStream</code>, <code>InflaterInputStream</code> (and <code>GZIPInputStream</code>), <code>CipherInputStream</code>, <code>DigestInputStream</code>, <code>ObjectInputStream</code> (not a <code>FilterInputStream</code>, but acts like a framing decoder)</li>
+</ul>
+</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Core Methods and Semantics</h2>
+<ul>
+<li><code>int read()</code></li>
+<li>Reads one byte, returns 0–255 (as int) or <code>-1</code> on EOF.</li>
+<li>May block until data available or EOF; not guaranteed to fill immediately.</li>
+<li><code>int read(byte[] b)</code> and <code>int read(byte[] b, int off, int len)</code></li>
+<li>Returns number of bytes read (≥1) or <code>-1</code> on EOF. May return fewer than <code>len</code> even if not EOF. Loop until done.</li>
+<li><code>long skip(long n)</code></li>
+<li>Attempts to skip up to <code>n</code> bytes; may return <code>&lt; n</code>. Not all streams support fast skipping.</li>
+<li><code>int available()</code></li>
+<li>Non-blocking estimate of bytes that can be read without blocking. Often <code>0</code>; do not use to size buffers or detect EOF.</li>
+<li><code>void close()</code></li>
+<li>Idempotent; must be called (prefer try-with-resources). Closes underlying OS handles where applicable.</li>
+<li><code>mark(int readlimit)</code>, <code>reset()</code>, <code>boolean markSupported()</code></li>
+<li>Optional. If supported, <code>reset()</code> rewinds to the last <code>mark()</code>. <code>readlimit</code> is the max bytes that can be read before the mark becomes invalid.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>3) Blocking, EOF, and Partial Reads</h2>
+<ul>
+<li>Reads are typically <strong>blocking</strong> unless using non-blocking channels (NIO) or timeouts (e.g., sockets via <code>setSoTimeout</code>).</li>
+<li>Always handle <strong>partial reads</strong>; do not assume a single <code>read()</code> fills your buffer.</li>
+<li>EOF is signaled by <code>-1</code>. Zero is never a valid EOF return for <code>read(...)</code> methods.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>4) Buffering Strategies</h2>
+<ul>
+<li>Wrap I/O-bound streams (disk, network) with <code>BufferedInputStream</code> to reduce syscall overhead.</li>
+<li>Typical sizes: 8–64 KiB (tune based on media and workload). Avoid tiny buffers.</li>
+<li>Buffering can change performance dramatically; measure.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Mark/Reset Nuances</h2>
+<ul>
+<li><code>BufferedInputStream</code> supports mark/reset; <code>FileInputStream</code> does not.</li>
+<li>Use <code>markSupported()</code> before relying on it. If unsupported, emulate with <code>PushbackInputStream</code> or by buffering manually.</li>
+<li><code>readlimit</code> should exceed the maximum lookahead you need.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>6) Error Handling and Resource Management</h2>
+<ul>
+<li>Use <strong>try-with-resources</strong> to ensure <code>close()</code> is called.</li>
+<li>Translate or wrap <code>IOException</code> at boundaries; keep inner loops lean.</li>
+<li>On close failures, the original exception should be preserved; use <code>addSuppressed</code> if needed (try-with-resources does this automatically).</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) Thread Safety</h2>
+<ul>
+<li>Most <code>InputStream</code> implementations are <strong>not</strong> thread-safe for concurrent reads unless externally synchronized.</li>
+<li>Do not read and close from different threads without coordination.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>8) Performance Considerations</h2>
+<ul>
+<li>Prefer bulk reads (<code>read(byte[], off, len)</code>) over single-byte <code>read()</code> in tight loops.</li>
+<li>Reuse buffers; avoid allocating per read.</li>
+<li>For very large transfers, consider NIO <code>FileChannel.transferTo/From</code>, <code>ReadableByteChannel</code>, or memory-mapped files.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>9) Common Implementations</h2>
+<ul>
+<li><code>ByteArrayInputStream</code>: in-memory; fast; supports mark/reset.</li>
+<li><code>FileInputStream</code>: file-backed; no mark/reset; supports <code>getChannel()</code> for NIO.</li>
+<li><code>BufferedInputStream</code>: adds buffering + mark/reset; wrap around slow sources.</li>
+<li><code>DataInputStream</code>: reads Java primitives (<code>readInt()</code>, etc.) in big-endian order.</li>
+<li><code>ObjectInputStream</code>: Java serialization; fragile across versions; avoid for external protocols.</li>
+<li><code>GZIPInputStream</code> / <code>InflaterInputStream</code>: compressed data decoding; read until EOF.</li>
+<li><code>PushbackInputStream</code>: allows unread of bytes; useful for simple format sniffing.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>10) InputStream vs Reader</h2>
+<ul>
+<li><code>InputStream</code> handles bytes. <code>Reader</code> handles characters with a charset.</li>
+<li>To decode text, wrap with <code>InputStreamReader</code> and specify a charset (e.g., UTF-8).</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>11) Best Practices Checklist</h2>
+<ul>
+<li>Use try-with-resources.</li>
+<li>Prefer buffered + bulk reads.</li>
+<li>Check for EOF with <code>-1</code>; loop for completeness.</li>
+<li>Avoid <code>available()</code> for logic decisions.</li>
+<li>Verify <code>markSupported()</code> before <code>mark/reset</code> usage.</li>
+<li>Consider NIO for high-throughput or non-blocking needs.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>12) Examples</h2>
+<h3>12.1 Read entire file (naïve, small files)</h3>
+<pre><code class="language-java">byte[] readAllBytes(Path path) throws IOException {
+    try (InputStream in = Files.newInputStream(path)) {
+        return in.readAllBytes(); // Java 9+
+    }
+}
+</code></pre>
+<h3>12.2 Stream copy with buffer (robust and efficient)</h3>
+<pre><code class="language-java">long copy(InputStream in, OutputStream out, int bufferSize) throws IOException {
+    byte[] buffer = new byte[bufferSize];
+    long total = 0;
+    int read;
+    while ((read = in.read(buffer)) != -1) {
+        out.write(buffer, 0, read);
+        total += read;
+    }
+    return total;
+}
+</code></pre>
+<h3>12.3 Using mark/reset for lookahead</h3>
+<pre><code class="language-java">boolean startsWithMagic(InputStream in, byte[] magic) throws IOException {
+    if (!in.markSupported()) {
+        in = new BufferedInputStream(in, magic.length);
+    }
+    in.mark(magic.length);
+    byte[] head = in.readNBytes(magic.length);
+    in.reset();
+    return Arrays.equals(head, magic);
+}
+</code></pre>
+<h3>12.4 DataInputStream for primitives</h3>
+<pre><code class="language-java">int readHeaderInt(InputStream in) throws IOException {
+    try (DataInputStream din = new DataInputStream(new BufferedInputStream(in))) {
+        return din.readInt();
+    }
+}
+</code></pre>
+<h3>12.5 GZIP decoding</h3>
+<pre><code class="language-java">byte[] ungzip(byte[] gz) throws IOException {
+    try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(gz));
+         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        in.transferTo(out); // Java 9+
+        return out.toByteArray();
+    }
+}
+</code></pre>
+<h3>12.6 Timeouts with sockets</h3>
+<pre><code class="language-java">Socket socket = ...;
+// Avoid infinite blocking on network reads
+socket.setSoTimeout(5_000);
+try (InputStream in = socket.getInputStream()) {
+    // read respecting read timeout
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>13) Pitfalls to Avoid</h2>
+<ul>
+<li>Assuming <code>read(byte[])</code> fills the buffer in one call.</li>
+<li>Relying on <code>available()</code> to detect EOF or total size.</li>
+<li>Forgetting to close streams or double-wrapping unnecessarily.</li>
+<li>Using <code>ObjectInputStream</code> for cross-service contracts; prefer stable formats (JSON, ProtoBuf, Avro, etc.).</li>
+</ul>
+<hr />
+<h3>Quick Reference</h3>
+<ul>
+<li>EOF: <code>-1</code></li>
+<li>Prefer: <code>BufferedInputStream</code> + bulk reads</li>
+<li>Text decoding: <code>new InputStreamReader(stream, StandardCharsets.UTF_8)</code></li>
+<li>Mark/reset: check <code>markSupported()</code> first</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
