@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</title>
+    <title>Java PrintWriter and PrintReader</title>
     <link rel="stylesheet" href="../styles.css">
     <style>
         .content-container {
@@ -99,10 +99,10 @@
     <div class="content-container">
         <a href="../index.html" class="back-link">← Back to Java Resources</a>
         
-        <h1>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</h1>
+        <h1>Java PrintWriter and PrintReader</h1>
         
 <section class="section">
-<h1>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</h1>
+<h1>Java PrintWriter and PrintReader</h1>
 <p><code>PrintWriter</code> is a high-level <code>Writer</code> decorator that adds convenient printing, formatting, and optional auto-flush. There is no <code>PrintReader</code> in the JDK. For the “reader side,” developers typically use <code>BufferedReader</code> (for lines) or <code>Scanner</code> (for tokenization/regex parsing). This guide focuses on real-world usage patterns for <code>PrintWriter</code>, and how to pair it with appropriate readers, with a strong emphasis on code examples and testing strategies.</p>
 </section>
 
@@ -327,7 +327,32 @@ void bufferedWriterReducesFlushes() throws IOException {
 </section>
 
 <section class="section">
-<h2>8) Pitfalls and Best Practices</h2>
+<h2>8) Best Usage Scenarios</h2>
+<h3>PrintWriter</h3>
+<ul>
+<li>Logs that must appear line-by-line promptly: enable auto-flush and call <code>println</code>.</li>
+<li>Human-readable reports with alignment and numeric formatting using <code>printf(Locale, ...)</code>.</li>
+<li>CLI/daemon status files: write checkpoints, then <code>flush()</code> at logical boundaries.</li>
+<li>Any text output where UTF-8 and buffering are required for portability and throughput.</li>
+<li>Rapid prototyping where exceptions are less critical; pair with <code>checkError()</code>.</li>
+</ul>
+<h3>Reader-side Pair (no PrintReader in JDK)</h3>
+<ul>
+<li>Use <code>BufferedReader</code> for line-by-line processing of configs/logs/NDJSON; <code>lines()</code> for streaming pipelines.</li>
+<li>Use <code>Scanner</code> for token parsing by delimiter or regex (watch locale for numbers).</li>
+<li>Use <code>InputStreamReader</code> with explicit charset when starting from bytes (UTF-8 recommended).</li>
+</ul>
+<h3>Avoid</h3>
+<ul>
+<li>Critical error paths requiring exceptions: prefer <code>BufferedWriter</code> or manually check <code>checkError()</code> after writing.</li>
+<li>Tight loops of single-character writes without buffering.</li>
+<li>Platform-default charset (<code>FileWriter</code>/<code>FileReader</code>) in cross-platform code.</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>9) Pitfalls and Best Practices</h2>
 <ul>
 <li>Be explicit about <code>Charset</code> (UTF-8) via <code>OutputStreamWriter</code> to avoid platform-default issues.</li>
 <li>With <code>PrintWriter</code>, always call <code>checkError()</code> or prefer lower-level writers when exceptions are desired.</li>
