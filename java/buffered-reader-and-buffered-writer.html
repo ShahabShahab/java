@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java BufferedReader and BufferedWriter</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java BufferedReader and BufferedWriter</h1>
+        
+<section class="section">
+<h1>Java BufferedReader and BufferedWriter</h1>
+<p><code>BufferedReader</code> and <code>BufferedWriter</code> are high-performance decorators for character I/O. They add internal buffering to reduce system calls/decoder-encoder overhead and provide convenient APIs like <code>readLine()</code> and <code>newLine()</code>.</p>
+</section>
+
+<section class="section">
+<h2>1) Quick Overview</h2>
+<ul>
+<li><strong>BufferedReader</strong>: wraps a <code>Reader</code>, adds buffering and <code>readLine()</code>/<code>lines()</code>.</li>
+<li><strong>BufferedWriter</strong>: wraps a <code>Writer</code>, adds buffering and <code>newLine()</code>.</li>
+<li><strong>Why buffering</strong>: fewer kernel calls, fewer charset conversions, better throughput.</li>
+<li><strong>Typical chain</strong>:</li>
+<li>Read: <code>Files.newInputStream(path)</code> → <code>InputStreamReader(UTF-8)</code> → <code>BufferedReader</code></li>
+<li>Write: <code>Files.newOutputStream(path)</code> → <code>OutputStreamWriter(UTF-8)</code> → <code>BufferedWriter</code></li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Construction Patterns</h2>
+<h3>2.1 BufferedReader with explicit UTF-8</h3>
+<pre><code class="language-java">BufferedReader newUtf8BufferedReader(Path path) throws IOException {
+    return new BufferedReader(new InputStreamReader(Files.newInputStream(path), StandardCharsets.UTF_8));
+}
+</code></pre>
+<h3>2.2 BufferedWriter with explicit UTF-8</h3>
+<pre><code class="language-java">BufferedWriter newUtf8BufferedWriter(Path path) throws IOException {
+    return new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8));
+}
+</code></pre>
+<h3>2.3 Choose buffer sizes explicitly (optional)</h3>
+<pre><code class="language-java">BufferedReader br = new BufferedReader(reader, 16 * 1024);
+BufferedWriter bw = new BufferedWriter(writer, 32 * 1024);
+</code></pre>
+</section>
+
+<section class="section">
+<h2>3) Practical Examples</h2>
+<h3>3.1 Read a file line by line</h3>
+<pre><code class="language-java">List&lt;String&gt; readAllLines(Path path) throws IOException {
+    try (BufferedReader br = newUtf8BufferedReader(path)) {
+        List&lt;String&gt; lines = new ArrayList&lt;&gt;();
+        for (String line; (line = br.readLine()) != null; ) {
+            lines.add(line);
+        }
+        return lines;
+    }
+}
+</code></pre>
+<h3>3.2 Stream lines and filter/process</h3>
+<pre><code class="language-java">long countNonEmpty(Path path) throws IOException {
+    try (BufferedReader br = newUtf8BufferedReader(path)) {
+        return br.lines().filter(s -&gt; !s.isBlank()).count();
+    }
+}
+</code></pre>
+<h3>3.3 Write lines with platform newline</h3>
+<pre><code class="language-java">void writeLines(Path path, List&lt;String&gt; lines) throws IOException {
+    try (BufferedWriter bw = newUtf8BufferedWriter(path)) {
+        for (String line : lines) {
+            bw.write(line);
+            bw.newLine();
+        }
+    }
+}
+</code></pre>
+<h3>3.4 Write with explicit "\n" for cross-platform consistency</h3>
+<pre><code class="language-java">void writeWithLf(Path path, List&lt;String&gt; lines) throws IOException {
+    try (BufferedWriter bw = newUtf8BufferedWriter(path)) {
+        for (String line : lines) {
+            bw.write(line);
+            bw.write('\n');
+        }
+    }
+}
+</code></pre>
+<h3>3.5 Copy text with buffer</h3>
+<pre><code class="language-java">long copy(Reader in, Writer out, int bufferSize) throws IOException {
+    char[] buf = new char[bufferSize];
+    long total = 0;
+    int n;
+    try (BufferedReader br = new BufferedReader(in, bufferSize);
+         BufferedWriter bw = new BufferedWriter(out, bufferSize)) {
+        while ((n = br.read(buf)) != -1) {
+            bw.write(buf, 0, n);
+            total += n;
+        }
+        bw.flush();
+    }
+    return total;
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>4) Error Handling and Semantics</h2>
+<ul>
+<li><code>readLine()</code> returns <code>null</code> at EOF; it strips line terminators.</li>
+<li><code>newLine()</code> writes the platform-specific line separator.</li>
+<li>Always use try-with-resources; <code>close()</code> flushes <code>BufferedWriter</code>.</li>
+<li>Prefer explicit <code>Charset</code> via <code>InputStreamReader</code>/<code>OutputStreamWriter</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Test Strategies (Thorough and Practical)</h2>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Prefer in-memory sources/sinks (<code>StringReader</code>, <code>StringWriter</code>) for determinism.</li>
+<li>Validate counts, boundaries, and newline behaviors.</li>
+<li>Separate unit (in-memory) from integration (filesystem).</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>StringReader</code> and <code>StringWriter</code> for content assertions.</li>
+<li><code>PushbackReader</code> if lookahead tests are needed upstream of buffering.</li>
+<li>Custom <code>CountingWriter</code> to observe flush/write consolidation.</li>
+</ul>
+<h3>5.1 Reads lines correctly and preserves order</h3>
+<pre><code class="language-java">@Test
+void readsLines() throws IOException {
+    String text = &quot;a\nb\n\nc&quot;;
+    try (BufferedReader br = new BufferedReader(new StringReader(text))) {
+        assertEquals(&quot;a&quot;, br.readLine());
+        assertEquals(&quot;b&quot;, br.readLine());
+        assertEquals(&quot;&quot;, br.readLine());
+        assertNull(br.readLine());
+    }
+}
+</code></pre>
+<h3>5.2 lines() stream closes when reader closes</h3>
+<pre><code class="language-java">@Test
+void linesStreamCloses() throws IOException {
+    BufferedReader br = new BufferedReader(new StringReader(&quot;x\ny&quot;));
+    try (br) {
+        List&lt;String&gt; all = br.lines().toList();
+        assertEquals(List.of(&quot;x&quot;, &quot;y&quot;), all);
+    }
+}
+</code></pre>
+<h3>5.3 BufferedWriter newLine writes separator and flush on close</h3>
+<pre><code class="language-java">@Test
+void newLineAndCloseFlush() throws IOException {
+    StringWriter sw = new StringWriter();
+    try (BufferedWriter bw = new BufferedWriter(sw)) {
+        bw.write(&quot;a&quot;);
+        bw.newLine();
+        bw.write(&quot;b&quot;);
+    }
+    String out = sw.toString();
+    assertTrue(out.contains(&quot;a&quot;));
+    assertTrue(out.endsWith(&quot;b&quot;));
+}
+</code></pre>
+<h3>5.4 Buffering reduces underlying writes</h3>
+<pre><code class="language-java">@Test
+void bufferingReducesWrites() throws IOException {
+    class CountingWriter extends Writer {
+        int writes; int flushes; final Writer d;
+        CountingWriter(Writer d) { this.d = d; }
+        @Override public void write(char[] cbuf, int off, int len) throws IOException { writes++; d.write(cbuf, off, len); }
+        @Override public void flush() throws IOException { flushes++; d.flush(); }
+        @Override public void close() throws IOException { d.close(); }
+    }
+
+    CountingWriter counting = new CountingWriter(new StringWriter());
+    try (Writer w = new BufferedWriter(counting, 4096)) {
+        char[] buf = new char[8192];
+        Arrays.fill(buf, 'x');
+        w.write(buf);
+        w.flush();
+    }
+    assertTrue(counting.writes &lt;= 3);
+    assertTrue(counting.flushes &gt;= 1);
+}
+</code></pre>
+<h3>5.5 Integration: round-trip write/read</h3>
+<pre><code class="language-java">@Test
+void roundTrip(@TempDir Path tmp) throws IOException {
+    Path f = tmp.resolve(&quot;rt.txt&quot;);
+    List&lt;String&gt; lines = List.of(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;);
+    writeLines(f, lines);
+    assertEquals(lines, readAllLines(f));
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>6) Best Usage Scenarios</h2>
+<h3>BufferedReader</h3>
+<ul>
+<li>Large files/logs where <code>readLine()</code> and streaming with <code>lines()</code> improve clarity and performance.</li>
+<li>Network sockets where buffering smooths out small reads.</li>
+<li>Decoding bytes with explicit charset via <code>InputStreamReader</code>.</li>
+</ul>
+<h3>BufferedWriter</h3>
+<ul>
+<li>High-throughput text generation (reports, logs) with fewer syscalls.</li>
+<li>Writing many small chunks; batch them via buffer and call <code>flush()</code> at logical boundaries.</li>
+<li>Cross-platform files: either <code>newLine()</code> or explicit <code>"\n"</code> convention.</li>
+</ul>
+<h3>Avoid</h3>
+<ul>
+<li>Tiny files where buffering adds little; fine but not necessary.</li>
+<li>Mixing platform-default charset in cross-platform systems.</li>
+<li>Excessive <code>flush()</code> calls that defeat buffering.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) Pitfalls and Best Practices</h2>
+<ul>
+<li>Always specify <code>Charset</code> (UTF-8) through the bridging stream.</li>
+<li>Close resources (use try-with-resources) to ensure final flush.</li>
+<li>Choose buffer sizes empirically; 8–64 KiB are typical.</li>
+<li>Avoid single-character loops in hot paths; prefer bulk operations.</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
