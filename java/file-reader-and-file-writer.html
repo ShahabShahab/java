@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java FileReader and FileWriter</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java FileReader and FileWriter</h1>
+        
+<section class="section">
+<h1>Java FileReader and FileWriter</h1>
+<p><code>FileReader</code> and <code>FileWriter</code> are convenience classes for character I/O over files. They implicitly use the platform default charset, which is often undesirable in cross-platform systems. Prefer using <code>InputStreamReader</code>/<code>OutputStreamWriter</code> with an explicit charset (e.g., UTF-8). Use <code>BufferedReader</code>/<code>BufferedWriter</code> for performance.</p>
+</section>
+
+<section class="section">
+<h2>1) Quick Overview</h2>
+<ul>
+<li><strong>FileReader</strong>: <code>Reader</code> implementation for files; uses platform default charset.</li>
+<li><strong>FileWriter</strong>: <code>Writer</code> implementation for files; uses platform default charset.</li>
+<li><strong>Preferred modern approach</strong>:</li>
+<li>Read: <code>Files.newInputStream(path)</code> → <code>InputStreamReader(StandardCharsets.UTF_8)</code> → <code>BufferedReader</code></li>
+<li>Write: <code>Files.newOutputStream(path)</code> → <code>OutputStreamWriter(StandardCharsets.UTF_8)</code> → <code>BufferedWriter</code></li>
+<li><strong>When to still use</strong>: small utilities, controlled environments where platform charset is acceptable.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Construction Patterns (Recommended Alternatives)</h2>
+<h3>2.1 UTF-8 readers/writers via bridges</h3>
+<pre><code class="language-java">BufferedReader newUtf8BufferedReader(Path path) throws IOException {
+    return new BufferedReader(new InputStreamReader(Files.newInputStream(path), StandardCharsets.UTF_8));
+}
+
+BufferedWriter newUtf8BufferedWriter(Path path) throws IOException {
+    return new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8));
+}
+</code></pre>
+<h3>2.2 If you must use FileReader/FileWriter</h3>
+<pre><code class="language-java">// Warning: platform default charset
+try (FileReader fr = new FileReader(path.toFile())) { /* ... */ }
+try (FileWriter fw = new FileWriter(path.toFile(), /* append */ true)) { /* ... */ }
+</code></pre>
+</section>
+
+<section class="section">
+<h2>3) Practical Examples</h2>
+<h3>3.1 Read file line by line (recommended)</h3>
+<pre><code class="language-java">List&lt;String&gt; readAllLines(Path path) throws IOException {
+    try (BufferedReader br = newUtf8BufferedReader(path)) {
+        List&lt;String&gt; lines = new ArrayList&lt;&gt;();
+        for (String line; (line = br.readLine()) != null; ) {
+            lines.add(line);
+        }
+        return lines;
+    }
+}
+</code></pre>
+<h3>3.2 Write file with newline handling (recommended)</h3>
+<pre><code class="language-java">void writeLines(Path path, List&lt;String&gt; lines) throws IOException {
+    try (BufferedWriter bw = newUtf8BufferedWriter(path)) {
+        for (String line : lines) {
+            bw.write(line);
+            bw.newLine();
+        }
+    }
+}
+</code></pre>
+<h3>3.3 Minimal FileReader/FileWriter usage</h3>
+<pre><code class="language-java">String readWholeFileWithFileReader(Path path) throws IOException {
+    try (FileReader fr = new FileReader(path.toFile()); BufferedReader br = new BufferedReader(fr)) {
+        StringBuilder sb = new StringBuilder();
+        char[] buf = new char[8192];
+        int n;
+        while ((n = br.read(buf)) != -1) {
+            sb.append(buf, 0, n);
+        }
+        return sb.toString();
+    }
+}
+
+void appendTextWithFileWriter(Path path, String text) throws IOException {
+    try (FileWriter fw = new FileWriter(path.toFile(), true); BufferedWriter bw = new BufferedWriter(fw)) {
+        bw.write(text);
+        bw.newLine();
+    }
+}
+</code></pre>
+<h3>3.4 Round-trip copy using bridged UTF-8</h3>
+<pre><code class="language-java">long copyText(Path src, Path dst, int bufferSize) throws IOException {
+    try (BufferedReader in = newUtf8BufferedReader(src); BufferedWriter out = newUtf8BufferedWriter(dst)) {
+        char[] buf = new char[bufferSize];
+        long total = 0; int n;
+        while ((n = in.read(buf)) != -1) { out.write(buf, 0, n); total += n; }
+        out.flush();
+        return total;
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>4) Error Handling and Charset Semantics</h2>
+<ul>
+<li>FileReader/FileWriter use platform default charset; text may corrupt across environments.</li>
+<li>Prefer explicit <code>Charset</code> for portability and correctness.</li>
+<li>Always use try-with-resources; <code>close()</code> flushes <code>Writer</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Test Strategies (Thorough and Practical)</h2>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Use in-memory I/O (<code>StringReader</code>, <code>StringWriter</code>) for unit tests; use temporary files for integration tests via <code>@TempDir</code>.</li>
+<li>Include non-ASCII data to validate encoding behavior.</li>
+<li>Benchmark buffered vs unbuffered flows if performance matters.</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>StringReader</code>/<code>StringWriter</code> to assert content without filesystem.</li>
+<li><code>CountingWriter</code> to observe buffering effects (<code>BufferedWriter</code>).</li>
+</ul>
+<h3>5.1 Read lines via recommended pipeline</h3>
+<pre><code class="language-java">@Test
+void readsLinesUtf8() throws IOException {
+    Path tmp = Files.createTempFile(&quot;read&quot;, &quot;.txt&quot;);
+    Files.writeString(tmp, &quot;a\nb\n\nc&quot;, StandardCharsets.UTF_8);
+    assertEquals(List.of(&quot;a&quot;,&quot;b&quot;,&quot;&quot;), readAllLines(tmp));
+}
+</code></pre>
+<h3>5.2 Write lines and verify newline behavior</h3>
+<pre><code class="language-java">@Test
+void writesLinesUtf8() throws IOException {
+    Path tmp = Files.createTempFile(&quot;write&quot;, &quot;.txt&quot;);
+    writeLines(tmp, List.of(&quot;x&quot;,&quot;y&quot;));
+    List&lt;String&gt; readBack = Files.readAllLines(tmp, StandardCharsets.UTF_8);
+    assertEquals(List.of(&quot;x&quot;,&quot;y&quot;), readBack);
+}
+</code></pre>
+<h3>5.3 FileReader/FileWriter minimal usage (discouraged in cross-platform apps)</h3>
+<pre><code class="language-java">@Test
+void fileReaderWriterBasic() throws IOException {
+    Path tmp = Files.createTempFile(&quot;frfw&quot;, &quot;.txt&quot;);
+    appendTextWithFileWriter(tmp, &quot;hello&quot;);
+    String text = readWholeFileWithFileReader(tmp);
+    assertTrue(text.contains(&quot;hello&quot;));
+}
+</code></pre>
+<h3>5.4 Encoding correctness with non-ASCII</h3>
+<pre><code class="language-java">@Test
+void utf8EncodingRoundTrip() throws IOException {
+    Path tmp = Files.createTempFile(&quot;utf8&quot;, &quot;.txt&quot;);
+    String data = &quot;héllo 世界&quot;;
+    Files.writeString(tmp, data, StandardCharsets.UTF_8);
+    String read = Files.readString(tmp, StandardCharsets.UTF_8);
+    assertEquals(data, read);
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>6) Best Usage Scenarios</h2>
+<h3>Prefer Bridges + Buffering</h3>
+<ul>
+<li>Cross-platform applications requiring consistent encoding (UTF-8).</li>
+<li>Large files, logs, and pipelines benefiting from <code>BufferedReader/BufferedWriter</code> performance.</li>
+<li>Environments where explicit charset and predictable error handling matter.</li>
+</ul>
+<h3>When FileReader/FileWriter are Acceptable</h3>
+<ul>
+<li>Small utilities or scripts tied to a known platform default charset.</li>
+<li>Quick prototypes where portability is not a concern.</li>
+</ul>
+<h3>Avoid</h3>
+<ul>
+<li>Production systems that must be portable and robust across OS/locales.</li>
+<li>Mixed encodings or unknown input sources.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) Pitfalls and Best Practices</h2>
+<ul>
+<li>Be explicit about <code>Charset</code> using <code>InputStreamReader</code>/<code>OutputStreamWriter</code>.</li>
+<li>Wrap with <code>BufferedReader/BufferedWriter</code> for throughput and convenience.</li>
+<li>Use try-with-resources for closing and flushing.</li>
+<li>Prefer bulk reads/writes; avoid single-character loops in hot paths.</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
