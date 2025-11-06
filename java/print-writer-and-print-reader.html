@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</h1>
+        
+<section class="section">
+<h1>Java PrintWriter and the (Nonexistent) PrintReader: Practical Guide</h1>
+<p><code>PrintWriter</code> is a high-level <code>Writer</code> decorator that adds convenient printing, formatting, and optional auto-flush. There is no <code>PrintReader</code> in the JDK. For the “reader side,” developers typically use <code>BufferedReader</code> (for lines) or <code>Scanner</code> (for tokenization/regex parsing). This guide focuses on real-world usage patterns for <code>PrintWriter</code>, and how to pair it with appropriate readers, with a strong emphasis on code examples and testing strategies.</p>
+</section>
+
+<section class="section">
+<h2>1) Quick Overview</h2>
+<ul>
+<li><strong>PrintWriter</strong>: Decorator over <code>Writer</code> that adds <code>print(...)</code>, <code>println(...)</code>, and <code>printf(...)</code>/<code>format(...)</code> APIs. Can be configured with auto-flush on newline.</li>
+<li><strong>No PrintReader</strong>: Use <code>BufferedReader</code> for <code>readLine()</code> and stream-of-lines APIs, or <code>Scanner</code> for token-based parsing.</li>
+<li><strong>Common Chain (writing text)</strong>: <code>FileOutputStream</code> → <code>OutputStreamWriter(UTF-8)</code> → <code>BufferedWriter</code> → <code>PrintWriter</code></li>
+<li><strong>Common Chain (reading text)</strong>: <code>FileInputStream</code> → <code>InputStreamReader(UTF-8)</code> → <code>BufferedReader</code></li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Core Behaviors You Must Know</h2>
+<ul>
+<li><code>PrintWriter</code> by default DOES NOT throw <code>IOException</code>. It records errors internally. Check with <code>checkError()</code>.</li>
+<li>Optional auto-flush: When constructed with <code>autoFlush = true</code>, <code>println</code> and <code>printf</code>/<code>format</code> on newline trigger <code>flush()</code>.</li>
+<li><code>printf</code> and <code>format</code> use <code>Formatter</code> under the hood (locale-aware if you specify one).</li>
+<li>Always close or use try-with-resources to flush and release resources.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>3) Recommended Construction Patterns</h2>
+<h3>3.1 PrintWriter with explicit UTF-8 and buffering</h3>
+<pre><code class="language-java">PrintWriter newUtf8PrintWriter(Path path, boolean autoFlush) throws IOException {
+    return new PrintWriter(
+        new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)),
+        autoFlush
+    );
+}
+</code></pre>
+<h3>3.2 Pairing with BufferedReader for reading</h3>
+<pre><code class="language-java">BufferedReader newUtf8BufferedReader(Path path) throws IOException {
+    return new BufferedReader(new InputStreamReader(Files.newInputStream(path), StandardCharsets.UTF_8));
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>4) Practical Examples</h2>
+<h3>4.1 Logging with auto-flush and error checks</h3>
+<pre><code class="language-java">void writeLog(Path path, List&lt;String&gt; lines) throws IOException {
+    try (PrintWriter out = newUtf8PrintWriter(path, /* autoFlush */ true)) {
+        for (String line : lines) {
+            out.println(line);
+        }
+        if (out.checkError()) {
+            throw new IOException(&quot;PrintWriter reported an error&quot;);
+        }
+    }
+}
+</code></pre>
+<h3>4.2 Formatted reports (printf/format)</h3>
+<pre><code class="language-java">void writeReport(Path path, List&lt;Map&lt;String, Object&gt;&gt; rows, Locale locale) throws IOException {
+    try (PrintWriter out = new PrintWriter(
+            new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)))) {
+        out.printf(locale, &quot;%-20s %-10s %-10s%n&quot;, &quot;NAME&quot;, &quot;COUNT&quot;, &quot;TOTAL&quot;);
+        for (Map&lt;String, Object&gt; row : rows) {
+            out.printf(locale, &quot;%-20s %-10d %-10.2f%n&quot;, row.get(&quot;name&quot;), row.get(&quot;count&quot;), row.get(&quot;total&quot;));
+        }
+        if (out.checkError()) throw new IOException(&quot;Write error&quot;);
+    }
+}
+</code></pre>
+<h3>4.3 Mixed writing (print/println) and explicit flush points</h3>
+<pre><code class="language-java">void writeSession(Path path) throws IOException {
+    try (PrintWriter out = newUtf8PrintWriter(path, false)) {
+        out.print(&quot;START:&quot;);
+        out.println(System.currentTimeMillis());
+        out.flush(); // logical boundary
+        out.println(&quot;payload=a,b,c&quot;);
+        out.println(&quot;END&quot;);
+        if (out.checkError()) throw new IOException(&quot;Write error&quot;);
+    }
+}
+</code></pre>
+<h3>4.4 Reading counterpart: BufferedReader lines()</h3>
+<pre><code class="language-java">List&lt;String&gt; readAllLines(Path path) throws IOException {
+    try (BufferedReader br = newUtf8BufferedReader(path)) {
+        return br.lines().toList();
+    }
+}
+</code></pre>
+<h3>4.5 Reading counterpart: Scanner tokenization</h3>
+<pre><code class="language-java">List&lt;Integer&gt; readInts(Path path) throws IOException {
+    try (Scanner sc = new Scanner(Files.newBufferedReader(path, StandardCharsets.UTF_8))) {
+        List&lt;Integer&gt; ints = new ArrayList&lt;&gt;();
+        while (sc.hasNextInt()) {
+            ints.add(sc.nextInt());
+        }
+        return ints;
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>5) Error Handling Nuances</h2>
+<ul>
+<li><code>PrintWriter</code> does not throw <code>IOException</code> on write by default; call <code>checkError()</code>.</li>
+<li>If you need exceptions, either:</li>
+<li>Wrap a <code>BufferedWriter</code>/<code>OutputStreamWriter</code> directly and let exceptions propagate, or</li>
+<li>Check <code>checkError()</code> and throw yourself as shown above.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>6) Test Strategies (Thorough and Practical)</h2>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Use in-memory streams/writers/readers for speed and determinism: <code>StringWriter</code>, <code>StringReader</code>, <code>ByteArrayOutputStream</code>, <code>ByteArrayInputStream</code>.</li>
+<li>When testing <code>PrintWriter</code>, assert text content and verify error handling via injected failures.</li>
+<li>Separate unit tests (in-memory) from integration tests (filesystem/network).</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>StringWriter</code> for collecting output text.</li>
+<li><code>FailingOutputStream</code> to simulate write failures.</li>
+<li><code>CountingWriter</code> to observe flush/write call patterns when using <code>BufferedWriter</code> beneath <code>PrintWriter</code>.</li>
+</ul>
+<h3>6.1 Content correctness with StringWriter</h3>
+<pre><code class="language-java">@Test
+void printWriterWritesExpectedText() {
+    StringWriter sink = new StringWriter();
+    try (PrintWriter out = new PrintWriter(new BufferedWriter(sink), true)) {
+        out.println(&quot;hello&quot;);
+        out.printf(Locale.US, &quot;pi=%.2f%n&quot;, Math.PI);
+        out.print(&quot;end&quot;);
+    }
+    String result = sink.toString();
+    assertTrue(result.startsWith(&quot;hello&quot;));
+    assertTrue(result.contains(&quot;pi=&quot;));
+    assertTrue(result.trim().endsWith(&quot;end&quot;));
+}
+</code></pre>
+<h3>6.2 Auto-flush behavior on newline</h3>
+<pre><code class="language-java">@Test
+void autoFlushOnNewlineOccurs() {
+    class FlushCountingWriter extends Writer {
+        int flushes = 0; final Writer d;
+        FlushCountingWriter(Writer d) { this.d = d; }
+        @Override public void write(char[] cbuf, int off, int len) throws IOException { d.write(cbuf, off, len); }
+        @Override public void flush() throws IOException { flushes++; d.flush(); }
+        @Override public void close() throws IOException { d.close(); }
+    }
+
+    StringWriter sw = new StringWriter();
+    FlushCountingWriter counting = new FlushCountingWriter(sw);
+    try (PrintWriter out = new PrintWriter(new BufferedWriter(counting), /* autoFlush */ true)) {
+        out.print(&quot;no-newline&quot;);
+        assertEquals(0, counting.flushes);
+        out.println(&quot;\n&quot;); // newline triggers flush with autoFlush=true
+        assertTrue(counting.flushes &gt;= 1);
+    }
+}
+</code></pre>
+<h3>6.3 Error propagation via checkError()</h3>
+<pre><code class="language-java">@Test
+void checkErrorDetectsUnderlyingFailure() {
+    OutputStream failing = new OutputStream() {
+        @Override public void write(int b) throws IOException { throw new IOException(&quot;boom&quot;); }
+    };
+    PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(failing, StandardCharsets.UTF_8)));
+    out.println(&quot;data&quot;);
+    assertTrue(out.checkError()); // PrintWriter swallowed but recorded the error
+}
+</code></pre>
+<h3>6.4 Formatting correctness with locale</h3>
+<pre><code class="language-java">@Test
+void formattingUsesLocale() {
+    StringWriter sink = new StringWriter();
+    try (PrintWriter out = new PrintWriter(new BufferedWriter(sink))) {
+        out.printf(Locale.GERMANY, &quot;%,.2f%n&quot;, 12345.67); // uses comma as decimal in some locales
+    }
+    String result = sink.toString();
+    assertTrue(result.contains(&quot;.&quot;)); // Adapt assertion to your target locale expectations
+}
+</code></pre>
+<h3>6.5 Integration: round-trip with BufferedReader</h3>
+<pre><code class="language-java">@Test
+void roundTripWriteThenReadLines(@TempDir Path tmp) throws IOException {
+    Path file = tmp.resolve(&quot;rt.txt&quot;);
+    List&lt;String&gt; lines = List.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);
+    writeLog(file, lines);
+    List&lt;String&gt; read = readAllLines(file);
+    assertEquals(lines, read);
+}
+</code></pre>
+<h3>6.6 Performance: buffered vs unbuffered under PrintWriter</h3>
+<pre><code class="language-java">@Test
+void bufferedWriterReducesFlushes() throws IOException {
+    class CountingWriter extends Writer {
+        int flushes = 0; int writes = 0; final Writer d;
+        CountingWriter(Writer d) { this.d = d; }
+        @Override public void write(char[] cbuf, int off, int len) throws IOException { writes++; d.write(cbuf, off, len); }
+        @Override public void flush() throws IOException { flushes++; d.flush(); }
+        @Override public void close() throws IOException { d.close(); }
+    }
+
+    CountingWriter counting = new CountingWriter(new StringWriter());
+    try (PrintWriter pw = new PrintWriter(new BufferedWriter(counting, 4096), false)) {
+        for (int i = 0; i &lt; 1000; i++) pw.print(&quot;x&quot;);
+        pw.flush();
+    }
+    assertTrue(counting.writes &lt;= 5);
+    assertTrue(counting.flushes &gt;= 1);
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>7) When to Use What (Cheat Sheet)</h2>
+<ul>
+<li><strong>PrintWriter</strong>: human-readable logs, reports, quick println/printf formatting, optional auto-flush.</li>
+<li><strong>BufferedWriter</strong>: predictable error handling (exceptions), high-throughput bulk writes, explicit newline via <code>newLine()</code>.</li>
+<li><strong>BufferedReader</strong>: line-based reading counterpart for files and streams.</li>
+<li><strong>Scanner</strong>: tokenization, simple parsing by delimiter or regex (be mindful of performance and locale effects).</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>8) Pitfalls and Best Practices</h2>
+<ul>
+<li>Be explicit about <code>Charset</code> (UTF-8) via <code>OutputStreamWriter</code> to avoid platform-default issues.</li>
+<li>With <code>PrintWriter</code>, always call <code>checkError()</code> or prefer lower-level writers when exceptions are desired.</li>
+<li>Use try-with-resources to ensure <code>close()</code> and final flushes happen.</li>
+<li>Prefer buffering for performance; avoid single-character loops.</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
