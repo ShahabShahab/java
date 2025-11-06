@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java `Reader`: A Deep Dive</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java `Reader`: A Deep Dive</h1>
+        
+<section class="section">
+<h1>Java <code>Reader</code>: A Deep Dive</h1>
+<p><code>Reader</code> is Java's foundational abstraction for reading 16-bit Unicode characters. It represents the character-oriented counterpart to <code>InputStream</code>. Most real-world text I/O composes <code>Reader</code> implementations using the decorator pattern for buffering, line-based reading, lookahead, and decoding from bytes via <code>InputStreamReader</code>.</p>
+</section>
+
+<section class="section">
+<h2>1) Type and Design Overview</h2>
+<ul>
+<li><strong>Role</strong>: Abstract source for characters; handles text, not raw bytes.</li>
+<li><strong>Design</strong>: Minimal core API + concrete sources + decorators for capabilities.</li>
+<li><strong>Hierarchy (common classes)</strong>:</li>
+<li><code>Reader</code> (abstract)<ul>
+<li>Sources: <code>FileReader</code>, <code>CharArrayReader</code>, <code>StringReader</code>, <code>PipedReader</code></li>
+<li>Bridge/decoder: <code>InputStreamReader</code> (bytes → chars, requires a <code>Charset</code>)</li>
+<li>Decorators: <code>BufferedReader</code>, <code>FilterReader</code></li>
+<li><code>LineNumberReader</code>, <code>PushbackReader</code></li>
+</ul>
+</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Core Methods and Semantics</h2>
+<ul>
+<li><code>int read()</code></li>
+<li>Returns a single 16-bit <code>char</code> as an <code>int</code> in range 0–65535, or <code>-1</code> on end-of-stream. Inefficient in tight loops; prefer buffered reads.</li>
+<li><code>int read(char[] cbuf)</code> / <code>int read(char[] cbuf, int off, int len)</code></li>
+<li>Attempts to fill up to <code>len</code> characters; returns number read or <code>-1</code> on EOF. May return fewer than requested even when not at EOF.</li>
+<li><code>boolean ready()</code></li>
+<li>True if next <code>read()</code> will not block. Implementation-dependent; avoid using as a loop condition for file/stream I/O.</li>
+<li><code>long skip(long n)</code></li>
+<li>Skips up to <code>n</code> characters; may skip fewer.</li>
+<li><code>boolean markSupported()</code> / <code>void mark(int readAheadLimit)</code> / <code>void reset()</code></li>
+<li>Optional lookahead API. When supported (e.g., <code>BufferedReader</code>), <code>reset()</code> returns to last mark within <code>readAheadLimit</code>.</li>
+<li><code>void close()</code></li>
+<li>Idempotent; releases resources. Further reads should throw <code>IOException</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>3) Buffering and Performance</h2>
+<ul>
+<li>Wrap slow sources (disk/network/decoding) with <code>BufferedReader</code> to reduce syscalls and decoder invocations.</li>
+<li>Choose buffer sizes based on workload: 4–64 KiB are common. Measure and tune.</li>
+<li>Prefer bulk reads or line-based APIs (<code>read(char[], ...)</code>, <code>readLine()</code>) over single-char reads.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>4) Decoding and Charsets</h2>
+<ul>
+<li><code>Reader</code> consumes characters. When your data starts as bytes, use <code>InputStreamReader</code> with an explicit <code>Charset</code> (e.g., UTF-8).</li>
+<li>Avoid platform default charsets (<code>new FileReader(path)</code>) for portable systems. Prefer <code>Files.newBufferedReader(path, StandardCharsets.UTF_8)</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Error Handling</h2>
+<ul>
+<li>Decoding can fail (malformed input) with <code>MalformedInputException</code> wrapped in <code>IOException</code>. Choose <code>CharsetDecoder</code> with error actions if you need custom handling.</li>
+<li>Always use try-with-resources to ensure <code>close()</code> executes.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>6) Ordering and Concurrency</h2>
+<ul>
+<li>Reads are sequential and not inherently thread-safe. Do not share the same <code>Reader</code> across threads without external synchronization.</li>
+<li><code>mark/reset</code> provides local backtracking but not transactional semantics.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) Common Implementations</h2>
+<ul>
+<li><code>FileReader</code>: convenience for reading files using the platform default charset (discouraged in most apps). Prefer <code>Files.newBufferedReader</code>.</li>
+<li><code>InputStreamReader</code>: bridges bytes to chars using a <code>Charset</code> (recommended for explicit encodings).</li>
+<li><code>BufferedReader</code>: adds buffering and high-level APIs like <code>readLine()</code> and <code>lines()</code>.</li>
+<li><code>StringReader</code>: reads from an in-memory <code>String</code>.</li>
+<li><code>CharArrayReader</code>: reads from a <code>char[]</code>.</li>
+<li><code>PushbackReader</code>: allows one or more characters to be unread (useful for simple parsers).</li>
+<li><code>LineNumberReader</code>: tracks current line number while reading.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>8) <code>Reader</code> vs <code>InputStream</code></h2>
+<ul>
+<li><code>Reader</code> handles characters; <code>InputStream</code> handles bytes. For text, prefer <code>Reader</code> with an explicit charset; for binary, use <code>InputStream</code>.</li>
+<li>Bridge with <code>InputStreamReader</code> when starting from a byte source.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>9) Best Practices Checklist</h2>
+<ul>
+<li>Use try-with-resources; always close.</li>
+<li>Prefer <code>BufferedReader</code> for performance and convenience.</li>
+<li>Be explicit about character encodings (UTF-8 is a safe default).</li>
+<li>Avoid <code>ready()</code> for control flow; use the return value of <code>read(...)</code> or <code>readLine()</code>.</li>
+<li>Use <code>lines()</code> stream for simple line processing, but close the reader.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>10) Examples</h2>
+<h3>10.1 Read all lines (UTF-8)</h3>
+<pre><code class="language-java">List&lt;String&gt; readLines(Path path) throws IOException {
+    try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        List&lt;String&gt; lines = new ArrayList&lt;&gt;();
+        for (String line; (line = reader.readLine()) != null; ) {
+            lines.add(line);
+        }
+        return lines;
+    }
+}
+</code></pre>
+<h3>10.2 Stream lines and process</h3>
+<pre><code class="language-java">long countNonEmptyLines(Path path) throws IOException {
+    try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        return reader.lines().filter(s -&gt; !s.isBlank()).count();
+    }
+}
+</code></pre>
+<h3>10.3 Decode bytes with explicit charset</h3>
+<pre><code class="language-java">String readText(InputStream in, Charset cs) throws IOException {
+    try (Reader reader = new BufferedReader(new InputStreamReader(in, cs))) {
+        StringBuilder sb = new StringBuilder();
+        char[] buf = new char[8192];
+        int n;
+        while ((n = reader.read(buf)) != -1) {
+            sb.append(buf, 0, n);
+        }
+        return sb.toString();
+    }
+}
+</code></pre>
+<h3>10.4 Use mark/reset for simple lookahead</h3>
+<pre><code class="language-java">int readFirstNonWhitespace(Reader reader) throws IOException {
+    if (!reader.markSupported()) {
+        reader = new BufferedReader(reader);
+    }
+    reader.mark(1024);
+    int ch;
+    while ((ch = reader.read()) != -1) {
+        if (!Character.isWhitespace(ch)) {
+            reader.reset();
+            return ch;
+        }
+    }
+    reader.reset();
+    return -1;
+}
+</code></pre>
+<h3>10.5 Pushback for parsers</h3>
+<pre><code class="language-java">int nextTokenStart(PushbackReader r) throws IOException {
+    int ch;
+    while ((ch = r.read()) != -1) {
+        if (!Character.isWhitespace(ch)) {
+            r.unread(ch); // put it back for the tokenizer
+            return ch;
+        }
+    }
+    return -1;
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>11) Pitfalls to Avoid</h2>
+<ul>
+<li>Relying on platform default charset (e.g., <code>new FileReader(...)</code>). Use explicit encodings.</li>
+<li>Reading single characters in hot loops without buffering.</li>
+<li>Assuming <code>ready()</code> means data remains available; it is a snapshot and optional.</li>
+<li>Forgetting to close <code>Reader</code>, especially when wrapping streams that require finalization.</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>12) Testing the Reader API (Strategies and Patterns)</h2>
+<p>Design tests to validate decoding correctness, buffering behavior, <code>readLine()</code> semantics, <code>mark/reset</code>, and resource closing. Prefer in-memory sources for determinism.</p>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Prefer <code>StringReader</code>/<code>CharArrayReader</code> for pure character tests.</li>
+<li>Validate that <code>read(char[], off, len)</code> returns correct counts and EOF semantics.</li>
+<li>When decoding bytes, test with <code>InputStreamReader</code> and multiple charsets (UTF-8, ISO-8859-1, UTF-16).</li>
+<li>Inject failures to ensure exceptions surface and resources close.</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>StringReader</code> as a deterministic source.</li>
+<li><code>PushbackReader</code> to assert lookahead/unread behavior.</li>
+<li>A custom <code>FailingReader</code> to throw on demand (on <code>read</code>/<code>close</code>).</li>
+</ul>
+<h3>Scenarios You Should Cover</h3>
+<p>1) Bulk reads and exactness</p>
+<pre><code class="language-java">@Test
+void readsExactChars() throws IOException {
+    char[] data = &quot;abcdef&quot;.toCharArray();
+    CharArrayReader car = new CharArrayReader(data);
+    char[] buf = new char[6];
+    assertEquals(6, car.read(buf));
+    assertArrayEquals(data, buf);
+}
+</code></pre>
+<p>2) Offset/length correctness</p>
+<pre><code class="language-java">@Test
+void readsWithOffsetAndLength() throws IOException {
+    CharArrayReader car = new CharArrayReader(&quot;abcdefgh&quot;.toCharArray());
+    char[] buf = new char[4];
+    assertEquals(4, car.read(buf, 0, 4)); // abcd
+    assertArrayEquals(new char[]{'a','b','c','d'}, buf);
+}
+</code></pre>
+<p>3) Buffered line reading</p>
+<pre><code class="language-java">@Test
+void readsLines() throws IOException {
+    String text = &quot;a\nb\n\nc&quot;;
+    try (BufferedReader br = new BufferedReader(new StringReader(text))) {
+        assertEquals(&quot;a&quot;, br.readLine());
+        assertEquals(&quot;b&quot;, br.readLine());
+        assertEquals(&quot;&quot;, br.readLine());
+        assertEquals(&quot;c&quot;, br.readLine());
+        assertNull(br.readLine());
+    }
+}
+</code></pre>
+<p>4) Mark/reset semantics</p>
+<pre><code class="language-java">@Test
+void markAndResetWorks() throws IOException {
+    BufferedReader br = new BufferedReader(new StringReader(&quot;hello&quot;));
+    assertTrue(br.markSupported());
+    br.mark(10);
+    assertEquals('h', br.read());
+    assertEquals('e', br.read());
+    br.reset();
+    assertEquals('h', br.read());
+}
+</code></pre>
+<p>5) Decoding correctness across charsets</p>
+<pre><code class="language-java">@Test
+void decodesUtf8Properly() throws IOException {
+    byte[] bytes = &quot;héllo 世界&quot;.getBytes(StandardCharsets.UTF_8);
+    try (Reader r = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8)) {
+        String s = new BufferedReader(r).lines().collect(Collectors.joining(&quot;\n&quot;));
+        assertTrue(s.contains(&quot;世界&quot;));
+    }
+}
+</code></pre>
+<h3>Practical Tips</h3>
+<ul>
+<li>Use <code>@TempDir</code> only when reading from files; prefer in-memory readers otherwise.</li>
+<li>For decoding tests, include BMP and supplementary characters to verify surrogate handling.</li>
+<li>Separate unit (in-memory) vs integration (filesystem/network) tests.</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
