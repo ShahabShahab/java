@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java `Writer`: A Deep Dive</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java `Writer`: A Deep Dive</h1>
+        
+<section class="section">
+<h1>Java <code>Writer</code>: A Deep Dive</h1>
+<p><code>Writer</code> is Java's foundational abstraction for writing 16-bit Unicode characters. It is the character-oriented counterpart to <code>OutputStream</code>. Real-world text I/O composes <code>Writer</code> implementations using the decorator pattern for buffering, formatting, and encoding characters into bytes via <code>OutputStreamWriter</code>.</p>
+</section>
+
+<section class="section">
+<h2>1) Type and Design Overview</h2>
+<ul>
+<li><strong>Role</strong>: Abstract sink for characters; handles text (not raw bytes).</li>
+<li><strong>Design</strong>: Minimal core API + concrete sinks + decorators for capabilities.</li>
+<li><strong>Hierarchy (common classes)</strong>:</li>
+<li><code>Writer</code> (abstract)<ul>
+<li>Sinks: <code>FileWriter</code>, <code>CharArrayWriter</code>, <code>StringWriter</code>, <code>PipedWriter</code></li>
+<li>Bridge/encoder: <code>OutputStreamWriter</code> (chars → bytes, requires a <code>Charset</code>)</li>
+<li>Decorators: <code>BufferedWriter</code>, <code>FilterWriter</code></li>
+<li><code>PrintWriter</code></li>
+</ul>
+</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Core Methods and Semantics</h2>
+<ul>
+<li><code>void write(int c)</code></li>
+<li>Writes a single 16-bit character (lower 16 bits of <code>c</code>). Inefficient in loops.</li>
+<li><code>void write(char[] cbuf)</code> / <code>void write(char[] cbuf, int off, int len)</code></li>
+<li>Writes <code>len</code> characters from the buffer. May buffer internally.</li>
+<li><code>void write(String str)</code> / <code>void write(String str, int off, int len)</code></li>
+<li>Convenience for writing string data.</li>
+<li><code>Writer append(CharSequence csq)</code> / <code>append(char c)</code> / <code>append(CharSequence csq, int start, int end)</code></li>
+<li>Fluent API for composition; equivalent to write for most implementations.</li>
+<li><code>void flush()</code></li>
+<li>Forces buffered characters to the underlying sink/encoder. Safe to call; may be no-op for some writers.</li>
+<li><code>void close()</code></li>
+<li>Idempotent. Must release resources and typically flush pending data. After close, further writes should throw <code>IOException</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>3) Buffering and Performance</h2>
+<ul>
+<li>Wrap slow sinks (disk/network/encoding) with <code>BufferedWriter</code> to reduce syscalls and encoder overhead.</li>
+<li>Typical buffer sizes: 4–64 KiB. Measure for your workload.</li>
+<li>Prefer bulk writes (<code>write(char[], ...)</code>, <code>write(String)</code>) over single-character writes.</li>
+<li>Use <code>PrintWriter</code> for convenient formatting and println semantics; be aware of its error swallowing behavior.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>4) Encoding and Charsets</h2>
+<ul>
+<li><code>Writer</code> consumes characters. When the destination is bytes, use <code>OutputStreamWriter</code> with an explicit <code>Charset</code> (e.g., UTF-8).</li>
+<li>Avoid platform default charsets (e.g., <code>new FileWriter(path)</code>) for portable systems. Prefer <code>Files.newBufferedWriter(path, StandardCharsets.UTF_8)</code>.</li>
+<li>Newline handling is not automatic; <code>BufferedWriter.newLine()</code> emits the platform-specific separator. For cross-platform files, many codebases prefer <code>"\n"</code> explicitly.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>5) Error Handling</h2>
+<ul>
+<li>Encoding can fail (unmappable characters) via <code>UnmappableCharacterException</code> / <code>MalformedInputException</code> from the underlying <code>CharsetEncoder</code>, wrapped in <code>IOException</code>.</li>
+<li><code>PrintWriter</code> suppresses <code>IOException</code> by default; use <code>checkError()</code> or prefer <code>BufferedWriter</code> for error transparency.</li>
+<li>Always use try-with-resources to ensure <code>close()</code> runs.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>6) Ordering, Atomicity, and Concurrency</h2>
+<ul>
+<li>Writes are ordered but not necessarily atomic at OS level. Avoid concurrent writes to the same writer without external synchronization.</li>
+<li><code>flush()</code> orders data to the underlying sink/encoder; durability (fsync) is outside <code>Writer</code> and depends on the underlying stream.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>7) Common Implementations</h2>
+<ul>
+<li><code>FileWriter</code>: convenience for writing files using the platform default charset (discouraged in most apps).</li>
+<li><code>OutputStreamWriter</code>: bridges characters to bytes using a <code>Charset</code> (recommended when writing to byte sinks).</li>
+<li><code>BufferedWriter</code>: adds buffering and provides <code>newLine()</code>.</li>
+<li><code>PrintWriter</code>: convenience printing/formatting; optional auto-flush on newline when constructed appropriately.</li>
+<li><code>StringWriter</code>: in-memory accumulation to <code>String</code>.</li>
+<li><code>CharArrayWriter</code>: in-memory accumulation to <code>char[]</code>.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>8) <code>Writer</code> vs <code>OutputStream</code></h2>
+<ul>
+<li><code>Writer</code> handles characters; <code>OutputStream</code> handles bytes. For text, prefer <code>Writer</code> with an explicit charset; for binary, use <code>OutputStream</code>.</li>
+<li>Bridge with <code>OutputStreamWriter</code> when the underlying destination is a byte-oriented stream.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>9) Best Practices Checklist</h2>
+<ul>
+<li>Use try-with-resources; always close.</li>
+<li>Prefer <code>BufferedWriter</code> for performance and convenience.</li>
+<li>Be explicit about character encodings (UTF-8 is a safe default).</li>
+<li>Avoid excessive <code>flush()</code>; flush at logical boundaries.</li>
+<li>Use <code>PrintWriter</code> only when you intentionally want its behavior (formatting, muted IOExceptions) and monitor with <code>checkError()</code> if needed.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>10) Examples</h2>
+<h3>10.1 Write all lines (UTF-8)</h3>
+<pre><code class="language-java">void writeLines(Path path, List&lt;String&gt; lines) throws IOException {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+        for (String line : lines) {
+            writer.write(line);
+            writer.newLine();
+        }
+    }
+}
+</code></pre>
+<h3>10.2 Encode characters to an OutputStream with explicit charset</h3>
+<pre><code class="language-java">void writeText(OutputStream out, CharSequence text, Charset cs) throws IOException {
+    try (Writer writer = new BufferedWriter(new OutputStreamWriter(out, cs))) {
+        writer.write(text.toString());
+    }
+}
+</code></pre>
+<h3>10.3 Append API for simple building</h3>
+<pre><code class="language-java">String buildCsvLine(Map&lt;String, String&gt; row, List&lt;String&gt; headers) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i &lt; headers.size(); i++) {
+        if (i &gt; 0) sb.append(',');
+        String value = row.getOrDefault(headers.get(i), &quot;&quot;);
+        sb.append(value.replace(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;));
+    }
+    return sb.toString();
+}
+
+void writeCsv(Path path, List&lt;Map&lt;String, String&gt;&gt; rows, List&lt;String&gt; headers) throws IOException {
+    try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+        w.append(String.join(&quot;,&quot;, headers)).newLine();
+        for (Map&lt;String, String&gt; row : rows) {
+            w.append(buildCsvLine(row, headers)).newLine();
+        }
+    }
+}
+</code></pre>
+<h3>10.4 PrintWriter convenience with auto-flush</h3>
+<pre><code class="language-java">void logLines(OutputStream out, List&lt;String&gt; lines) {
+    try (PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8)), true)) {
+        for (String line : lines) {
+            pw.println(line); // auto-flush on newline
+        }
+        if (pw.checkError()) {
+            throw new UncheckedIOException(new IOException(&quot;Write error&quot;));
+        }
+    }
+}
+</code></pre>
+<h3>10.5 Platform newline vs explicit \n</h3>
+<pre><code class="language-java">void writeWithExplicitNewlines(Path path, List&lt;String&gt; lines) throws IOException {
+    try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+        for (String line : lines) {
+            w.write(line);
+            w.write('\n'); // consistent across platforms
+        }
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>11) Pitfalls to Avoid</h2>
+<ul>
+<li>Using platform-default charset implicitly (<code>new FileWriter(...)</code>) leading to mojibake in other environments.</li>
+<li>Mixing <code>Writer</code> and <code>OutputStream</code> on the same underlying stream without coordinating buffering/flush/close.</li>
+<li>Excessive single-character writes destroying throughput.</li>
+<li>Assuming <code>PrintWriter</code> throws on errors; it does not by default.</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>12) Testing the Writer API (Strategies and Patterns)</h2>
+<p>Design tests to validate encoding correctness, buffering/flush behavior, newline handling, and resource closing. Prefer in-memory sinks for determinism.</p>
+<h3>Guiding Principles</h3>
+<ul>
+<li>Prefer <code>StringWriter</code>/<code>CharArrayWriter</code> for pure character tests.</li>
+<li>When encoding to bytes, test with <code>OutputStreamWriter</code> and multiple charsets (UTF-8, ISO-8859-1, UTF-16) and compare bytes.</li>
+<li>Validate <code>flush()</code> semantics and that <code>close()</code> flushes final data.</li>
+</ul>
+<h3>Useful Test Doubles</h3>
+<ul>
+<li><code>StringWriter</code> as an oracle for produced text.</li>
+<li>A custom <code>CountingWriter</code> to assert call patterns and flush counts.</li>
+<li>A custom <code>FailingOutputStream</code> paired with <code>OutputStreamWriter</code> to force write failures.</li>
+</ul>
+<h3>Scenarios You Should Cover</h3>
+<p>1) Bulk writes and exactness</p>
+<pre><code class="language-java">@Test
+void writesExactChars() throws IOException {
+    StringWriter sw = new StringWriter();
+    try (Writer w = sw) {
+        w.write(&quot;abcdef&quot;);
+    }
+    assertEquals(&quot;abcdef&quot;, sw.toString());
+}
+</code></pre>
+<p>2) Offset/length correctness</p>
+<pre><code class="language-java">@Test
+void writesWithOffsetAndLength() throws IOException {
+    char[] data = &quot;abcdefgh&quot;.toCharArray();
+    StringWriter sw = new StringWriter();
+    try (Writer w = sw) {
+        w.write(data, 2, 4); // cdef
+    }
+    assertEquals(&quot;cdef&quot;, sw.toString());
+}
+</code></pre>
+<p>3) Buffered reduces underlying calls</p>
+<pre><code class="language-java">static final class CountingWriter extends Writer {
+    int singleWrites; int bulkWrites; int flushes; int closes;
+    private final Writer delegate;
+    CountingWriter(Writer delegate) { this.delegate = delegate; }
+    @Override public void write(int c) throws IOException { singleWrites++; delegate.write(c); }
+    @Override public void write(char[] cbuf, int off, int len) throws IOException { bulkWrites++; delegate.write(cbuf, off, len); }
+    @Override public void flush() throws IOException { flushes++; delegate.flush(); }
+    @Override public void close() throws IOException { closes++; delegate.close(); }
+}
+
+@Test
+void bufferedReducesCalls() throws IOException {
+    CountingWriter counting = new CountingWriter(new StringWriter());
+    try (Writer w = new BufferedWriter(counting, 4096)) {
+        char[] buf = new char[8192];
+        Arrays.fill(buf, 'x');
+        w.write(buf);
+        w.flush();
+    }
+    assertTrue(counting.singleWrites == 0);
+    assertTrue(counting.bulkWrites &lt;= 3);
+    assertTrue(counting.closes &gt;= 1);
+}
+</code></pre>
+<p>4) Newline handling consistency</p>
+<pre><code class="language-java">@Test
+void newLineEmitsPlatformSeparator() throws IOException {
+    StringWriter sw = new StringWriter();
+    try (BufferedWriter bw = new BufferedWriter(sw)) {
+        bw.write(&quot;a&quot;);
+        bw.newLine();
+        bw.write(&quot;b&quot;);
+    }
+    String out = sw.toString();
+    assertTrue(out.contains(&quot;a&quot;));
+    assertTrue(out.endsWith(&quot;b&quot;));
+}
+</code></pre>
+<p>5) Encoding correctness</p>
+<pre><code class="language-java">@Test
+void encodesUtf8Properly() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (Writer w = new OutputStreamWriter(baos, StandardCharsets.UTF_8)) {
+        w.write(&quot;héllo 世界&quot;);
+    }
+    String decoded = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+    assertTrue(decoded.contains(&quot;世界&quot;));
+}
+</code></pre>
+<h3>Practical Tips</h3>
+<ul>
+<li>For file-based integration tests, use <code>@TempDir</code> to isolate filesystem effects.</li>
+<li>Include supplementary-plane characters to verify surrogate pair handling.</li>
+<li>Separate unit (in-memory) vs integration (filesystem/network) tests.</li>
+</ul>
+</section>
+    </div>
+</body>
+</html>
