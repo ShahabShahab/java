@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Method References and Predicates Explained</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Method References and Predicates Explained</h1>
+        
+<section class="section">
+<h1>Method References and Predicates Explained</h1>
+</section>
+
+<section class="section">
+<h2>The Question</h2>
+<p>You're wondering how this works:</p>
+<pre><code class="language-java">products.stream()
+    .filter(specification::isSatisfiedBy)  // ← How does this work?
+    .collect(Collectors.toList());
+</code></pre>
+<p>Since <code>filter()</code> expects a <code>Predicate&lt;? super T&gt;</code>, and we're passing a method reference to a boolean method, how does Java know they're compatible?</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Understanding Predicate</h2>
+<h3>What is a Predicate?</h3>
+<p><code>Predicate&lt;T&gt;</code> is a <strong>functional interface</strong> in Java. It has ONE abstract method:</p>
+<pre><code class="language-java">@FunctionalInterface
+public interface Predicate&lt;T&gt; {
+    boolean test(T t);  // ← This is the key method!
+
+    // ... other default methods (and, or, negate, etc.)
+}
+</code></pre>
+<p><strong>Key Point:</strong> A <code>Predicate&lt;T&gt;</code> is anything that can take a <code>T</code> and return a <code>boolean</code>.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Method Signature Matching</h2>
+<h3>Our Specification Method</h3>
+<pre><code class="language-java">public interface ProductSpecification {
+    boolean isSatisfiedBy(Product product);  // ← Takes Product, returns boolean
+}
+</code></pre>
+<h3>Predicate's Method</h3>
+<pre><code class="language-java">public interface Predicate&lt;T&gt; {
+    boolean test(T t);  // ← Takes T, returns boolean
+}
+</code></pre>
+<h3>The Match!</h3>
+<p>When <code>T = Product</code>, the signatures match:</p>
+<table>
+<thead>
+<tr>
+<th>Predicate<Product></th>
+<th>ProductSpecification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>boolean test(Product t)</code></td>
+<td><code>boolean isSatisfiedBy(Product product)</code></td>
+</tr>
+<tr>
+<td>Takes <code>Product</code></td>
+<td>Takes <code>Product</code></td>
+</tr>
+<tr>
+<td>Returns <code>boolean</code></td>
+<td>Returns <code>boolean</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Java sees:</strong> "These have the same signature! I can use one as the other!"</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>How Method References Work</h2>
+<h3>Method Reference Syntax</h3>
+<pre><code class="language-java">specification::isSatisfiedBy
+</code></pre>
+<p>This is <strong>shorthand</strong> for a lambda expression. Java automatically converts it to a <code>Predicate&lt;Product&gt;</code>.</p>
+<h3>What Java Actually Sees</h3>
+<p>When you write:</p>
+<pre><code class="language-java">.filter(specification::isSatisfiedBy)
+</code></pre>
+<p>Java converts it to:</p>
+<pre><code class="language-java">.filter(product -&gt; specification.isSatisfiedBy(product))
+</code></pre>
+<p>Which is equivalent to:</p>
+<pre><code class="language-java">.filter(new Predicate&lt;Product&gt;() {
+    @Override
+    public boolean test(Product product) {
+        return specification.isSatisfiedBy(product);
+    }
+})
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Step-by-Step Example</h2>
+<p>Let's trace through what happens:</p>
+<pre><code class="language-java">ProductSpecification spec = new PriceSpecification(new BigDecimal(&quot;500&quot;));
+
+List&lt;Product&gt; results = products.stream()
+    .filter(spec::isSatisfiedBy)  // ← Method reference
+    .collect(Collectors.toList());
+</code></pre>
+<h3>Step 1: Method Reference</h3>
+<pre><code class="language-java">spec::isSatisfiedBy
+</code></pre>
+<p>This creates a reference to the <code>isSatisfiedBy</code> method on the <code>spec</code> object.</p>
+<h3>Step 2: Java Converts to Lambda</h3>
+<pre><code class="language-java">product -&gt; spec.isSatisfiedBy(product)
+</code></pre>
+<h3>Step 3: Java Matches to Predicate</h3>
+<pre><code class="language-java">Predicate&lt;Product&gt; predicate = product -&gt; spec.isSatisfiedBy(product);
+</code></pre>
+<h3>Step 4: filter() Uses It</h3>
+<pre><code class="language-java">.filter(predicate)
+// For each product, calls: predicate.test(product)
+// Which calls: spec.isSatisfiedBy(product)
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>All Three Ways to Write It</h2>
+<p>These are all <strong>equivalent</strong>:</p>
+<h3>1. Method Reference (Shortest)</h3>
+<pre><code class="language-java">products.stream()
+    .filter(specification::isSatisfiedBy)
+    .collect(Collectors.toList());
+</code></pre>
+<h3>2. Lambda Expression (More Explicit)</h3>
+<pre><code class="language-java">products.stream()
+    .filter(product -&gt; specification.isSatisfiedBy(product))
+    .collect(Collectors.toList());
+</code></pre>
+<h3>3. Anonymous Class (Most Verbose)</h3>
+<pre><code class="language-java">products.stream()
+    .filter(new Predicate&lt;Product&gt;() {
+        @Override
+        public boolean test(Product product) {
+            return specification.isSatisfiedBy(product);
+        }
+    })
+    .collect(Collectors.toList());
+</code></pre>
+<p><strong>All three do exactly the same thing!</strong> Method reference is just the shortest way.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Why It Works: Functional Interface Rules</h2>
+<h3>Rule 1: Method Signature Must Match</h3>
+<p>For a method reference to work with a functional interface, the method signature must match:</p>
+<p>✅ <strong>Works:</strong></p>
+<pre><code class="language-java">// Predicate expects: boolean test(Product)
+// Our method: boolean isSatisfiedBy(Product)
+// ✅ Same signature!
+specification::isSatisfiedBy
+</code></pre>
+<p>❌ <strong>Doesn't Work:</strong></p>
+<pre><code class="language-java">// If we had: void doSomething(Product)  // ← Wrong return type!
+// ❌ Can't use as Predicate
+</code></pre>
+<h3>Rule 2: Parameter Types Must Match</h3>
+<p>✅ <strong>Works:</strong></p>
+<pre><code class="language-java">// Predicate&lt;Product&gt; expects: boolean test(Product)
+// Our method: boolean isSatisfiedBy(Product)
+// ✅ Parameter types match!
+</code></pre>
+<p>❌ <strong>Doesn't Work:</strong></p>
+<pre><code class="language-java">// If we had: boolean isSatisfiedBy(String)  // ← Wrong parameter type!
+// ❌ Can't use as Predicate&lt;Product&gt;
+</code></pre>
+<h3>Rule 3: Return Type Must Match</h3>
+<p>✅ <strong>Works:</strong></p>
+<pre><code class="language-java">// Predicate expects: boolean test(...)
+// Our method: boolean isSatisfiedBy(...)
+// ✅ Return types match!
+</code></pre>
+<p>❌ <strong>Doesn't Work:</strong></p>
+<pre><code class="language-java">// If we had: int isSatisfiedBy(Product)  // ← Wrong return type!
+// ❌ Can't use as Predicate
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Visual Comparison</h2>
+<pre><code>Predicate&lt;Product&gt; interface:
+┌─────────────────────────────────┐
+│ boolean test(Product product)   │  ← What filter() expects
+└─────────────────────────────────┘
+            ↑
+            │ Method reference automatically bridges this
+            │
+ProductSpecification interface:
+┌─────────────────────────────────┐
+│ boolean isSatisfiedBy(Product)  │  ← What we have
+└─────────────────────────────────┘
+
+Java says: &quot;Same signature! I can use one as the other!&quot;
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Real Example from Our Code</h2>
+<pre><code class="language-java">public class ProductServiceWithSpecification {
+
+    public List&lt;Product&gt; findBySpecification(ProductSpecification specification) {
+        return products.stream()
+                .filter(specification::isSatisfiedBy)  // ← Method reference
+                .collect(Collectors.toList());
+    }
+}
+</code></pre>
+<h3>What's Happening:</h3>
+<ol>
+<li><code>filter()</code> expects: <code>Predicate&lt;? super Product&gt;</code></li>
+<li>We provide: <code>specification::isSatisfiedBy</code></li>
+<li>Java checks: Does <code>isSatisfiedBy(Product)</code> match <code>test(Product)</code>?</li>
+<li>Java says: ✅ Yes! Same signature!</li>
+<li>Java converts: Method reference → Lambda → Predicate</li>
+<li>It works! 🎉</li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Other Functional Interfaces That Work Similarly</h2>
+<h3>Function<T, R></h3>
+<pre><code class="language-java">// Function expects: R apply(T t)
+// If you have: String getName(Product p)
+// You can use: product::getName
+</code></pre>
+<h3>Consumer<T></h3>
+<pre><code class="language-java">// Consumer expects: void accept(T t)
+// If you have: void print(Product p)
+// You can use: printer::print
+</code></pre>
+<h3>Supplier<T></h3>
+<pre><code class="language-java">// Supplier expects: T get()
+// If you have: Product create()
+// You can use: factory::create
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Key Takeaways</h2>
+<ol>
+<li><strong>Method references work when signatures match</strong></li>
+<li>
+<p><code>boolean isSatisfiedBy(Product)</code> matches <code>boolean test(Product)</code></p>
+</li>
+<li>
+<p><strong>Java automatically converts method references to functional interfaces</strong></p>
+</li>
+<li>
+<p><code>specification::isSatisfiedBy</code> → <code>Predicate&lt;Product&gt;</code></p>
+</li>
+<li>
+<p><strong>Method references are just shorthand for lambdas</strong></p>
+</li>
+<li>
+<p><code>spec::isSatisfiedBy</code> = <code>p -&gt; spec.isSatisfiedBy(p)</code></p>
+</li>
+<li>
+<p><strong>The method doesn't need to be called <code>test</code></strong></p>
+</li>
+<li>Any method with matching signature works</li>
+<li>
+<p><code>isSatisfiedBy</code>, <code>matches</code>, <code>isValid</code>, etc. all work!</p>
+</li>
+<li>
+<p><strong>This is why the Specification pattern works so well with Streams</strong></p>
+</li>
+<li>Our <code>isSatisfiedBy</code> method naturally fits <code>Predicate</code></li>
+<li>No conversion needed!</li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<p><strong>Question:</strong> How can we pass <code>specification::isSatisfiedBy</code> to <code>filter()</code> which expects a <code>Predicate</code>?</p>
+<p><strong>Answer:</strong> Because:<br />
+- <code>Predicate&lt;T&gt;</code> has method: <code>boolean test(T t)</code><br />
+- <code>ProductSpecification</code> has method: <code>boolean isSatisfiedBy(Product product)</code><br />
+- <strong>Same signature!</strong> ✅<br />
+- Java automatically converts the method reference to a <code>Predicate</code><br />
+- Method references are just shorthand for lambdas</p>
+<p><strong>It's not magic - it's Java's method signature matching!</strong> 🎯</p>
+</section>
+    </div>
+</body>
+</html>
