@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Lombok Annotations: A Practical Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Java Lombok Annotations: A Practical Guide</h1>
+        
+<section class="section">
+<h1>Java Lombok Annotations: A Practical Guide</h1>
+<p>Lombok is a Java library that reduces boilerplate code through compile-time code generation. It provides annotations that generate getters, setters, constructors, builders, and more, making Java code more concise and maintainable.</p>
+</section>
+
+<section class="section">
+<h2>1) Quick Overview</h2>
+<ul>
+<li><strong>Lombok</strong>: compile-time code generation via annotations; no runtime overhead.</li>
+<li><strong>Setup</strong>: Add dependency (Maven/Gradle) and enable annotation processing in your IDE.</li>
+<li><strong>Common annotations</strong>: <code>@Builder</code>, <code>@Getter/@Setter</code>, <code>@Data</code>, <code>@NoArgsConstructor</code>, <code>@AllArgsConstructor</code>, <code>@RequiredArgsConstructor</code>, <code>@ToString</code>, <code>@EqualsAndHashCode</code>, <code>@Slf4j</code>, <code>@Value</code>.</li>
+<li><strong>Best practice</strong>: Use Lombok judiciously; understand what code it generates.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>2) Constructor Annotations</h2>
+<h3>2.1 @NoArgsConstructor</h3>
+<p>Generates a no-argument constructor. Useful for JPA entities, frameworks requiring default constructors.</p>
+<pre><code class="language-java">@NoArgsConstructor
+public class User {
+    private Long id;
+    private String name;
+    private String email;
+}
+
+// Generated:
+// public User() {}
+</code></pre>
+<h3>2.2 @AllArgsConstructor</h3>
+<p>Generates a constructor with all fields as parameters.</p>
+<pre><code class="language-java">@AllArgsConstructor
+public class Point {
+    private int x;
+    private int y;
+}
+
+// Generated:
+// public Point(int x, int y) { this.x = x; this.y = y; }
+</code></pre>
+<h3>2.3 @RequiredArgsConstructor</h3>
+<p>Generates a constructor for <code>final</code> fields and fields marked with <code>@NonNull</code>.</p>
+<pre><code class="language-java">@RequiredArgsConstructor
+public class Service {
+    private final UserRepository repository;
+    private final EmailService emailService;
+    private String optionalField;
+}
+
+// Generated:
+// public Service(UserRepository repository, EmailService emailService) {
+//     this.repository = repository;
+//     this.emailService = emailService;
+// }
+</code></pre>
+</section>
+
+<section class="section">
+<h2>3) Builder Pattern</h2>
+<h3>3.1 @Builder</h3>
+<p>Generates a fluent builder API. Excellent for objects with many optional fields.</p>
+<pre><code class="language-java">@Builder
+@Getter
+public class Product {
+    private Long id;
+    private String name;
+    private String description;
+    @Builder.Default
+    private BigDecimal price = BigDecimal.ZERO;
+    private Integer stock;
+}
+
+// Usage:
+Product product = Product.builder()
+    .id(1L)
+    .name(&quot;Laptop&quot;)
+    .description(&quot;High-performance laptop&quot;)
+    .price(new BigDecimal(&quot;1299.99&quot;))
+    .stock(50)
+    .build();
+</code></pre>
+<h3>3.2 @Builder with @Singular</h3>
+<p>For collections, <code>@Singular</code> generates add methods.</p>
+<pre><code class="language-java">@Builder
+@Getter
+public class Order {
+    private Long id;
+    @Singular
+    private List&lt;OrderItem&gt; items;
+}
+
+// Usage:
+Order order = Order.builder()
+    .id(1L)
+    .item(OrderItem.builder().name(&quot;Item1&quot;).build())
+    .item(OrderItem.builder().name(&quot;Item2&quot;).build())
+    .build();
+</code></pre>
+</section>
+
+<section class="section">
+<h2>4) Accessor Annotations</h2>
+<h3>4.1 @Getter and @Setter</h3>
+<p>Generate getter and setter methods.</p>
+<pre><code class="language-java">@Getter
+@Setter
+public class Person {
+    private String firstName;
+    private String lastName;
+    @Getter(AccessLevel.PRIVATE)
+    private String password; // Only getter is private
+}
+</code></pre>
+<h3>4.2 @Data</h3>
+<p>Combines <code>@Getter</code>, <code>@Setter</code>, <code>@ToString</code>, <code>@EqualsAndHashCode</code>, and <code>@RequiredArgsConstructor</code>.</p>
+<pre><code class="language-java">@Data
+public class Employee {
+    private Long id;
+    private String name;
+    private String email;
+    private final LocalDateTime createdAt;
+}
+
+// Generated: getters, setters, toString, equals, hashCode, constructor for final fields
+</code></pre>
+</section>
+
+<section class="section">
+<h2>5) Utility Annotations</h2>
+<h3>5.1 @ToString</h3>
+<p>Generates <code>toString()</code> method. Use <code>@ToString.Exclude</code> to exclude fields.</p>
+<pre><code class="language-java">@ToString
+public class User {
+    private Long id;
+    private String name;
+    @ToString.Exclude
+    private String password; // Excluded from toString
+    @ToString.Include(name = &quot;emailAddress&quot;)
+    private String email;
+}
+</code></pre>
+<h3>5.2 @EqualsAndHashCode</h3>
+<p>Generates <code>equals()</code> and <code>hashCode()</code>. Use <code>@EqualsAndHashCode.Exclude</code> to exclude fields.</p>
+<pre><code class="language-java">@EqualsAndHashCode
+public class Product {
+    private Long id;
+    @EqualsAndHashCode.Exclude
+    private LocalDateTime lastModified; // Excluded from equals/hashCode
+    private String name;
+}
+</code></pre>
+<h3>5.3 @Value</h3>
+<p>Creates immutable classes. All fields are <code>final</code>, generates getters, <code>toString</code>, <code>equals</code>, <code>hashCode</code>, and an all-args constructor.</p>
+<pre><code class="language-java">@Value
+@Builder
+public class ImmutableUser {
+    Long id;
+    String name;
+    String email;
+}
+
+// All fields are final, no setters generated
+</code></pre>
+</section>
+
+<section class="section">
+<h2>6) Logging</h2>
+<h3>6.1 @Slf4j</h3>
+<p>Generates a static <code>log</code> field using SLF4J.</p>
+<pre><code class="language-java">@Slf4j
+public class UserService {
+    public void createUser(String name) {
+        log.info(&quot;Creating user: {}&quot;, name);
+        // ... implementation
+    }
+}
+
+// Generated:
+// private static final Logger log = LoggerFactory.getLogger(UserService.class);
+</code></pre>
+</section>
+
+<section class="section">
+<h2>7) Practical Examples</h2>
+<h3>7.1 JPA Entity with Lombok</h3>
+<pre><code class="language-java">@Entity
+@Table(name = &quot;users&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private String password;
+}
+</code></pre>
+<h3>7.2 DTO with Builder</h3>
+<pre><code class="language-java">@Value
+@Builder
+public class UserDTO {
+    Long id;
+    String name;
+    String email;
+    @Builder.Default
+    boolean active = true;
+}
+
+// Usage:
+UserDTO dto = UserDTO.builder()
+    .id(1L)
+    .name(&quot;John Doe&quot;)
+    .email(&quot;john@example.com&quot;)
+    .build();
+</code></pre>
+<h3>7.3 Service with RequiredArgsConstructor</h3>
+<pre><code class="language-java">@Service
+@RequiredArgsConstructor
+@Slf4j
+public class OrderService {
+    private final OrderRepository orderRepository;
+    private final PaymentService paymentService;
+    private final EmailService emailService;
+
+    public Order createOrder(OrderRequest request) {
+        log.info(&quot;Creating order for user: {}&quot;, request.getUserId());
+        // Implementation
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>8) Test Strategies</h2>
+<h3>8.1 Testing Builder Pattern</h3>
+<pre><code class="language-java">@Test
+void builderCreatesObjectCorrectly() {
+    Product product = Product.builder()
+        .id(1L)
+        .name(&quot;Test Product&quot;)
+        .price(new BigDecimal(&quot;99.99&quot;))
+        .build();
+
+    assertEquals(1L, product.getId());
+    assertEquals(&quot;Test Product&quot;, product.getName());
+    assertEquals(new BigDecimal(&quot;99.99&quot;), product.getPrice());
+}
+</code></pre>
+<h3>8.2 Testing Equals and HashCode</h3>
+<pre><code class="language-java">@Test
+void equalsAndHashCodeWorkCorrectly() {
+    Product p1 = Product.builder().id(1L).name(&quot;Product&quot;).build();
+    Product p2 = Product.builder().id(1L).name(&quot;Product&quot;).build();
+
+    assertEquals(p1, p2);
+    assertEquals(p1.hashCode(), p2.hashCode());
+}
+</code></pre>
+<h3>8.3 Testing ToString</h3>
+<pre><code class="language-java">@Test
+void toStringIncludesRelevantFields() {
+    User user = User.builder()
+        .id(1L)
+        .name(&quot;John&quot;)
+        .email(&quot;john@example.com&quot;)
+        .build();
+
+    String str = user.toString();
+    assertTrue(str.contains(&quot;John&quot;));
+    assertTrue(str.contains(&quot;john@example.com&quot;));
+    assertFalse(str.contains(&quot;password&quot;)); // Excluded field
+}
+</code></pre>
+<h3>8.4 Testing Immutable Value Objects</h3>
+<pre><code class="language-java">@Test
+void valueObjectIsImmutable() {
+    ImmutableUser user = ImmutableUser.builder()
+        .id(1L)
+        .name(&quot;John&quot;)
+        .email(&quot;john@example.com&quot;)
+        .build();
+
+    // No setters available - compile error if attempted
+    assertEquals(&quot;John&quot;, user.getName());
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>9) Best Usage Scenarios</h2>
+<h3>@Builder</h3>
+<ul>
+<li>DTOs with many optional fields.</li>
+<li>Configuration objects.</li>
+<li>Test data builders.</li>
+<li>API request/response objects.</li>
+</ul>
+<h3>@Data</h3>
+<ul>
+<li>Simple POJOs/DTOs.</li>
+<li>JPA entities (with caution - be mindful of <code>equals</code>/<code>hashCode</code>).</li>
+<li>Data transfer objects.</li>
+</ul>
+<h3>@Value</h3>
+<ul>
+<li>Immutable value objects.</li>
+<li>DTOs that should not be modified.</li>
+<li>Domain value objects.</li>
+</ul>
+<h3>@RequiredArgsConstructor</h3>
+<ul>
+<li>Dependency injection in Spring (alternative to <code>@Autowired</code>).</li>
+<li>Services, repositories, controllers.</li>
+<li>Classes with final dependencies.</li>
+</ul>
+<h3>@Slf4j</h3>
+<ul>
+<li>Any class that needs logging.</li>
+<li>Services, controllers, utilities.</li>
+</ul>
+<h3>@NoArgsConstructor / @AllArgsConstructor</h3>
+<ul>
+<li>JPA entities (framework requirements).</li>
+<li>Framework integration classes.</li>
+<li>Simple data containers.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>10) Pitfalls and Best Practices</h2>
+<h3>Avoid</h3>
+<ul>
+<li>Using <code>@Data</code> on JPA entities without careful consideration of <code>equals</code>/<code>hashCode</code> (can cause issues with lazy loading).</li>
+<li>Overusing Lombok when explicit code is clearer.</li>
+<li>Ignoring what Lombok generates (understand the code).</li>
+</ul>
+<h3>Best Practices</h3>
+<ul>
+<li>Use <code>@EqualsAndHashCode.Exclude</code> for lazy-loaded JPA relationships.</li>
+<li>Prefer <code>@RequiredArgsConstructor</code> over <code>@Autowired</code> for dependency injection.</li>
+<li>Use <code>@Builder.Default</code> for default values in builders.</li>
+<li>Combine <code>@Value</code> with <code>@Builder</code> for immutable objects with builder pattern.</li>
+<li>Use <code>@ToString.Exclude</code> for sensitive fields (passwords, tokens).</li>
+</ul>
+<h3>JPA Entity Considerations</h3>
+<pre><code class="language-java">@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Order {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private User user; // Exclude from equals/hashCode to avoid lazy loading issues
+
+    private BigDecimal total;
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>11) IDE Setup</h2>
+<ul>
+<li><strong>IntelliJ IDEA</strong>: Install Lombok plugin, enable annotation processing.</li>
+<li><strong>Eclipse</strong>: Install Lombok, restart IDE.</li>
+<li><strong>VS Code</strong>: Install Lombok extension.</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>12) Maven/Gradle Dependency</h2>
+<pre><code class="language-xml">&lt;!-- Maven --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+    &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+    &lt;version&gt;1.18.30&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-gradle">// Gradle
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+</code></pre>
+</section>
+    </div>
+</body>
+</html>
