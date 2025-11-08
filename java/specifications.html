@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specification Pattern</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Specification Pattern</h1>
+        
+<section class="section">
+<h1>Specification Pattern</h1>
+<p>A comprehensive guide to the Specification Design Pattern in Java, with practical examples demonstrating how it solves complex filtering and querying problems.</p>
+</section>
+
+<section class="section">
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#what-is-the-specification-pattern">What is the Specification Pattern?</a></li>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#the-solution">The Solution</a></li>
+<li><a href="#how-it-works">How It Works</a></li>
+<li><a href="#code-examples">Code Examples</a></li>
+<li><a href="#benefits">Benefits</a></li>
+<li><a href="#when-to-use-it">When to Use It</a></li>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#running-the-examples">Running the Examples</a></li>
+<li><a href="#further-reading">Further Reading</a></li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>What is the Specification Pattern?</h2>
+<p>The <strong>Specification Pattern</strong> is a design pattern that encapsulates business rules in reusable, composable objects. It allows you to:</p>
+<ul>
+<li>✅ Express business rules as first-class objects</li>
+<li>✅ Combine rules using logical operators (AND, OR, NOT)</li>
+<li>✅ Build complex queries dynamically</li>
+<li>✅ Test business rules independently</li>
+<li>✅ Reuse rules across different contexts</li>
+</ul>
+<p><strong>Core Concept:</strong> A Specification is a predicate (true/false function) that determines whether an object satisfies certain criteria.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>The Problem</h2>
+<h3>Without Specification Pattern</h3>
+<p>Imagine you're building an e-commerce system and need to filter products. Without the Specification pattern, you might write code like this:</p>
+<pre><code class="language-java">public class ProductService {
+
+    // Need separate method for each filter
+    public List&lt;Product&gt; findExpensiveProducts(BigDecimal minPrice) { ... }
+    public List&lt;Product&gt; findProductsInStock() { ... }
+    public List&lt;Product&gt; findHighRatedProducts(int minRating) { ... }
+
+    // Need MORE methods for combinations!
+    public List&lt;Product&gt; findExpensiveAndInStock(BigDecimal minPrice) { ... }
+    public List&lt;Product&gt; findHighRatedAndInStock(int minRating) { ... }
+    public List&lt;Product&gt; findExpensiveHighRatedAndInStock(...) { ... }
+
+    // What about OR logic? Even MORE methods!
+    public List&lt;Product&gt; findExpensiveOrHighRated(...) { ... }
+
+    // This gets out of hand quickly!
+}
+</code></pre>
+<h3>Problems with This Approach</h3>
+<ol>
+<li><strong>Code Explosion</strong>: For <code>n</code> filters, you potentially need <code>2^n</code> methods (all combinations)</li>
+<li><strong>Code Duplication</strong>: Similar filtering logic repeated in each method</li>
+<li><strong>Hard to Maintain</strong>: Changes require updating multiple methods</li>
+<li><strong>Hard to Extend</strong>: Adding a new filter means creating methods for ALL existing combinations</li>
+<li><strong>Can't Handle Dynamic Queries</strong>: Building queries from user input is nearly impossible</li>
+<li><strong>Violates SOLID Principles</strong>: </li>
+<li>Open/Closed Principle: Must modify class to add new filters</li>
+<li>Single Responsibility: Class has too many responsibilities</li>
+</ol>
+<p><strong>See the full example:</strong> <a href="src/main/java/com/github/carlosraphael/specificationpattern/naive/ProductService.java"><code>ProductService.java</code></a></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>The Solution</h2>
+<h3>With Specification Pattern</h3>
+<p>The Specification pattern solves all these problems with a simple, elegant approach:</p>
+<pre><code class="language-java">// ONE method handles ALL combinations!
+public class ProductServiceWithSpecification {
+
+    public List&lt;Product&gt; findBySpecification(ProductSpecification spec) {
+        return products.stream()
+                .filter(spec::isSatisfiedBy)
+                .collect(Collectors.toList());
+    }
+}
+
+// Use it like this:
+service.findBySpecification(new PriceSpecification(500));
+service.findBySpecification(
+    new PriceSpecification(500).and(new InStockSpecification())
+);
+service.findBySpecification(
+    new RatingSpecification(4).or(new PriceSpecification(1000))
+);
+</code></pre>
+<p><strong>See the full example:</strong> <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/ProductServiceWithSpecification.java"><code>ProductServiceWithSpecification.java</code></a></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>How It Works</h2>
+<h3>Core Components</h3>
+<h4>1. Specification Interface</h4>
+<p>The heart of the pattern - defines what a specification can do:</p>
+<pre><code class="language-java">public interface ProductSpecification {
+    // Check if product satisfies this specification
+    boolean isSatisfiedBy(Product product);
+
+    // Combine specifications
+    default ProductSpecification and(ProductSpecification other) { ... }
+    default ProductSpecification or(ProductSpecification other) { ... }
+    default ProductSpecification not() { ... }
+}
+</code></pre>
+<p><strong>See:</strong> <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/ProductSpecification.java"><code>ProductSpecification.java</code></a></p>
+<h4>2. Concrete Specifications</h4>
+<p>Individual business rules implemented as separate classes:</p>
+<pre><code class="language-java">// Price filter
+public class PriceSpecification implements ProductSpecification {
+    private final BigDecimal minPrice;
+
+    public boolean isSatisfiedBy(Product product) {
+        return product.getPrice().compareTo(minPrice) &gt;= 0;
+    }
+}
+
+// Stock filter
+public class InStockSpecification implements ProductSpecification {
+    public boolean isSatisfiedBy(Product product) {
+        return product.isInStock();
+    }
+}
+
+// Rating filter
+public class RatingSpecification implements ProductSpecification {
+    private final int minRating;
+
+    public boolean isSatisfiedBy(Product product) {
+        return product.getRating() &gt;= minRating;
+    }
+}
+</code></pre>
+<p><strong>See:</strong> <br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/PriceSpecification.java"><code>PriceSpecification.java</code></a><br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/InStockSpecification.java"><code>InStockSpecification.java</code></a><br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/RatingSpecification.java"><code>RatingSpecification.java</code></a></p>
+<h4>3. Composite Specifications</h4>
+<p>Combine other specifications using logical operators:</p>
+<pre><code class="language-java">// AND logic
+class AndSpecification implements ProductSpecification {
+    public boolean isSatisfiedBy(Product product) {
+        return left.isSatisfiedBy(product) &amp;&amp; right.isSatisfiedBy(product);
+    }
+}
+
+// OR logic
+class OrSpecification implements ProductSpecification {
+    public boolean isSatisfiedBy(Product product) {
+        return left.isSatisfiedBy(product) || right.isSatisfiedBy(product);
+    }
+}
+</code></pre>
+<p><strong>See:</strong><br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/AndSpecification.java"><code>AndSpecification.java</code></a><br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/OrSpecification.java"><code>OrSpecification.java</code></a><br />
+- <a href="src/main/java/com/github/carlosraphael/specificationpattern/specification/NotSpecification.java"><code>NotSpecification.java</code></a></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Code Examples</h2>
+<h3>Simple Usage</h3>
+<pre><code class="language-java">// Find expensive products
+ProductSpecification expensive = new PriceSpecification(new BigDecimal(&quot;500&quot;));
+List&lt;Product&gt; expensiveProducts = service.findBySpecification(expensive);
+</code></pre>
+<h3>Combining Specifications (AND)</h3>
+<pre><code class="language-java">// Find expensive products that are in stock
+ProductSpecification spec = new PriceSpecification(new BigDecimal(&quot;500&quot;))
+        .and(new InStockSpecification());
+List&lt;Product&gt; results = service.findBySpecification(spec);
+</code></pre>
+<h3>Combining Specifications (OR)</h3>
+<pre><code class="language-java">// Find products that are expensive OR highly rated
+ProductSpecification spec = new PriceSpecification(new BigDecimal(&quot;500&quot;))
+        .or(new RatingSpecification(5));
+List&lt;Product&gt; results = service.findBySpecification(spec);
+</code></pre>
+<h3>Complex Combinations</h3>
+<pre><code class="language-java">// Find electronics that are (expensive OR high-rated) AND in stock
+ProductSpecification spec = new CategorySpecification(&quot;Electronics&quot;)
+        .and(
+            new PriceSpecification(new BigDecimal(&quot;500&quot;))
+                    .or(new RatingSpecification(5))
+        )
+        .and(new InStockSpecification());
+List&lt;Product&gt; results = service.findBySpecification(spec);
+</code></pre>
+<h3>Dynamic Query Building</h3>
+<pre><code class="language-java">// Build query dynamically based on user input
+ProductSpecification spec = new InStockSpecification();
+
+if (userWantsExpensive) {
+    spec = spec.and(new PriceSpecification(new BigDecimal(&quot;500&quot;)));
+}
+
+if (userWantsHighRated) {
+    spec = spec.and(new RatingSpecification(4));
+}
+
+if (userSelectedCategory != null) {
+    spec = spec.and(new CategorySpecification(userSelectedCategory));
+}
+
+List&lt;Product&gt; results = service.findBySpecification(spec);
+</code></pre>
+<p><strong>See full test examples:</strong> <a href="src/test/java/com/github/carlosraphael/specificationpattern/specification/SpecificationPatternTest.java"><code>SpecificationPatternTest.java</code></a></p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Benefits</h2>
+<h3>1. ✅ Single Responsibility</h3>
+<p>Each specification handles ONE concern. <code>PriceSpecification</code> only checks price, <code>InStockSpecification</code> only checks stock.</p>
+<h3>2. ✅ Open/Closed Principle</h3>
+<p>Add new specifications without modifying existing code. Just create a new class implementing <code>ProductSpecification</code>.</p>
+<h3>3. ✅ Composable</h3>
+<p>Combine specifications easily using <code>and()</code>, <code>or()</code>, <code>not()</code> methods. Build complex queries from simple parts.</p>
+<h3>4. ✅ Reusable</h3>
+<p>Each specification can be used independently or combined with others. No code duplication.</p>
+<h3>5. ✅ Testable</h3>
+<p>Each specification can be tested independently. Test <code>PriceSpecification</code> separately from <code>InStockSpecification</code>.</p>
+<h3>6. ✅ Dynamic</h3>
+<p>Build queries at runtime based on user input or configuration. Perfect for search/filter UIs.</p>
+<h3>7. ✅ No Code Explosion</h3>
+<p>One method (<code>findBySpecification</code>) handles ALL filter combinations instead of needing <code>2^n</code> methods.</p>
+<h3>8. ✅ Readable</h3>
+<p>Code reads like business rules: <code>expensive.and(inStock)</code> is very clear!</p>
+<h3>9. ✅ Maintainable</h3>
+<p>Changes to filter logic are isolated to the specific specification class.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>When to Use It</h2>
+<h3>✅ Good Use Cases</h3>
+<ul>
+<li><strong>Complex Filtering/Querying</strong>: When you need to filter objects based on multiple criteria</li>
+<li><strong>Dynamic Queries</strong>: When queries need to be built at runtime (e.g., user search forms)</li>
+<li><strong>Business Rules</strong>: When you need to express and reuse business rules</li>
+<li><strong>Validation</strong>: When you need to validate objects against multiple rules</li>
+<li><strong>Repository Pattern</strong>: When working with repositories and need flexible querying</li>
+<li><strong>Rule Engines</strong>: When building systems that need to evaluate multiple conditions</li>
+</ul>
+<h3>❌ When NOT to Use It</h3>
+<ul>
+<li><strong>Simple, Fixed Queries</strong>: If you only have one or two simple, never-changing queries</li>
+<li><strong>Performance-Critical</strong>: If you need maximum performance and can't afford the object overhead</li>
+<li><strong>Database Queries</strong>: For simple SQL queries, use query builders or JPA Criteria API instead</li>
+<li><strong>Over-Engineering</strong>: Don't use it if the naive approach is sufficient for your needs</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>Project Structure</h2>
+<pre><code>specification-pattern/
+├── src/main/java/com/github/carlosraphael/specificationpattern/
+│   ├── naive/                          # Naive approach (without pattern)
+│   │   ├── Product.java                # Domain model
+│   │   ├── ProductService.java         # Service with multiple filter methods
+│   │   └── ProductJpaEntity.java      # Example: Product as JPA entity
+│   │
+│   ├── specification/                  # Specification pattern implementation
+│   │   ├── ProductSpecification.java   # Core interface
+│   │   ├── PriceSpecification.java     # Concrete: Price filter
+│   │   ├── InStockSpecification.java   # Concrete: Stock filter
+│   │   ├── RatingSpecification.java    # Concrete: Rating filter
+│   │   ├── CategorySpecification.java  # Concrete: Category filter
+│   │   ├── AndSpecification.java       # Composite: AND logic
+│   │   ├── OrSpecification.java        # Composite: OR logic
+│   │   ├── NotSpecification.java       # Composite: NOT logic
+│   │   └── ProductServiceWithSpecification.java  # Service using pattern
+│   │
+│   └── entity/                        # Existing codebase (JPA entities)
+│       └── Specification.java          # JPA entity example
+│
+└── src/test/java/.../
+    ├── naive/
+    │   └── NaiveApproachTest.java      # Tests showing problems
+    └── specification/
+        └── SpecificationPatternTest.java  # Tests showing solutions
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Running the Examples</h2>
+<h3>Prerequisites</h3>
+<ul>
+<li>Java 8 or higher</li>
+<li>Maven 3.6+</li>
+</ul>
+<h3>Run Tests</h3>
+<pre><code class="language-bash"># Run all tests
+./mvnw test
+
+# Run naive approach tests (shows problems)
+./mvnw test -Dtest=NaiveApproachTest
+
+# Run specification pattern tests (shows solutions)
+./mvnw test -Dtest=SpecificationPatternTest
+</code></pre>
+<h3>Build Project</h3>
+<pre><code class="language-bash">./mvnw clean compile
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Comparison: Before vs After</h2>
+<h3>Before (Naive Approach)</h3>
+<pre><code class="language-java">// Need separate methods for each combination
+findExpensiveProducts(500)
+findProductsInStock()
+findExpensiveAndInStock(500)
+findHighRatedAndInStock(4)
+findExpensiveHighRatedAndInStock(500, 4)
+findExpensiveOrHighRated(500, 4)
+// ... and many more methods!
+</code></pre>
+<p><strong>Problems:</strong><br />
+- ❌ Code explosion (2^n methods for n filters)<br />
+- ❌ Code duplication<br />
+- ❌ Hard to maintain<br />
+- ❌ Can't build dynamic queries</p>
+<h3>After (Specification Pattern)</h3>
+<pre><code class="language-java">// ONE method handles everything!
+findBySpecification(new PriceSpecification(500))
+findBySpecification(new InStockSpecification())
+findBySpecification(new PriceSpecification(500).and(new InStockSpecification()))
+findBySpecification(new RatingSpecification(4).and(new InStockSpecification()))
+findBySpecification(new PriceSpecification(500).and(new RatingSpecification(4)).and(new InStockSpecification()))
+findBySpecification(new PriceSpecification(500).or(new RatingSpecification(4)))
+// Compose any combination you want!
+</code></pre>
+<p><strong>Benefits:</strong><br />
+- ✅ One method instead of many<br />
+- ✅ Composable and reusable<br />
+- ✅ Easy to maintain<br />
+- ✅ Can build dynamic queries</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Key Concepts</h2>
+<h3>Domain Model</h3>
+<p>A <strong>Domain Model</strong> represents a real-world business entity/concept. In our example, <code>Product</code> is a domain model representing a product in an e-commerce system.</p>
+<p><strong>Note:</strong> A domain model is NOT necessarily a JPA entity. It can be:<br />
+- Domain model only (like our simple <code>Product</code>)<br />
+- Both domain model AND JPA entity (like <code>Specification</code> in the existing codebase)</p>
+<p>See: <a href="DOMAIN_MODEL_EXPLANATION.md"><code>DOMAIN_MODEL_EXPLANATION.md</code></a> and <a href="DOMAIN_MODEL_VS_JPA_ENTITY.md"><code>DOMAIN_MODEL_VS_JPA_ENTITY.md</code></a></p>
+<h3>Specification</h3>
+<p>A <strong>Specification</strong> encapsulates a business rule that can be checked against a domain model. It's a predicate that returns true/false.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Advanced Topics</h2>
+<h3>Persisting Specifications</h3>
+<p>In some cases, you might want to persist specifications to a database (e.g., saved searches, user-defined filters). The existing codebase shows an example with JPA entities:</p>
+<ul>
+<li><a href="src/main/java/com/github/carlosraphael/specificationpattern/entity/Specification.java"><code>Specification.java</code></a> - JPA entity for persisting specifications</li>
+<li><a href="src/main/java/com/github/carlosraphael/specificationpattern/entity/fieldspecification/FieldSpecification.java"><code>FieldSpecification.java</code></a> - Field-level specifications</li>
+</ul>
+<h3>Converting to SQL/JPQL</h3>
+<p>For database queries, you might want to convert specifications to SQL or JPQL. This requires additional implementation but follows the same pattern.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Further Reading</h2>
+<ul>
+<li><a href="https://medium.com/@carlosraphael/specification-design-pattern-in-java-8-bac6f5f943bc">Original Article</a></li>
+<li><a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design by Eric Evans</a> - The book that popularized the pattern</li>
+<li><a href="https://www.martinfowler.com/apsupp/spec.pdf">Martin Fowler on Specification Pattern</a></li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>License</h2>
+<p>See <a href="LICENSE">LICENSE</a> file for details.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Contributing</h2>
+<p>This is a learning/demonstration project. Feel free to:<br />
+- Add more examples<br />
+- Improve documentation<br />
+- Share your use cases</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<p>The Specification Pattern is a powerful tool for:<br />
+- ✅ Encapsulating business rules<br />
+- ✅ Building composable, reusable filters<br />
+- ✅ Creating dynamic queries<br />
+- ✅ Writing maintainable, testable code</p>
+<p><strong>Remember:</strong> Use it when you have complex filtering needs. For simple cases, the naive approach might be sufficient!</p>
+<hr />
+<p><strong>Happy Coding! 🚀</strong></p>
+</section>
+    </div>
+</body>
+</html>
