@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primary Key and Foreign Key in Relational Databases</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Primary Key and Foreign Key in Relational Databases</h1>
+        
+<section class="section">
+<h1>Primary Key and Foreign Key in Relational Databases</h1>
+<p>A comprehensive guide to understanding primary keys and foreign keys, the fundamental building blocks of relational database design that ensure data integrity and establish relationships between tables.</p>
+</section>
+
+<section class="section">
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#primary-key">Primary Key</a></li>
+<li><a href="#foreign-key">Foreign Key</a></li>
+<li><a href="#relationship-types">Relationship Types</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#common-patterns-and-examples">Common Patterns and Examples</a></li>
+<li><a href="#constraints-and-enforcement">Constraints and Enforcement</a></li>
+<li><a href="#performance-considerations">Performance Considerations</a></li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Primary Key</h2>
+<p>A <strong>Primary Key (PK)</strong> is a column or set of columns that uniquely identifies each row in a table. It is the most important constraint in a relational database.</p>
+<h3>Characteristics</h3>
+<ul>
+<li><strong>Uniqueness</strong>: No two rows can have the same primary key value</li>
+<li><strong>Non-nullability</strong>: Primary key columns cannot contain NULL values</li>
+<li><strong>Immutability</strong>: Primary key values should not change (best practice)</li>
+<li><strong>Single per table</strong>: Each table can have only one primary key</li>
+<li><strong>Indexed automatically</strong>: Database automatically creates an index on primary key columns</li>
+</ul>
+<h3>Types of Primary Keys</h3>
+<h4>1. Natural Key</h4>
+<p>A natural key uses existing business data that naturally identifies a record.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE employees (
+    employee_id VARCHAR(10) PRIMARY KEY,  -- Employee badge number
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+</code></pre>
+<p><strong>Pros:</strong><br />
+- Meaningful to business users<br />
+- No additional column needed</p>
+<p><strong>Cons:</strong><br />
+- May change (e.g., employee ID format changes)<br />
+- Can be long or complex<br />
+- May not be unique if business rules change</p>
+<h4>2. Surrogate Key</h4>
+<p>An artificial key (usually auto-incrementing integer or UUID) with no business meaning.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,  -- Auto-incrementing integer
+    employee_id VARCHAR(10) UNIQUE,  -- Business identifier
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+</code></pre>
+<p><strong>Pros:</strong><br />
+- Stable (never changes)<br />
+- Simple and efficient<br />
+- Independent of business logic<br />
+- Better for performance (smaller indexes)</p>
+<p><strong>Cons:</strong><br />
+- Not meaningful to users<br />
+- Requires additional column</p>
+<h4>3. Composite Primary Key</h4>
+<p>A primary key made up of multiple columns.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    price DECIMAL(10, 2),
+    PRIMARY KEY (order_id, product_id)  -- Composite key
+);
+</code></pre>
+<p><strong>Use Cases:</strong><br />
+- Junction/bridge tables (many-to-many relationships)<br />
+- Historical data where combination is unique<br />
+- When no single column is unique</p>
+<h3>Primary Key Examples</h3>
+<pre><code class="language-sql">-- Single column primary key
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE
+);
+
+-- Auto-incrementing primary key (PostgreSQL)
+CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    price DECIMAL(10, 2)
+);
+
+-- Auto-incrementing primary key (MySQL)
+CREATE TABLE products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    price DECIMAL(10, 2)
+);
+
+-- Composite primary key
+CREATE TABLE enrollments (
+    student_id INT,
+    course_id INT,
+    enrollment_date DATE,
+    grade CHAR(2),
+    PRIMARY KEY (student_id, course_id)
+);
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Foreign Key</h2>
+<p>A <strong>Foreign Key (FK)</strong> is a column or set of columns in one table that references the primary key (or unique key) of another table. It establishes a relationship between two tables and enforces referential integrity.</p>
+<h3>Characteristics</h3>
+<ul>
+<li><strong>References</strong>: Points to a primary key or unique key in another table</li>
+<li><strong>Referential Integrity</strong>: Ensures data consistency across related tables</li>
+<li><strong>Can be NULL</strong>: Foreign keys can contain NULL values (unless constrained)</li>
+<li><strong>Multiple per table</strong>: A table can have multiple foreign keys</li>
+<li><strong>Indexed</strong>: Should be indexed for performance (often done automatically)</li>
+</ul>
+<h3>Foreign Key Syntax</h3>
+<pre><code class="language-sql">-- Basic foreign key constraint
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- Named foreign key constraint
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    CONSTRAINT fk_customer 
+        FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id)
+);
+</code></pre>
+<h3>Referential Actions</h3>
+<p>Foreign keys can define what happens when referenced data is updated or deleted:</p>
+<h4>1. CASCADE</h4>
+<p>Automatically update/delete related rows.</p>
+<pre><code class="language-sql">CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (order_id) 
+        REFERENCES orders(order_id) 
+        ON DELETE CASCADE  -- Delete items when order is deleted
+        ON UPDATE CASCADE
+);
+</code></pre>
+<h4>2. SET NULL</h4>
+<p>Set foreign key to NULL when referenced row is deleted.</p>
+<pre><code class="language-sql">CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id) 
+        ON DELETE SET NULL  -- Set customer_id to NULL if customer deleted
+);
+</code></pre>
+<h4>3. SET DEFAULT</h4>
+<p>Set foreign key to default value when referenced row is deleted.</p>
+<pre><code class="language-sql">CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT DEFAULT 0,
+    order_date DATE,
+    FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id) 
+        ON DELETE SET DEFAULT
+);
+</code></pre>
+<h4>4. RESTRICT / NO ACTION</h4>
+<p>Prevent deletion/update if related rows exist (default behavior).</p>
+<pre><code class="language-sql">CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id) 
+        ON DELETE RESTRICT  -- Prevent deletion if orders exist
+);
+</code></pre>
+<h3>Foreign Key Examples</h3>
+<pre><code class="language-sql">-- One-to-Many relationship
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(100)
+);
+
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+-- Many-to-Many relationship (junction table)
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100)
+);
+
+CREATE TABLE enrollments (
+    student_id INT,
+    course_id INT,
+    enrollment_date DATE,
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+-- Self-referencing foreign key
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    manager_id INT,
+    FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
+);
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Relationship Types</h2>
+<h3>1. One-to-One (1:1)</h3>
+<p>Each row in Table A relates to exactly one row in Table B, and vice versa.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE users (
+    user_id INT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE user_profiles (
+    profile_id INT PRIMARY KEY,
+    user_id INT UNIQUE,  -- UNIQUE ensures one-to-one
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+</code></pre>
+<h3>2. One-to-Many (1:N)</h3>
+<p>Each row in Table A can relate to multiple rows in Table B, but each row in Table B relates to only one row in Table A.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,  -- Many orders per customer
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+</code></pre>
+<h3>3. Many-to-Many (M:N)</h3>
+<p>Each row in Table A can relate to multiple rows in Table B, and vice versa. Requires a junction table.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-sql">CREATE TABLE authors (
+    author_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(200)
+);
+
+-- Junction table
+CREATE TABLE book_authors (
+    book_id INT,
+    author_id INT,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (author_id) REFERENCES authors(author_id)
+);
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Best Practices</h2>
+<h3>Primary Key Best Practices</h3>
+<ol>
+<li>
+<p><strong>Use Surrogate Keys for Most Tables</strong><br />
+<code>sql
+   -- Prefer this
+   CREATE TABLE products (
+       id SERIAL PRIMARY KEY,
+       sku VARCHAR(50) UNIQUE NOT NULL
+   );</code></p>
+</li>
+<li>
+<p><strong>Keep Primary Keys Simple</strong></p>
+</li>
+<li>Prefer single-column keys</li>
+<li>Use integers or UUIDs</li>
+<li>
+<p>Avoid composite keys unless necessary</p>
+</li>
+<li>
+<p><strong>Never Update Primary Keys</strong></p>
+</li>
+<li>Primary keys should be immutable</li>
+<li>
+<p>If you must change, use a new record</p>
+</li>
+<li>
+<p><strong>Name Consistently</strong></p>
+</li>
+<li>Use consistent naming: <code>id</code>, <code>table_name_id</code>, or <code>pk_table_name</code></li>
+<li>
+<p>Example: <code>customer_id</code>, <code>order_id</code>, <code>product_id</code></p>
+</li>
+<li>
+<p><strong>Use Appropriate Data Types</strong><br />
+   ```sql<br />
+   -- Good: Integer for surrogate keys<br />
+   id INT PRIMARY KEY</p>
+</li>
+</ol>
+<p>-- Good: UUID for distributed systems<br />
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid()</p>
+<p>-- Avoid: VARCHAR for primary keys unless necessary<br />
+   ```</p>
+<h3>Foreign Key Best Practices</h3>
+<ol>
+<li>
+<p><strong>Always Index Foreign Keys</strong><br />
+<code>sql
+   CREATE TABLE orders (
+       order_id INT PRIMARY KEY,
+       customer_id INT,
+       INDEX idx_customer (customer_id),  -- Explicit index
+       FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+   );</code></p>
+</li>
+<li>
+<p><strong>Choose Appropriate Referential Actions</strong></p>
+</li>
+<li>Use <code>CASCADE</code> carefully (can delete more than intended)</li>
+<li>Prefer <code>RESTRICT</code> for critical relationships</li>
+<li>
+<p>Use <code>SET NULL</code> when relationship is optional</p>
+</li>
+<li>
+<p><strong>Name Foreign Key Constraints</strong><br />
+<code>sql
+   -- Good: Named constraint
+   CONSTRAINT fk_order_customer 
+       FOREIGN KEY (customer_id) 
+       REFERENCES customers(customer_id)</code></p>
+</li>
+<li>
+<p><strong>Validate Data Before Creating Foreign Keys</strong></p>
+</li>
+<li>Ensure existing data satisfies foreign key constraints</li>
+<li>
+<p>Clean orphaned records first</p>
+</li>
+<li>
+<p><strong>Consider NULL Handling</strong><br />
+   ```sql<br />
+   -- Optional relationship (allows NULL)<br />
+   customer_id INT NULL,<br />
+   FOREIGN KEY (customer_id) REFERENCES customers(customer_id)</p>
+</li>
+</ol>
+<p>-- Required relationship (NOT NULL)<br />
+   customer_id INT NOT NULL,<br />
+   FOREIGN KEY (customer_id) REFERENCES customers(customer_id)<br />
+   ```</p>
+<h3>General Best Practices</h3>
+<ol>
+<li><strong>Document Relationships</strong></li>
+<li>Use clear naming conventions</li>
+<li>
+<p>Document relationship types in schema comments</p>
+</li>
+<li>
+<p><strong>Plan for Deletion</strong></p>
+</li>
+<li>Decide on cascade behavior upfront</li>
+<li>
+<p>Consider soft deletes for important data</p>
+</li>
+<li>
+<p><strong>Performance Considerations</strong></p>
+</li>
+<li>Index all foreign keys</li>
+<li>Be mindful of cascade operations on large tables</li>
+<li>Consider deferred constraint checking for bulk operations</li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Common Patterns and Examples</h2>
+<h3>E-Commerce Example</h3>
+<pre><code class="language-sql">-- Customers table
+CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Products table
+CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    sku VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Categories table
+CREATE TABLE categories (
+    category_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    parent_category_id INT,
+    FOREIGN KEY (parent_category_id) 
+        REFERENCES categories(category_id)  -- Self-reference
+);
+
+-- Orders table
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2),
+    status VARCHAR(20),
+    FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id) 
+        ON DELETE RESTRICT
+);
+
+-- Order items (junction table)
+CREATE TABLE order_items (
+    order_item_id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) 
+        REFERENCES orders(order_id) 
+        ON DELETE CASCADE,
+    FOREIGN KEY (product_id) 
+        REFERENCES products(product_id) 
+        ON DELETE RESTRICT
+);
+</code></pre>
+<h3>Employee Management Example</h3>
+<pre><code class="language-sql">-- Departments
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(100) NOT NULL,
+    location VARCHAR(100)
+);
+
+-- Employees with self-referencing manager
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    dept_id INT,
+    manager_id INT,
+    hire_date DATE,
+    FOREIGN KEY (dept_id) 
+        REFERENCES departments(dept_id) 
+        ON DELETE SET NULL,
+    FOREIGN KEY (manager_id) 
+        REFERENCES employees(emp_id) 
+        ON DELETE SET NULL
+);
+
+-- Projects
+CREATE TABLE projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(100) NOT NULL,
+    start_date DATE,
+    end_date DATE
+);
+
+-- Employee-Project assignments (many-to-many)
+CREATE TABLE employee_projects (
+    emp_id INT,
+    project_id INT,
+    role VARCHAR(50),
+    hours_allocated INT,
+    PRIMARY KEY (emp_id, project_id),
+    FOREIGN KEY (emp_id) 
+        REFERENCES employees(emp_id) 
+        ON DELETE CASCADE,
+    FOREIGN KEY (project_id) 
+        REFERENCES projects(project_id) 
+        ON DELETE CASCADE
+);
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Constraints and Enforcement</h2>
+<h3>Adding Constraints to Existing Tables</h3>
+<pre><code class="language-sql">-- Add primary key to existing table
+ALTER TABLE customers 
+ADD CONSTRAINT pk_customers 
+PRIMARY KEY (customer_id);
+
+-- Add foreign key to existing table
+ALTER TABLE orders 
+ADD CONSTRAINT fk_orders_customer 
+FOREIGN KEY (customer_id) 
+REFERENCES customers(customer_id);
+
+-- Drop foreign key constraint
+ALTER TABLE orders 
+DROP CONSTRAINT fk_orders_customer;
+
+-- Drop primary key constraint
+ALTER TABLE customers 
+DROP CONSTRAINT pk_customers;
+</code></pre>
+<h3>Checking Constraint Status</h3>
+<pre><code class="language-sql">-- PostgreSQL: List all constraints
+SELECT 
+    conname AS constraint_name,
+    contype AS constraint_type,
+    conrelid::regclass AS table_name
+FROM pg_constraint
+WHERE contype IN ('p', 'f')  -- p = primary key, f = foreign key
+ORDER BY conrelid, conname;
+
+-- MySQL: Show foreign keys
+SELECT 
+    CONSTRAINT_NAME,
+    TABLE_NAME,
+    COLUMN_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME
+FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+WHERE REFERENCED_TABLE_NAME IS NOT NULL;
+</code></pre>
+<h3>Disabling Constraints (Temporary)</h3>
+<pre><code class="language-sql">-- PostgreSQL: Disable foreign key checks (use with caution!)
+SET session_replication_role = 'replica';  -- Disables triggers/constraints
+-- Perform bulk operations
+SET session_replication_role = 'origin';  -- Re-enable
+
+-- MySQL: Disable foreign key checks
+SET FOREIGN_KEY_CHECKS = 0;
+-- Perform bulk operations
+SET FOREIGN_KEY_CHECKS = 1;
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Performance Considerations</h2>
+<h3>Indexing</h3>
+<ul>
+<li><strong>Primary keys are automatically indexed</strong> - no additional index needed</li>
+<li><strong>Foreign keys should be indexed</strong> - most databases do this automatically, but verify</li>
+<li><strong>Composite keys</strong> - index order matters for query performance</li>
+</ul>
+<pre><code class="language-sql">-- Good: Index on foreign key
+CREATE INDEX idx_orders_customer 
+ON orders(customer_id);
+
+-- Composite index order matters
+CREATE INDEX idx_order_items_order_product 
+ON order_items(order_id, product_id);  -- order_id first if filtering by it
+</code></pre>
+<h3>Query Performance</h3>
+<ol>
+<li><strong>Join Performance</strong></li>
+<li>Foreign keys enable efficient joins</li>
+<li>
+<p>Ensure indexes exist on foreign key columns</p>
+</li>
+<li>
+<p><strong>Cascade Operations</strong></p>
+</li>
+<li><code>ON DELETE CASCADE</code> can be slow on large tables</li>
+<li>
+<p>Consider batch processing for large deletions</p>
+</li>
+<li>
+<p><strong>Constraint Checking</strong></p>
+</li>
+<li>Foreign key checks add overhead to INSERT/UPDATE operations</li>
+<li>Can be deferred for bulk operations (database-dependent)</li>
+</ol>
+<h3>Maintenance</h3>
+<pre><code class="language-sql">-- Analyze table statistics (PostgreSQL)
+ANALYZE orders;
+
+-- Rebuild indexes (PostgreSQL)
+REINDEX TABLE orders;
+
+-- Check for orphaned records
+SELECT o.* 
+FROM orders o
+LEFT JOIN customers c ON o.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;  -- Orphaned orders
+</code></pre>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<h3>Key Takeaways</h3>
+<ol>
+<li><strong>Primary Keys</strong></li>
+<li>Uniquely identify each row</li>
+<li>Should be stable and immutable</li>
+<li>Prefer surrogate keys (auto-increment/UUID)</li>
+<li>
+<p>Automatically indexed</p>
+</li>
+<li>
+<p><strong>Foreign Keys</strong></p>
+</li>
+<li>Establish relationships between tables</li>
+<li>Enforce referential integrity</li>
+<li>Should be indexed for performance</li>
+<li>
+<p>Define appropriate cascade behavior</p>
+</li>
+<li>
+<p><strong>Best Practices</strong></p>
+</li>
+<li>Use consistent naming conventions</li>
+<li>Index all foreign keys</li>
+<li>Choose appropriate referential actions</li>
+<li>Document relationships clearly</li>
+<li>
+<p>Plan for data deletion scenarios</p>
+</li>
+<li>
+<p><strong>Performance</strong></p>
+</li>
+<li>Primary and foreign keys are automatically indexed</li>
+<li>Be mindful of cascade operations</li>
+<li>Monitor for orphaned records</li>
+</ol>
+<h3>Common Mistakes to Avoid</h3>
+<p>❌ Using business data as primary keys that might change<br />
+❌ Forgetting to index foreign keys<br />
+❌ Using CASCADE without understanding the impact<br />
+❌ Creating circular foreign key dependencies<br />
+❌ Not handling NULL values in foreign keys properly<br />
+❌ Ignoring orphaned records  </p>
+<hr />
+<p><em>Understanding primary and foreign keys is fundamental to designing robust, maintainable relational databases. They ensure data integrity, enable efficient queries, and make relationships between data explicit and enforceable.</em></p>
+</section>
+    </div>
+</body>
+</html>
