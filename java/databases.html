@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Types: A Comprehensive Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Database Types: A Comprehensive Guide</h1>
+        
+<section class="section">
+<h1>Database Types: A Comprehensive Guide</h1>
+<p>A comprehensive overview of different database types used in modern software development, from traditional relational databases to modern NoSQL and specialized databases.</p>
+</section>
+
+<section class="section">
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#relational-databases-sql">Relational Databases (SQL)</a></li>
+<li><a href="#nosql-databases">NoSQL Databases</a></li>
+<li><a href="#document-databases">Document Databases</a></li>
+<li><a href="#key-value-stores">Key-Value Stores</a></li>
+<li><a href="#column-family-stores">Column-Family Stores</a></li>
+<li><a href="#graph-databases">Graph Databases</a></li>
+<li><a href="#time-series-databases">Time-Series Databases</a></li>
+<li><a href="#search-engines">Search Engines</a></li>
+<li><a href="#in-memory-databases">In-Memory Databases</a></li>
+<li><a href="#newsql-databases">NewSQL Databases</a></li>
+<li><a href="#choosing-the-right-database">Choosing the Right Database</a></li>
+</ol>
+<hr />
+</section>
+
+<section class="section">
+<h2>Relational Databases (SQL)</h2>
+<p>Relational databases store data in tables with rows and columns, using SQL (Structured Query Language) for querying. They follow ACID (Atomicity, Consistency, Isolation, Durability) principles and use relationships between tables via foreign keys.</p>
+<h3>Characteristics</h3>
+<ul>
+<li><strong>ACID Compliance</strong>: Ensures data integrity and transaction reliability</li>
+<li><strong>Structured Schema</strong>: Predefined schema with tables, columns, and data types</li>
+<li><strong>Relationships</strong>: Foreign keys maintain relationships between tables</li>
+<li><strong>SQL Queries</strong>: Standardized query language</li>
+<li><strong>Normalization</strong>: Data organized to reduce redundancy</li>
+</ul>
+<h3>Popular Examples</h3>
+<table>
+<thead>
+<tr>
+<th>Database</th>
+<th>Description</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>Open-source, feature-rich, supports JSON and advanced data types</td>
+<td>Complex applications, enterprise solutions</td>
+</tr>
+<tr>
+<td><strong>MySQL</strong></td>
+<td>Most popular open-source RDBMS, owned by Oracle</td>
+<td>Web applications, LAMP stack</td>
+</tr>
+<tr>
+<td><strong>Oracle Database</strong></td>
+<td>Enterprise-grade, highly scalable, commercial</td>
+<td>Large enterprises, mission-critical systems</td>
+</tr>
+<tr>
+<td><strong>Microsoft SQL Server</strong></td>
+<td>Windows-focused, integrates with .NET ecosystem</td>
+<td>Windows-based applications, enterprise</td>
+</tr>
+<tr>
+<td><strong>SQLite</strong></td>
+<td>Lightweight, file-based, embedded</td>
+<td>Mobile apps, small applications, development</td>
+</tr>
+</tbody>
+</table>
+<h3>Use Cases</h3>
+<ul>
+<li>Financial systems (banking, accounting)</li>
+<li>E-commerce platforms</li>
+<li>Content management systems</li>
+<li>Enterprise applications</li>
+<li>Applications requiring complex queries and transactions</li>
+</ul>
+<h3>Pros</h3>
+<p>✅ Strong data consistency<br />
+✅ ACID transactions<br />
+✅ Mature ecosystem and tooling<br />
+✅ Standardized SQL language<br />
+✅ Excellent for complex queries and joins<br />
+✅ Well-documented and widely supported  </p>
+<h3>Cons</h3>
+<p>❌ Vertical scaling limitations<br />
+❌ Schema changes can be difficult<br />
+❌ Not ideal for unstructured data<br />
+❌ Can be slower for simple key-value operations  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>NoSQL Databases</h2>
+<p>NoSQL (Not Only SQL) databases are designed for flexibility, scalability, and performance. They don't require a fixed schema and are optimized for specific data models.</p>
+<h3>Document Databases</h3>
+<p>Store data in document format (JSON, BSON, XML), where each document can have a different structure.</p>
+<h4>Popular Examples</h4>
+<ul>
+<li><strong>MongoDB</strong>: Most popular document database, flexible schema</li>
+<li><strong>CouchDB</strong>: Multi-master replication, RESTful API</li>
+<li><strong>Amazon DocumentDB</strong>: MongoDB-compatible, managed service</li>
+<li><strong>Firebase Firestore</strong>: Real-time database, Google Cloud</li>
+</ul>
+<h4>Use Cases</h4>
+<ul>
+<li>Content management systems</li>
+<li>User profiles and catalogs</li>
+<li>Real-time analytics</li>
+<li>Mobile applications</li>
+<li>Applications with evolving schemas</li>
+</ul>
+<h4>Pros</h4>
+<p>✅ Flexible schema<br />
+✅ Easy to scale horizontally<br />
+✅ Good for semi-structured data<br />
+✅ Developer-friendly (JSON-like documents)  </p>
+<h4>Cons</h4>
+<p>❌ No ACID transactions (in most cases)<br />
+❌ Limited join capabilities<br />
+❌ Can lead to data duplication  </p>
+<hr />
+<h3>Key-Value Stores</h3>
+<p>Simplest NoSQL model: store data as key-value pairs. Extremely fast for simple read/write operations.</p>
+<h4>Popular Examples</h4>
+<ul>
+<li><strong>Redis</strong>: In-memory, supports data structures (lists, sets, hashes)</li>
+<li><strong>Amazon DynamoDB</strong>: Managed, serverless, auto-scaling</li>
+<li><strong>Riak</strong>: Distributed, fault-tolerant</li>
+<li><strong>Memcached</strong>: Simple in-memory caching</li>
+</ul>
+<h4>Use Cases</h4>
+<ul>
+<li>Caching layers</li>
+<li>Session storage</li>
+<li>Shopping carts</li>
+<li>Real-time leaderboards</li>
+<li>Configuration management</li>
+</ul>
+<h4>Pros</h4>
+<p>✅ Extremely fast read/write operations<br />
+✅ Simple data model<br />
+✅ Excellent for caching<br />
+✅ High performance  </p>
+<h4>Cons</h4>
+<p>❌ Limited query capabilities<br />
+❌ No relationships between data<br />
+❌ Not suitable for complex queries  </p>
+<hr />
+<h3>Column-Family Stores</h3>
+<p>Store data in columns rather than rows, optimized for queries over large datasets.</p>
+<h4>Popular Examples</h4>
+<ul>
+<li><strong>Apache Cassandra</strong>: Distributed, highly available, no single point of failure</li>
+<li><strong>HBase</strong>: Built on Hadoop, for big data</li>
+<li><strong>Amazon Keyspaces</strong>: Managed Cassandra-compatible service</li>
+<li><strong>ScyllaDB</strong>: High-performance, C++ implementation</li>
+</ul>
+<h4>Use Cases</h4>
+<ul>
+<li>Time-series data</li>
+<li>Big data analytics</li>
+<li>IoT applications</li>
+<li>Log aggregation</li>
+<li>Applications requiring high write throughput</li>
+</ul>
+<h4>Pros</h4>
+<p>✅ Excellent for write-heavy workloads<br />
+✅ Horizontal scalability<br />
+✅ Fast reads for specific columns<br />
+✅ Good for time-series data  </p>
+<h4>Cons</h4>
+<p>❌ Complex data model<br />
+❌ Limited query flexibility<br />
+❌ Not ideal for complex relationships  </p>
+<hr />
+<h3>Graph Databases</h3>
+<p>Store data as nodes and edges (relationships), optimized for relationship-heavy data.</p>
+<h4>Popular Examples</h4>
+<ul>
+<li><strong>Neo4j</strong>: Most popular graph database, ACID compliant</li>
+<li><strong>Amazon Neptune</strong>: Managed graph database service</li>
+<li><strong>ArangoDB</strong>: Multi-model (document, graph, key-value)</li>
+<li><strong>JanusGraph</strong>: Distributed graph database</li>
+</ul>
+<h4>Use Cases</h4>
+<ul>
+<li>Social networks</li>
+<li>Recommendation engines</li>
+<li>Fraud detection</li>
+<li>Knowledge graphs</li>
+<li>Network analysis</li>
+<li>Master data management</li>
+</ul>
+<h4>Pros</h4>
+<p>✅ Excellent for relationship queries<br />
+✅ Fast traversal of relationships<br />
+✅ Natural representation of connected data<br />
+✅ Powerful query languages (Cypher, Gremlin)  </p>
+<h4>Cons</h4>
+<p>❌ Not ideal for simple CRUD operations<br />
+❌ Smaller ecosystem compared to SQL<br />
+❌ Can be complex for simple use cases  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Time-Series Databases</h2>
+<p>Optimized for storing and querying time-stamped data points, commonly used for metrics, monitoring, and IoT.</p>
+<h3>Popular Examples</h3>
+<ul>
+<li><strong>InfluxDB</strong>: Purpose-built for time-series data</li>
+<li><strong>TimescaleDB</strong>: PostgreSQL extension for time-series</li>
+<li><strong>Prometheus</strong>: Monitoring and alerting toolkit</li>
+<li><strong>Amazon Timestream</strong>: Serverless time-series database</li>
+</ul>
+<h3>Use Cases</h3>
+<ul>
+<li>IoT sensor data</li>
+<li>Application monitoring and metrics</li>
+<li>Financial market data</li>
+<li>System performance monitoring</li>
+<li>Log analysis</li>
+</ul>
+<h3>Pros</h3>
+<p>✅ Optimized for time-based queries<br />
+✅ Efficient compression<br />
+✅ Automatic data retention policies<br />
+✅ High write throughput  </p>
+<h3>Cons</h3>
+<p>❌ Limited to time-series use cases<br />
+❌ Not suitable for general-purpose data  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Search Engines</h2>
+<p>Specialized databases designed for full-text search, indexing, and complex search queries.</p>
+<h3>Popular Examples</h3>
+<ul>
+<li><strong>Elasticsearch</strong>: Distributed search and analytics engine</li>
+<li><strong>Apache Solr</strong>: Enterprise search platform</li>
+<li><strong>Amazon OpenSearch</strong>: Managed Elasticsearch service</li>
+<li><strong>Algolia</strong>: Search-as-a-service platform</li>
+</ul>
+<h3>Use Cases</h3>
+<ul>
+<li>Full-text search</li>
+<li>Log analysis and aggregation</li>
+<li>Real-time analytics</li>
+<li>E-commerce product search</li>
+<li>Content discovery</li>
+</ul>
+<h3>Pros</h3>
+<p>✅ Powerful full-text search capabilities<br />
+✅ Real-time indexing<br />
+✅ Complex query support<br />
+✅ Scalable and distributed  </p>
+<h3>Cons</h3>
+<p>❌ Higher resource consumption<br />
+❌ More complex than traditional databases<br />
+❌ Eventual consistency (in most cases)  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>In-Memory Databases</h2>
+<p>Store data entirely in RAM for maximum performance, often used for caching and real-time applications.</p>
+<h3>Popular Examples</h3>
+<ul>
+<li><strong>Redis</strong>: Data structure server, supports persistence</li>
+<li><strong>Memcached</strong>: Simple in-memory caching</li>
+<li><strong>Hazelcast</strong>: In-memory data grid</li>
+<li><strong>Apache Ignite</strong>: Distributed in-memory computing</li>
+</ul>
+<h3>Use Cases</h3>
+<ul>
+<li>Real-time analytics</li>
+<li>Caching layers</li>
+<li>Session storage</li>
+<li>Gaming leaderboards</li>
+<li>High-frequency trading</li>
+</ul>
+<h3>Pros</h3>
+<p>✅ Extremely fast (RAM access)<br />
+✅ Low latency<br />
+✅ High throughput  </p>
+<h3>Cons</h3>
+<p>❌ Limited by RAM size<br />
+❌ Data loss risk (unless persisted)<br />
+❌ Higher cost per GB  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>NewSQL Databases</h2>
+<p>Combine the benefits of SQL databases (ACID, SQL) with NoSQL scalability and performance.</p>
+<h3>Popular Examples</h3>
+<ul>
+<li><strong>CockroachDB</strong>: Distributed SQL database, PostgreSQL compatible</li>
+<li><strong>Google Spanner</strong>: Globally distributed, ACID transactions</li>
+<li><strong>Amazon Aurora</strong>: MySQL/PostgreSQL compatible, cloud-native</li>
+<li><strong>TiDB</strong>: MySQL compatible, horizontally scalable</li>
+</ul>
+<h3>Use Cases</h3>
+<ul>
+<li>Applications needing SQL with horizontal scaling</li>
+<li>Global applications requiring consistency</li>
+<li>Cloud-native applications</li>
+<li>Microservices architectures</li>
+</ul>
+<h3>Pros</h3>
+<p>✅ ACID transactions<br />
+✅ SQL compatibility<br />
+✅ Horizontal scalability<br />
+✅ Strong consistency  </p>
+<h3>Cons</h3>
+<p>❌ Newer technology (less mature)<br />
+❌ Can be more complex to manage<br />
+❌ Higher cost in some cases  </p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Choosing the Right Database</h2>
+<h3>Decision Matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Recommended Type</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACID transactions, complex queries</strong></td>
+<td>Relational (SQL)</td>
+<td>PostgreSQL, MySQL</td>
+</tr>
+<tr>
+<td><strong>Flexible schema, JSON documents</strong></td>
+<td>Document Database</td>
+<td>MongoDB, CouchDB</td>
+</tr>
+<tr>
+<td><strong>Simple caching, session storage</strong></td>
+<td>Key-Value Store</td>
+<td>Redis, Memcached</td>
+</tr>
+<tr>
+<td><strong>High write throughput, big data</strong></td>
+<td>Column-Family</td>
+<td>Cassandra, HBase</td>
+</tr>
+<tr>
+<td><strong>Social networks, recommendations</strong></td>
+<td>Graph Database</td>
+<td>Neo4j, Neptune</td>
+</tr>
+<tr>
+<td><strong>IoT, monitoring, metrics</strong></td>
+<td>Time-Series</td>
+<td>InfluxDB, TimescaleDB</td>
+</tr>
+<tr>
+<td><strong>Full-text search</strong></td>
+<td>Search Engine</td>
+<td>Elasticsearch, Solr</td>
+</tr>
+<tr>
+<td><strong>Real-time, low latency</strong></td>
+<td>In-Memory</td>
+<td>Redis, Hazelcast</td>
+</tr>
+<tr>
+<td><strong>SQL + horizontal scaling</strong></td>
+<td>NewSQL</td>
+<td>CockroachDB, Spanner</td>
+</tr>
+</tbody>
+</table>
+<h3>Key Considerations</h3>
+<ol>
+<li><strong>Data Structure</strong></li>
+<li>Structured → Relational</li>
+<li>Semi-structured → Document</li>
+<li>Simple key-value → Key-Value Store</li>
+<li>
+<p>Relationships → Graph</p>
+</li>
+<li>
+<p><strong>Scalability Needs</strong></p>
+</li>
+<li>Vertical scaling → Relational</li>
+<li>
+<p>Horizontal scaling → NoSQL, NewSQL</p>
+</li>
+<li>
+<p><strong>Consistency Requirements</strong></p>
+</li>
+<li>Strong consistency → Relational, NewSQL</li>
+<li>
+<p>Eventual consistency acceptable → NoSQL</p>
+</li>
+<li>
+<p><strong>Query Patterns</strong></p>
+</li>
+<li>Complex joins → Relational</li>
+<li>Simple lookups → Key-Value</li>
+<li>Relationship traversal → Graph</li>
+<li>
+<p>Full-text search → Search Engine</p>
+</li>
+<li>
+<p><strong>Performance Requirements</strong></p>
+</li>
+<li>Low latency → In-Memory</li>
+<li>
+<p>High throughput → Column-Family, Time-Series</p>
+</li>
+<li>
+<p><strong>Budget and Resources</strong></p>
+</li>
+<li>Open-source → PostgreSQL, MongoDB, Redis</li>
+<li>Managed services → AWS RDS, DynamoDB, DocumentDB</li>
+</ol>
+<h3>Hybrid Approaches</h3>
+<p>Many modern applications use <strong>multiple databases</strong> (polyglot persistence):</p>
+<ul>
+<li><strong>Primary database</strong>: Relational for transactional data</li>
+<li><strong>Cache layer</strong>: Redis for frequently accessed data</li>
+<li><strong>Search</strong>: Elasticsearch for full-text search</li>
+<li><strong>Analytics</strong>: Time-series database for metrics</li>
+</ul>
+<hr />
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Database Type</th>
+<th>Primary Use Case</th>
+<th>Scalability</th>
+<th>Consistency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Relational</strong></td>
+<td>Structured data, transactions</td>
+<td>Vertical</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td>Flexible schema, JSON</td>
+<td>Horizontal</td>
+<td>Eventual</td>
+</tr>
+<tr>
+<td><strong>Key-Value</strong></td>
+<td>Caching, simple lookups</td>
+<td>Horizontal</td>
+<td>Eventual</td>
+</tr>
+<tr>
+<td><strong>Column-Family</strong></td>
+<td>Big data, time-series</td>
+<td>Horizontal</td>
+<td>Eventual</td>
+</tr>
+<tr>
+<td><strong>Graph</strong></td>
+<td>Relationships, networks</td>
+<td>Horizontal</td>
+<td>Eventual/Strong</td>
+</tr>
+<tr>
+<td><strong>Time-Series</strong></td>
+<td>Metrics, IoT</td>
+<td>Horizontal</td>
+<td>Eventual</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>Full-text search</td>
+<td>Horizontal</td>
+<td>Eventual</td>
+</tr>
+<tr>
+<td><strong>In-Memory</strong></td>
+<td>Real-time, caching</td>
+<td>Horizontal</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td><strong>NewSQL</strong></td>
+<td>SQL + scale</td>
+<td>Horizontal</td>
+<td>Strong</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</section>
+
+<section class="section">
+<h2>Additional Resources</h2>
+<ul>
+<li><strong>Database Comparison Tools</strong>: DB-Engines Ranking</li>
+<li><strong>Learning Resources</strong>: </li>
+<li>SQL: PostgreSQL, MySQL documentation</li>
+<li>NoSQL: MongoDB University, Redis University</li>
+<li><strong>Cloud Database Services</strong>:</li>
+<li>AWS: RDS, DynamoDB, DocumentDB, Neptune</li>
+<li>Google Cloud: Cloud SQL, Firestore, Bigtable</li>
+<li>Azure: Azure SQL, Cosmos DB</li>
+</ul>
+<hr />
+<p><em>Last Updated: 2024</em></p>
+</section>
+    </div>
+</body>
+</html>
