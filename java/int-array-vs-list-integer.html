@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>int[] vs List<Integer>: A Comprehensive Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>int[] vs List<Integer>: A Comprehensive Guide</h1>
+        
+<section class="section">
+<h1>int[] vs List<Integer>: A Comprehensive Guide</h1>
+</section>
+
+<section class="section">
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#fundamental-differences">Fundamental Differences</a></li>
+<li><a href="#memory-and-performance">Memory and Performance</a></li>
+<li><a href="#initialization">Initialization</a></li>
+<li><a href="#element-access">Element Access</a></li>
+<li><a href="#modification-operations">Modification Operations</a></li>
+<li><a href="#size-and-capacity">Size and Capacity</a></li>
+<li><a href="#iteration">Iteration</a></li>
+<li><a href="#common-operations">Common Operations</a></li>
+<li><a href="#conversion-between-types">Conversion Between Types</a></li>
+<li><a href="#when-to-use-each">When to Use Each</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+</ul>
+</section>
+
+<section class="section">
+<h2>Overview</h2>
+<p>Java provides two primary ways to store collections of integers:<br />
+- <strong><code>int[]</code></strong>: A primitive array of int values<br />
+- <strong><code>List&lt;Integer&gt;</code></strong>: A generic List containing Integer wrapper objects</p>
+<p>Each has distinct characteristics, performance implications, and use cases.</p>
+</section>
+
+<section class="section">
+<h2>Fundamental Differences</h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>int[]</th>
+<th>List<Integer></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td>Primitive array</td>
+<td>Generic collection (usually ArrayList)</td>
+</tr>
+<tr>
+<td><strong>Size</strong></td>
+<td>Fixed at creation</td>
+<td>Dynamic, grows automatically</td>
+</tr>
+<tr>
+<td><strong>Element Type</strong></td>
+<td>Primitive <code>int</code></td>
+<td>Wrapper object <code>Integer</code></td>
+</tr>
+<tr>
+<td><strong>Null Values</strong></td>
+<td>Not allowed</td>
+<td>Allowed</td>
+</tr>
+<tr>
+<td><strong>Memory Overhead</strong></td>
+<td>Minimal</td>
+<td>Higher (object overhead)</td>
+</tr>
+<tr>
+<td><strong>API</strong></td>
+<td>Limited</td>
+<td>Rich (Collection framework)</td>
+</tr>
+<tr>
+<td><strong>Thread Safety</strong></td>
+<td>Manual</td>
+<td>Can use synchronized wrappers</td>
+</tr>
+</tbody>
+</table>
+<h3>Type System</h3>
+<pre><code class="language-java">// int[] is a primitive array
+int[] primitiveArray = new int[5];
+System.out.println(primitiveArray.getClass()); // class [I
+
+// List&lt;Integer&gt; is a generic interface, typically implemented by ArrayList
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+System.out.println(list.getClass()); // class java.util.ArrayList
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Memory and Performance</h2>
+<h3>Memory Layout</h3>
+<p><strong>int[]:</strong></p>
+<pre><code>Memory for int[5]:
+┌─────────────────────────────────────┐
+│ Array Header (16 bytes on 64-bit)  │
+├─────────────────────────────────────┤
+│ int[0]: 4 bytes                     │
+│ int[1]: 4 bytes                     │
+│ int[2]: 4 bytes                     │
+│ int[3]: 4 bytes                     │
+│ int[4]: 4 bytes                     │
+└─────────────────────────────────────┘
+Total: ~36 bytes
+</code></pre>
+<p><strong>List<Integer>:</strong></p>
+<pre><code>Memory for ArrayList&lt;Integer&gt; with 5 elements:
+┌─────────────────────────────────────┐
+│ ArrayList Object Header             │
+│ - Reference to internal array       │
+│ - Size field                        │
+│ - modCount field                    │
+├─────────────────────────────────────┤
+│ Internal Object[] array             │
+│ - Array header                      │
+│ - References to Integer objects     │
+├─────────────────────────────────────┤
+│ Integer object 1 (16 bytes)         │
+│ Integer object 2 (16 bytes)         │
+│ Integer object 3 (16 bytes)         │
+│ Integer object 4 (16 bytes)         │
+│ Integer object 5 (16 bytes)         │
+└─────────────────────────────────────┘
+Total: ~150+ bytes
+</code></pre>
+<h3>Performance Comparison</h3>
+<pre><code class="language-java">public class PerformanceComparison {
+    private static final int SIZE = 1_000_000;
+
+    public static void main(String[] args) {
+        // Primitive array performance
+        long start = System.nanoTime();
+        int[] array = new int[SIZE];
+        for (int i = 0; i &lt; SIZE; i++) {
+            array[i] = i;
+        }
+        long sum1 = 0;
+        for (int i = 0; i &lt; SIZE; i++) {
+            sum1 += array[i];
+        }
+        long arrayTime = System.nanoTime() - start;
+        System.out.println(&quot;int[] time: &quot; + arrayTime / 1_000_000 + &quot;ms&quot;);
+
+        // List&lt;Integer&gt; performance
+        start = System.nanoTime();
+        List&lt;Integer&gt; list = new ArrayList&lt;&gt;(SIZE);
+        for (int i = 0; i &lt; SIZE; i++) {
+            list.add(i);  // Auto-boxing occurs here
+        }
+        long sum2 = 0;
+        for (Integer i : list) {
+            sum2 += i;  // Auto-unboxing occurs here
+        }
+        long listTime = System.nanoTime() - start;
+        System.out.println(&quot;List&lt;Integer&gt; time: &quot; + listTime / 1_000_000 + &quot;ms&quot;);
+
+        System.out.println(&quot;List is &quot; + (listTime / arrayTime) + &quot;x slower&quot;);
+        // Typical result: List is 3-5x slower due to boxing/unboxing and object overhead
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Initialization</h2>
+<h3>int[] Initialization</h3>
+<pre><code class="language-java">// 1. Declaration and allocation
+int[] array1 = new int[5];  // All elements initialized to 0
+System.out.println(Arrays.toString(array1));  // [0, 0, 0, 0, 0]
+
+// 2. Array initializer (inline)
+int[] array2 = {1, 2, 3, 4, 5};
+
+// 3. Array initializer with new keyword
+int[] array3 = new int[]{1, 2, 3, 4, 5};
+
+// 4. Anonymous array
+printArray(new int[]{1, 2, 3});
+
+// 5. Multi-step initialization
+int[] array4 = new int[5];
+for (int i = 0; i &lt; array4.length; i++) {
+    array4[i] = i * 10;
+}
+
+// 6. Using Arrays.fill()
+int[] array5 = new int[5];
+Arrays.fill(array5, 42);  // All elements set to 42
+
+// 7. Using Arrays.setAll()
+int[] array6 = new int[5];
+Arrays.setAll(array6, i -&gt; i * i);  // [0, 1, 4, 9, 16]
+
+// 8. Copy from another array
+int[] array7 = Arrays.copyOf(array2, array2.length);
+
+// 9. Range copy
+int[] array8 = Arrays.copyOfRange(array2, 1, 4);  // [2, 3, 4]
+
+// 10. Clone
+int[] array9 = array2.clone();
+</code></pre>
+<h3>List<Integer> Initialization</h3>
+<pre><code class="language-java">// 1. Empty list
+List&lt;Integer&gt; list1 = new ArrayList&lt;&gt;();
+
+// 2. With initial capacity
+List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;(100);
+
+// 3. From array (Arrays.asList - FIXED SIZE!)
+List&lt;Integer&gt; list3 = Arrays.asList(1, 2, 3, 4, 5);
+// Note: This returns a FIXED-SIZE list backed by the array
+// list3.add(6);  // Throws UnsupportedOperationException!
+
+// 4. From array (mutable ArrayList)
+List&lt;Integer&gt; list4 = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3, 4, 5));
+
+// 5. Using List.of() (Java 9+, IMMUTABLE)
+List&lt;Integer&gt; list5 = List.of(1, 2, 3, 4, 5);
+// list5.add(6);  // Throws UnsupportedOperationException!
+
+// 6. Using Stream API
+List&lt;Integer&gt; list6 = IntStream.range(0, 5)
+                               .boxed()
+                               .collect(Collectors.toList());
+
+// 7. Using Stream.iterate()
+List&lt;Integer&gt; list7 = Stream.iterate(0, n -&gt; n + 10)
+                            .limit(5)
+                            .collect(Collectors.toList());
+
+// 8. Using Stream.generate()
+List&lt;Integer&gt; list8 = Stream.generate(() -&gt; 42)
+                            .limit(5)
+                            .collect(Collectors.toList());
+
+// 9. From another collection
+List&lt;Integer&gt; list9 = new ArrayList&lt;&gt;(list4);
+
+// 10. Using Collections.nCopies()
+List&lt;Integer&gt; list10 = new ArrayList&lt;&gt;(Collections.nCopies(5, 42));
+
+// 11. Using addAll()
+List&lt;Integer&gt; list11 = new ArrayList&lt;&gt;();
+Collections.addAll(list11, 1, 2, 3, 4, 5);
+
+// 12. Double brace initialization (not recommended)
+List&lt;Integer&gt; list12 = new ArrayList&lt;Integer&gt;() {{
+    add(1);
+    add(2);
+    add(3);
+}};
+
+// 13. Builder pattern (custom)
+List&lt;Integer&gt; list13 = new ListBuilder&lt;Integer&gt;()
+    .add(1).add(2).add(3).build();
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Element Access</h2>
+<h3>Reading Elements</h3>
+<pre><code class="language-java">int[] array = {10, 20, 30, 40, 50};
+List&lt;Integer&gt; list = Arrays.asList(10, 20, 30, 40, 50);
+
+// 1. Direct index access
+int arrayElement = array[2];           // 30 (direct, O(1))
+Integer listElement = list.get(2);     // 30 (method call, O(1))
+
+// 2. Bounds checking
+// Arrays throw ArrayIndexOutOfBoundsException
+try {
+    int x = array[10];  // Runtime error!
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println(&quot;Array index out of bounds&quot;);
+}
+
+// Lists throw IndexOutOfBoundsException
+try {
+    Integer x = list.get(10);  // Runtime error!
+} catch (IndexOutOfBoundsException e) {
+    System.out.println(&quot;List index out of bounds&quot;);
+}
+
+// 3. Safe access with bounds checking
+if (2 &lt; array.length) {
+    int value = array[2];
+}
+
+if (2 &lt; list.size()) {
+    Integer value = list.get(2);
+}
+
+// 4. First and last elements
+int firstArray = array[0];
+int lastArray = array[array.length - 1];
+
+Integer firstList = list.get(0);
+Integer lastList = list.get(list.size() - 1);
+
+// Alternative for List (Java 21+)
+// Integer firstList = list.getFirst();
+// Integer lastList = list.getLast();
+
+// 5. Contains check
+// Array (requires iteration)
+boolean arrayContains = false;
+for (int value : array) {
+    if (value == 30) {
+        arrayContains = true;
+        break;
+    }
+}
+
+// Or using Arrays
+boolean arrayContains2 = Arrays.stream(array)
+                               .anyMatch(x -&gt; x == 30);
+
+// List (built-in method)
+boolean listContains = list.contains(30);  // Much cleaner!
+
+// 6. Finding index
+// Array (manual)
+int arrayIndex = -1;
+for (int i = 0; i &lt; array.length; i++) {
+    if (array[i] == 30) {
+        arrayIndex = i;
+        break;
+    }
+}
+
+// List (built-in)
+int listIndex = list.indexOf(30);  // Returns 2
+int listLastIndex = list.lastIndexOf(30);  // Last occurrence
+</code></pre>
+<h3>Writing Elements</h3>
+<pre><code class="language-java">int[] array = new int[5];
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+
+// 1. Direct assignment
+array[0] = 10;  // Direct, O(1)
+
+// 2. List add (at end)
+list.add(10);  // Append, amortized O(1)
+
+// 3. List set (replace existing)
+list.add(0);  // First add an element
+list.set(0, 10);  // Then replace it, O(1)
+
+// 4. Null values
+// array[0] = null;  // COMPILATION ERROR! int is primitive
+list.set(0, null);  // OK! Integer is an object
+Integer value = list.get(0);  // null
+// int primitive = list.get(0);  // NullPointerException when unboxing!
+
+// 5. Auto-boxing considerations
+int primitive = 42;
+list.add(primitive);  // Auto-boxed to Integer.valueOf(42)
+
+Integer object = 42;
+array[0] = object;  // Auto-unboxed to int (NPE if null!)
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Modification Operations</h2>
+<h3>Resizing</h3>
+<pre><code class="language-java">// Arrays: Fixed size, must create new array
+int[] array = {1, 2, 3};
+// Want to add element? Create new array
+int[] newArray = Arrays.copyOf(array, array.length + 1);
+newArray[3] = 4;
+array = newArray;  // Replace reference
+
+// Or use System.arraycopy()
+int[] source = {1, 2, 3};
+int[] dest = new int[4];
+System.arraycopy(source, 0, dest, 0, source.length);
+dest[3] = 4;
+
+// Lists: Dynamic sizing
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3));
+list.add(4);  // Automatically grows
+list.add(5);
+list.add(6);  // Internal array doubles when capacity exceeded
+</code></pre>
+<h3>Adding Elements</h3>
+<pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+
+// 1. Add at end
+list.add(1);  // [1]
+list.add(2);  // [1, 2]
+
+// 2. Add at specific index (shifts elements right)
+list.add(0, 0);  // [0, 1, 2]
+list.add(1, 10);  // [0, 10, 1, 2]
+
+// 3. Add multiple elements
+list.addAll(Arrays.asList(3, 4, 5));  // [0, 10, 1, 2, 3, 4, 5]
+
+// 4. Add at specific index
+list.addAll(2, Arrays.asList(20, 21));  // [0, 10, 20, 21, 1, 2, 3, 4, 5]
+
+// Arrays: Cannot add, must create new array
+int[] array = {1, 2, 3};
+// To &quot;add&quot; element:
+int[] newArray = new int[array.length + 1];
+System.arraycopy(array, 0, newArray, 0, array.length);
+newArray[array.length] = 4;
+</code></pre>
+<h3>Removing Elements</h3>
+<pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3, 4, 5));
+
+// 1. Remove by index
+Integer removed = list.remove(0);  // Removes and returns 1, list is [2, 3, 4, 5]
+
+// 2. Remove by value (removes first occurrence)
+boolean wasRemoved = list.remove(Integer.valueOf(3));  // true, list is [2, 4, 5]
+// NOTE: list.remove(3) would remove index 3, not value 3!
+
+// 3. Remove all occurrences
+list.removeIf(x -&gt; x &gt; 3);  // Removes all elements &gt; 3, list is [2, 3]
+
+// 4. Remove range (protected method, use subList)
+list.subList(0, 2).clear();  // Removes first 2 elements
+
+// 5. Clear all
+list.clear();  // Empty list
+
+// Arrays: Cannot remove, must create new array
+int[] array = {1, 2, 3, 4, 5};
+// To &quot;remove&quot; element at index 2:
+int[] newArray = new int[array.length - 1];
+System.arraycopy(array, 0, newArray, 0, 2);
+System.arraycopy(array, 3, newArray, 2, 2);
+// newArray is [1, 2, 4, 5]
+</code></pre>
+<h3>Replacing Elements</h3>
+<pre><code class="language-java">// Array: Direct assignment
+int[] array = {1, 2, 3, 4, 5};
+array[2] = 30;  // [1, 2, 30, 4, 5]
+
+// List: set() method
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3, 4, 5));
+list.set(2, 30);  // [1, 2, 30, 4, 5]
+
+// Replace all matching elements
+// Array: manual iteration
+for (int i = 0; i &lt; array.length; i++) {
+    if (array[i] == 30) {
+        array[i] = 3;
+    }
+}
+
+// List: replaceAll()
+list.replaceAll(x -&gt; x == 30 ? 3 : x);
+
+// Or using Collections
+Collections.replaceAll(list, 30, 3);
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Size and Capacity</h2>
+<h3>Size</h3>
+<pre><code class="language-java">int[] array = new int[10];
+System.out.println(array.length);  // 10 (field, not method)
+
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+System.out.println(list.size());  // 0 (method call)
+
+// Array length is immutable
+// array.length = 5;  // COMPILATION ERROR!
+
+// List size is dynamic
+list.add(1);
+System.out.println(list.size());  // 1
+</code></pre>
+<h3>Capacity vs Size</h3>
+<pre><code class="language-java">// Arrays: length == capacity == size (all the same)
+int[] array = new int[10];
+// All 10 slots exist and are initialized to 0
+
+// Lists: capacity != size
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(10);  // Initial capacity: 10
+System.out.println(list.size());  // 0 (no elements yet)
+// Internal array has space for 10 elements, but list is empty
+
+list.add(1);
+System.out.println(list.size());  // 1
+// Capacity is still 10, but size is 1
+
+// When capacity is exceeded, ArrayList grows (typically 1.5x)
+List&lt;Integer&gt; small = new ArrayList&lt;&gt;(2);  // Capacity: 2
+small.add(1);  // Size: 1, Capacity: 2
+small.add(2);  // Size: 2, Capacity: 2
+small.add(3);  // Size: 3, Capacity: 3 (grew to 3)
+small.add(4);  // Size: 4, Capacity: 4 (grew to 4)
+small.add(5);  // Size: 5, Capacity: 6 (grew to 6)
+</code></pre>
+<h3>Trimming and Capacity Management</h3>
+<pre><code class="language-java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(1000);
+for (int i = 0; i &lt; 10; i++) {
+    list.add(i);
+}
+// Size: 10, Capacity: 1000 (wasting memory!)
+
+// Trim to size
+list.trimToSize();  // Reduces capacity to match size
+// Size: 10, Capacity: 10
+
+// Ensure capacity
+list.ensureCapacity(100);  // Grows internal array if needed
+// Size: 10, Capacity: &gt;= 100
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Iteration</h2>
+<h3>For Loop</h3>
+<pre><code class="language-java">int[] array = {1, 2, 3, 4, 5};
+List&lt;Integer&gt; list = Arrays.asList(1, 2, 3, 4, 5);
+
+// Traditional for loop
+for (int i = 0; i &lt; array.length; i++) {
+    int value = array[i];
+    System.out.println(value);
+}
+
+for (int i = 0; i &lt; list.size(); i++) {
+    Integer value = list.get(i);
+    System.out.println(value);
+}
+</code></pre>
+<h3>Enhanced For Loop (For-Each)</h3>
+<pre><code class="language-java">// Array
+for (int value : array) {
+    System.out.println(value);  // No boxing!
+}
+
+// List
+for (Integer value : list) {
+    System.out.println(value);  // Auto-unboxing if assigned to int
+}
+
+// With index (no direct support, use traditional for)
+for (int i = 0; i &lt; array.length; i++) {
+    System.out.println(&quot;Index &quot; + i + &quot;: &quot; + array[i]);
+}
+
+// List with index using ListIterator
+ListIterator&lt;Integer&gt; iterator = list.listIterator();
+while (iterator.hasNext()) {
+    int index = iterator.nextIndex();
+    Integer value = iterator.next();
+    System.out.println(&quot;Index &quot; + index + &quot;: &quot; + value);
+}
+</code></pre>
+<h3>Iterator</h3>
+<pre><code class="language-java">// Arrays don't have iterators (convert to list or stream)
+Iterator&lt;Integer&gt; arrayIterator = Arrays.stream(array)
+                                        .iterator();
+
+// List has built-in iterator
+Iterator&lt;Integer&gt; listIterator = list.iterator();
+while (listIterator.hasNext()) {
+    Integer value = listIterator.next();
+    System.out.println(value);
+
+    // Can remove during iteration
+    if (value == 3) {
+        listIterator.remove();  // Safe removal
+    }
+}
+
+// ConcurrentModificationException example
+try {
+    for (Integer value : list) {
+        if (value == 3) {
+            list.remove(value);  // THROWS ConcurrentModificationException!
+        }
+    }
+} catch (ConcurrentModificationException e) {
+    System.out.println(&quot;Cannot modify list during for-each iteration&quot;);
+}
+
+// Safe way with Iterator
+Iterator&lt;Integer&gt; it = list.iterator();
+while (it.hasNext()) {
+    if (it.next() == 3) {
+        it.remove();  // OK!
+    }
+}
+
+// Or use removeIf (Java 8+)
+list.removeIf(x -&gt; x == 3);
+</code></pre>
+<h3>Streams</h3>
+<pre><code class="language-java">// Array to Stream
+Arrays.stream(array)
+      .filter(x -&gt; x &gt; 2)
+      .forEach(System.out::println);
+
+// int[] specialized stream (no boxing!)
+int sum = Arrays.stream(array).sum();
+double avg = Arrays.stream(array).average().orElse(0);
+
+// List to Stream
+list.stream()
+    .filter(x -&gt; x &gt; 2)
+    .forEach(System.out::println);
+
+// List uses Stream&lt;Integer&gt; (boxed)
+int sum2 = list.stream()
+               .mapToInt(Integer::intValue)  // Convert to IntStream
+               .sum();
+</code></pre>
+<h3>Reverse Iteration</h3>
+<pre><code class="language-java">// Array
+for (int i = array.length - 1; i &gt;= 0; i--) {
+    System.out.println(array[i]);
+}
+
+// List
+for (int i = list.size() - 1; i &gt;= 0; i--) {
+    System.out.println(list.get(i));
+}
+
+// List with ListIterator
+ListIterator&lt;Integer&gt; lit = list.listIterator(list.size());
+while (lit.hasPrevious()) {
+    System.out.println(lit.previous());
+}
+
+// Or reverse the collection
+Collections.reverse(list);
+for (Integer value : list) {
+    System.out.println(value);
+}
+Collections.reverse(list);  // Reverse back
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Common Operations</h2>
+<h3>Sorting</h3>
+<pre><code class="language-java">int[] array = {5, 2, 8, 1, 9};
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(Arrays.asList(5, 2, 8, 1, 9));
+
+// Array: Arrays.sort() (in-place, uses Dual-Pivot Quicksort)
+Arrays.sort(array);  // [1, 2, 5, 8, 9]
+
+// List: Collections.sort() or List.sort()
+Collections.sort(list);  // [1, 2, 5, 8, 9]
+// Or
+list.sort(null);  // Natural order
+list.sort(Comparator.naturalOrder());  // Same
+
+// Custom comparator
+list.sort(Comparator.reverseOrder());  // [9, 8, 5, 2, 1]
+list.sort((a, b) -&gt; b - a);  // Reverse (same as above)
+
+// Stable sort guarantee
+// Collections.sort() is stable (equal elements maintain relative order)
+// Arrays.sort() for objects is stable, for primitives is not guaranteed
+
+// Descending order
+Arrays.sort(array);
+// Reverse manually for primitive array
+for (int i = 0; i &lt; array.length / 2; i++) {
+    int temp = array[i];
+    array[i] = array[array.length - 1 - i];
+    array[array.length - 1 - i] = temp;
+}
+</code></pre>
+<h3>Searching</h3>
+<pre><code class="language-java">int[] sortedArray = {1, 2, 5, 8, 9};
+List&lt;Integer&gt; sortedList = Arrays.asList(1, 2, 5, 8, 9);
+
+// Binary search (requires sorted array/list)
+int arrayIndex = Arrays.binarySearch(sortedArray, 5);  // Returns 2
+int listIndex = Collections.binarySearch(sortedList, 5);  // Returns 2
+
+// If not found, returns (-(insertion point) - 1)
+int notFound = Arrays.binarySearch(sortedArray, 6);  // Returns -4
+// Insertion point would be index 3, so -(3) - 1 = -4
+
+// Linear search
+// Array
+int linearSearch(int[] arr, int target) {
+    for (int i = 0; i &lt; arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
+}
+
+// List
+int idx = list.indexOf(5);  // Built-in linear search
+</code></pre>
+<h3>Copying</h3>
+<pre><code class="language-java">int[] original = {1, 2, 3, 4, 5};
+
+// Array copying
+// 1. Arrays.copyOf()
+int[] copy1 = Arrays.copyOf(original, original.length);
+
+// 2. Arrays.copyOfRange()
+int[] copy2 = Arrays.copyOfRange(original, 1, 4);  // [2, 3, 4]
+
+// 3. System.arraycopy()
+int[] copy3 = new int[original.length];
+System.arraycopy(original, 0, copy3, 0, original.length);
+
+// 4. clone()
+int[] copy4 = original.clone();
+
+// 5. Manual copy
+int[] copy5 = new int[original.length];
+for (int i = 0; i &lt; original.length; i++) {
+    copy5[i] = original[i];
+}
+
+// 6. Stream
+int[] copy6 = Arrays.stream(original).toArray();
+
+// List copying
+List&lt;Integer&gt; originalList = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3, 4, 5));
+
+// 1. Constructor
+List&lt;Integer&gt; listCopy1 = new ArrayList&lt;&gt;(originalList);
+
+// 2. addAll()
+List&lt;Integer&gt; listCopy2 = new ArrayList&lt;&gt;();
+listCopy2.addAll(originalList);
+
+// 3. Stream
+List&lt;Integer&gt; listCopy3 = originalList.stream()
+                                      .collect(Collectors.toList());
+
+// 4. List.copyOf() (Java 10+, returns IMMUTABLE copy)
+List&lt;Integer&gt; listCopy4 = List.copyOf(originalList);
+
+// NOTE: All above are SHALLOW copies
+// For deep copy of lists containing mutable objects, need custom implementation
+</code></pre>
+<h3>Comparing</h3>
+<pre><code class="language-java">int[] array1 = {1, 2, 3};
+int[] array2 = {1, 2, 3};
+int[] array3 = {1, 2, 4};
+
+// Array comparison
+// DON'T use ==
+System.out.println(array1 == array2);  // false (different objects)
+
+// Use Arrays.equals()
+System.out.println(Arrays.equals(array1, array2));  // true
+System.out.println(Arrays.equals(array1, array3));  // false
+
+// For multi-dimensional arrays
+int[][] multi1 = {{1, 2}, {3, 4}};
+int[][] multi2 = {{1, 2}, {3, 4}};
+System.out.println(Arrays.equals(multi1, multi2));  // false (shallow)
+System.out.println(Arrays.deepEquals(multi1, multi2));  // true (deep)
+
+// List comparison
+List&lt;Integer&gt; list1 = Arrays.asList(1, 2, 3);
+List&lt;Integer&gt; list2 = Arrays.asList(1, 2, 3);
+List&lt;Integer&gt; list3 = Arrays.asList(1, 2, 4);
+
+// Lists override equals()
+System.out.println(list1.equals(list2));  // true
+System.out.println(list1.equals(list3));  // false
+System.out.println(list1 == list2);  // false (still different objects)
+</code></pre>
+<h3>Filling</h3>
+<pre><code class="language-java">int[] array = new int[5];
+Arrays.fill(array, 42);  // [42, 42, 42, 42, 42]
+
+// Fill range
+Arrays.fill(array, 1, 4, 10);  // [42, 10, 10, 10, 42]
+
+// setAll with function
+Arrays.setAll(array, i -&gt; i * 10);  // [0, 10, 20, 30, 40]
+
+// List
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(Collections.nCopies(5, 42));
+// [42, 42, 42, 42, 42]
+
+// Or
+List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;();
+for (int i = 0; i &lt; 5; i++) {
+    list2.add(42);
+}
+
+// Using Stream
+List&lt;Integer&gt; list3 = Stream.generate(() -&gt; 42)
+                            .limit(5)
+                            .collect(Collectors.toList());
+</code></pre>
+<h3>Converting to String</h3>
+<pre><code class="language-java">int[] array = {1, 2, 3, 4, 5};
+List&lt;Integer&gt; list = Arrays.asList(1, 2, 3, 4, 5);
+
+// Array
+System.out.println(Arrays.toString(array));  // [1, 2, 3, 4, 5]
+// Without Arrays.toString():
+System.out.println(array);  // [I@hexadecimal (useless!)
+
+// Multi-dimensional array
+int[][] multi = {{1, 2}, {3, 4}};
+System.out.println(Arrays.toString(multi));  // [[I@..., [I@...] (useless!)
+System.out.println(Arrays.deepToString(multi));  // [[1, 2], [3, 4]]
+
+// List
+System.out.println(list);  // [1, 2, 3, 4, 5]
+System.out.println(list.toString());  // [1, 2, 3, 4, 5] (same)
+
+// Custom format
+String arrayStr = Arrays.stream(array)
+                        .mapToObj(String::valueOf)
+                        .collect(Collectors.joining(&quot;, &quot;));
+
+String listStr = list.stream()
+                     .map(String::valueOf)
+                     .collect(Collectors.joining(&quot;, &quot;));
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Conversion Between Types</h2>
+<h3>int[] to List<Integer></h3>
+<pre><code class="language-java">int[] array = {1, 2, 3, 4, 5};
+
+// 1. Using Stream (Java 8+)
+List&lt;Integer&gt; list1 = Arrays.stream(array)
+                            .boxed()
+                            .collect(Collectors.toList());
+
+// 2. Manual iteration
+List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;();
+for (int value : array) {
+    list2.add(value);  // Auto-boxing
+}
+
+// 3. Using IntStream
+List&lt;Integer&gt; list3 = IntStream.of(array)
+                               .boxed()
+                               .collect(Collectors.toList());
+
+// 4. Apache Commons (if available)
+// List&lt;Integer&gt; list4 = Arrays.asList(ArrayUtils.toObject(array));
+
+// NOTE: Arrays.asList() doesn't work with primitive arrays!
+// This creates List&lt;int[]&gt; with one element, not List&lt;Integer&gt;!
+List&lt;int[]&gt; wrong = Arrays.asList(array);  // WRONG!
+System.out.println(wrong.size());  // 1, not 5!
+</code></pre>
+<h3>List<Integer> to int[]</h3>
+<pre><code class="language-java">List&lt;Integer&gt; list = Arrays.asList(1, 2, 3, 4, 5);
+
+// 1. Using Stream (Java 8+)
+int[] array1 = list.stream()
+                   .mapToInt(Integer::intValue)
+                   .toArray();
+
+// 2. Manual iteration
+int[] array2 = new int[list.size()];
+for (int i = 0; i &lt; list.size(); i++) {
+    array2[i] = list.get(i);  // Auto-unboxing (NPE if null!)
+}
+
+// 3. Using iterator
+int[] array3 = new int[list.size()];
+int index = 0;
+for (Integer value : list) {
+    array3[index++] = value;
+}
+
+// 4. Handle nulls safely
+int[] array4 = list.stream()
+                   .filter(Objects::nonNull)
+                   .mapToInt(Integer::intValue)
+                   .toArray();
+
+// Or with default value for nulls
+int[] array5 = list.stream()
+                   .mapToInt(i -&gt; i == null ? 0 : i)
+                   .toArray();
+</code></pre>
+<h3>Integer[] to int[]</h3>
+<pre><code class="language-java">Integer[] objectArray = {1, 2, 3, 4, 5};
+
+// 1. Manual
+int[] primitiveArray = new int[objectArray.length];
+for (int i = 0; i &lt; objectArray.length; i++) {
+    primitiveArray[i] = objectArray[i];  // Auto-unboxing
+}
+
+// 2. Using Stream
+int[] primitiveArray2 = Arrays.stream(objectArray)
+                              .mapToInt(Integer::intValue)
+                              .toArray();
+
+// 3. Apache Commons (if available)
+// int[] primitiveArray3 = ArrayUtils.toPrimitive(objectArray);
+</code></pre>
+<h3>int[] to Integer[]</h3>
+<pre><code class="language-java">int[] primitiveArray = {1, 2, 3, 4, 5};
+
+// 1. Manual
+Integer[] objectArray = new Integer[primitiveArray.length];
+for (int i = 0; i &lt; primitiveArray.length; i++) {
+    objectArray[i] = primitiveArray[i];  // Auto-boxing
+}
+
+// 2. Using Stream
+Integer[] objectArray2 = Arrays.stream(primitiveArray)
+                               .boxed()
+                               .toArray(Integer[]::new);
+
+// 3. Apache Commons (if available)
+// Integer[] objectArray3 = ArrayUtils.toObject(primitiveArray);
+</code></pre>
+</section>
+
+<section class="section">
+<h2>When to Use Each</h2>
+<h3>Use int[] when:</h3>
+<ol>
+<li>
+<p><strong>Performance is critical</strong><br />
+<code>java
+   // Processing millions of integers
+   public long sumLargeDataset(int[] data) {
+       long sum = 0;
+       for (int value : data) {
+           sum += value;  // No boxing overhead
+       }
+       return sum;
+   }</code></p>
+</li>
+<li>
+<p><strong>Memory efficiency matters</strong><br />
+<code>java
+   // Storing large datasets
+   int[] pixels = new int[1920 * 1080];  // Image pixels
+   // Uses ~8MB vs ~32MB for List&lt;Integer&gt;</code></p>
+</li>
+<li>
+<p><strong>You need a fixed-size collection</strong><br />
+<code>java
+   // RGB color components (always 3)
+   int[] rgb = new int[3];
+   rgb[0] = 255;  // Red
+   rgb[1] = 128;  // Green
+   rgb[2] = 64;   // Blue</code></p>
+</li>
+<li>
+<p><strong>Working with mathematical operations</strong><br />
+<code>java
+   // Matrix operations
+   int[][] matrix = new int[100][100];
+   for (int i = 0; i &lt; 100; i++) {
+       for (int j = 0; j &lt; 100; j++) {
+           matrix[i][j] = i * j;
+       }
+   }</code></p>
+</li>
+<li>
+<p><strong>Interfacing with low-level APIs</strong><br />
+<code>java
+   // JNI, NIO buffers, etc.
+   ByteBuffer buffer = ByteBuffer.allocate(1024);
+   int[] data = new int[256];
+   buffer.asIntBuffer().put(data);</code></p>
+</li>
+</ol>
+<h3>Use List<Integer> when:</h3>
+<ol>
+<li>
+<p><strong>Size varies dynamically</strong><br />
+<code>java
+   // Reading unknown number of inputs
+   List&lt;Integer&gt; userInputs = new ArrayList&lt;&gt;();
+   Scanner scanner = new Scanner(System.in);
+   while (scanner.hasNextInt()) {
+       userInputs.add(scanner.nextInt());
+   }</code></p>
+</li>
+<li>
+<p><strong>You need Collection framework features</strong><br />
+<code>java
+   List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+   numbers.add(1);
+   numbers.remove(Integer.valueOf(1));
+   numbers.contains(2);
+   numbers.sort(Comparator.reverseOrder());
+   numbers.forEach(System.out::println);</code></p>
+</li>
+<li>
+<p><strong>Nulls are meaningful</strong><br />
+<code>java
+   // Sparse data where null = missing value
+   List&lt;Integer&gt; temperatures = new ArrayList&lt;&gt;();
+   temperatures.add(20);
+   temperatures.add(null);  // Sensor malfunction
+   temperatures.add(22);</code></p>
+</li>
+<li>
+<p><strong>You need method parameters to be flexible</strong><br />
+<code>java
+   // Can accept ArrayList, LinkedList, etc.
+   public void processNumbers(List&lt;Integer&gt; numbers) {
+       // Works with any List implementation
+   }</code></p>
+</li>
+<li>
+<p><strong>Using streams and functional programming</strong><br />
+<code>java
+   List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5);
+   List&lt;Integer&gt; evens = numbers.stream()
+                                .filter(n -&gt; n % 2 == 0)
+                                .collect(Collectors.toList());</code></p>
+</li>
+<li>
+<p><strong>You need thread-safe operations</strong><br />
+<code>java
+   List&lt;Integer&gt; syncList = Collections.synchronizedList(
+       new ArrayList&lt;&gt;()
+   );
+   // Or use CopyOnWriteArrayList
+   List&lt;Integer&gt; concurrent = new CopyOnWriteArrayList&lt;&gt;();</code></p>
+</li>
+</ol>
+</section>
+
+<section class="section">
+<h2>Best Practices</h2>
+<h3>Performance Optimization</h3>
+<pre><code class="language-java">// BAD: List with primitive operations
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+for (int i = 0; i &lt; 1_000_000; i++) {
+    list.add(i);  // Boxing on every addition!
+    int x = list.get(i) * 2;  // Unboxing on every access!
+}
+
+// GOOD: Primitive array for primitive operations
+int[] array = new int[1_000_000];
+for (int i = 0; i &lt; 1_000_000; i++) {
+    array[i] = i;  // No boxing
+    int x = array[i] * 2;  // No unboxing
+}
+
+// COMPROMISE: Use primitive streams
+int[] result = IntStream.range(0, 1_000_000)
+                        .map(i -&gt; i * 2)
+                        .toArray();
+</code></pre>
+<h3>Null Safety</h3>
+<pre><code class="language-java">// Arrays: Can't store nulls in int[]
+int[] array = new int[5];
+// array[0] = null;  // Compilation error
+
+// Lists: Can store nulls, but be careful
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+list.add(null);  // OK
+
+// DANGEROUS: Auto-unboxing null throws NPE
+try {
+    int value = list.get(0);  // NullPointerException!
+} catch (NullPointerException e) {
+    System.out.println(&quot;Cannot unbox null to primitive&quot;);
+}
+
+// SAFE: Check for null first
+Integer boxed = list.get(0);
+int value = (boxed != null) ? boxed : 0;
+
+// Or use Optional
+int value2 = Optional.ofNullable(list.get(0)).orElse(0);
+</code></pre>
+<h3>Immutability</h3>
+<pre><code class="language-java">// Immutable array reference (can't reassign, but can modify contents)
+final int[] array = {1, 2, 3};
+// array = new int[3];  // Compilation error
+array[0] = 10;  // OK! (modifying contents)
+
+// Truly immutable array (defensive copy)
+public class ImmutableArray {
+    private final int[] data;
+
+    public ImmutableArray(int[] array) {
+        this.data = Arrays.copyOf(array, array.length);
+    }
+
+    public int get(int index) {
+        return data[index];
+    }
+
+    public int[] toArray() {
+        return Arrays.copyOf(data, data.length);  // Defensive copy
+    }
+}
+
+// Immutable List (Java 9+)
+List&lt;Integer&gt; immutable = List.of(1, 2, 3);
+// immutable.add(4);  // UnsupportedOperationException
+
+// Unmodifiable view (wraps existing list)
+List&lt;Integer&gt; mutable = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3));
+List&lt;Integer&gt; unmodifiable = Collections.unmodifiableList(mutable);
+// unmodifiable.add(4);  // UnsupportedOperationException
+mutable.add(4);  // OK! Affects unmodifiable view too!
+</code></pre>
+<h3>Memory Management</h3>
+<pre><code class="language-java">// For large datasets, prefer primitive arrays
+public class LargeDataset {
+    // BAD: Uses ~400MB for 100M integers
+    private List&lt;Integer&gt; data = new ArrayList&lt;&gt;(100_000_000);
+
+    // GOOD: Uses ~400MB for 100M integers
+    private int[] data = new int[100_000_000];
+}
+
+// Trim ArrayList when done adding
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;(1000);
+// ... add 10 elements
+list.trimToSize();  // Reduce capacity from 1000 to 10
+
+// Or specify initial capacity
+List&lt;Integer&gt; sized = new ArrayList&lt;&gt;(exactSize);
+</code></pre>
+<h3>API Design</h3>
+<pre><code class="language-java">// BAD: Exposes internal array
+public class BadDesign {
+    private int[] data = {1, 2, 3};
+
+    public int[] getData() {
+        return data;  // Caller can modify internal state!
+    }
+}
+
+// GOOD: Return defensive copy
+public class GoodDesign {
+    private int[] data = {1, 2, 3};
+
+    public int[] getData() {
+        return Arrays.copyOf(data, data.length);
+    }
+
+    // Or return unmodifiable list
+    public List&lt;Integer&gt; getDataAsList() {
+        return Collections.unmodifiableList(
+            Arrays.stream(data)
+                  .boxed()
+                  .collect(Collectors.toList())
+        );
+    }
+}
+
+// BETTER: Use getters for individual elements
+public class BestDesign {
+    private int[] data = {1, 2, 3};
+
+    public int get(int index) {
+        return data[index];
+    }
+
+    public int size() {
+        return data.length;
+    }
+}
+</code></pre>
+<h3>Choosing Collection Type</h3>
+<pre><code class="language-java">// Random access pattern → Array or ArrayList
+int[] array = new int[1000];
+List&lt;Integer&gt; arrayList = new ArrayList&lt;&gt;();
+// Both have O(1) access time
+
+// Frequent insertions/deletions in middle → LinkedList
+List&lt;Integer&gt; linkedList = new LinkedList&lt;&gt;();
+// O(1) insertion/deletion when you have iterator position
+
+// Need sorted order → TreeSet or maintain sorted ArrayList
+// Need unique values → HashSet
+
+// For primitive integers with set operations:
+BitSet bits = new BitSet();  // Very memory efficient for boolean flags
+bits.set(5);
+bits.clear(10);
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>int[]</th>
+<th>List<Integer></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Memory</strong></td>
+<td>~4 bytes per element</td>
+<td>~16+ bytes per element</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Fastest (no boxing)</td>
+<td>Slower (boxing overhead)</td>
+</tr>
+<tr>
+<td><strong>Size</strong></td>
+<td>Fixed</td>
+<td>Dynamic</td>
+</tr>
+<tr>
+<td><strong>Nulls</strong></td>
+<td>Not allowed</td>
+<td>Allowed (dangerous!)</td>
+</tr>
+<tr>
+<td><strong>API</strong></td>
+<td>Basic (Arrays utility)</td>
+<td>Rich (Collection framework)</td>
+</tr>
+<tr>
+<td><strong>Type Safety</strong></td>
+<td>Primitive type</td>
+<td>Generic type</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>Performance-critical, fixed-size</td>
+<td>Flexible, feature-rich</td>
+</tr>
+</tbody>
+</table>
+<p><strong>General Rule of Thumb:</strong><br />
+- Use <code>int[]</code> for performance-critical code, large datasets, and fixed-size collections<br />
+- Use <code>List&lt;Integer&gt;</code> for flexibility, dynamic sizing, and when you need Collection framework features<br />
+- Consider <code>IntStream</code> as a middle ground for functional operations on primitives</p>
+</section>
+    </div>
+</body>
+</html>
