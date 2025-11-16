@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoBoxing and Unboxing in Java: A Complete Guide</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>AutoBoxing and Unboxing in Java: A Complete Guide</h1>
+        
+<section class="section">
+<h1>AutoBoxing and Unboxing in Java: A Complete Guide</h1>
+</section>
+
+<section class="section">
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-autoboxing">What is AutoBoxing?</a></li>
+<li><a href="#what-is-unboxing">What is Unboxing?</a></li>
+<li><a href="#wrapper-classes">Wrapper Classes</a></li>
+<li><a href="#how-autoboxing-works">How AutoBoxing Works</a></li>
+<li><a href="#when-autoboxing-occurs">When AutoBoxing Occurs</a></li>
+<li><a href="#performance-implications">Performance Implications</a></li>
+<li><a href="#common-pitfalls">Common Pitfalls</a></li>
+<li><a href="#integer-cache">Integer Cache</a></li>
+<li><a href="#null-pointer-exceptions">Null Pointer Exceptions</a></li>
+<li><a href="#collections-and-autoboxing">Collections and AutoBoxing</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#comparison-with-manual-boxing">Comparison with Manual Boxing</a></li>
+<li><a href="#real-world-examples">Real-World Examples</a></li>
+</ul>
+</section>
+
+<section class="section">
+<h2>Introduction</h2>
+<p>AutoBoxing and Unboxing are automatic conversions between primitive types and their corresponding wrapper classes, introduced in <strong>Java 5 (2004)</strong>.</p>
+<p><strong>Before Java 5:</strong></p>
+<pre><code class="language-java">// Manual boxing - tedious and error-prone
+Integer num = new Integer(10);  // Deprecated since Java 9
+int primitive = num.intValue();
+</code></pre>
+<p><strong>After Java 5:</strong></p>
+<pre><code class="language-java">// Automatic boxing/unboxing - cleaner syntax
+Integer num = 10;      // AutoBoxing
+int primitive = num;   // Unboxing
+</code></pre>
+</section>
+
+<section class="section">
+<h2>What is AutoBoxing?</h2>
+<p><strong>AutoBoxing</strong> is the automatic conversion of primitive types to their wrapper class equivalents.</p>
+<h3>Syntax</h3>
+<pre><code class="language-java">// Compiler automatically converts primitive to wrapper
+int primitive = 42;
+Integer wrapped = primitive;  // AutoBoxing happens here
+
+// Behind the scenes, compiler does this:
+Integer wrapped = Integer.valueOf(primitive);
+</code></pre>
+<h3>All Primitive to Wrapper Conversions</h3>
+<pre><code class="language-java">// byte → Byte
+byte b = 1;
+Byte byteObj = b;  // AutoBoxing
+
+// short → Short
+short s = 100;
+Short shortObj = s;  // AutoBoxing
+
+// int → Integer
+int i = 1000;
+Integer intObj = i;  // AutoBoxing
+
+// long → Long
+long l = 10000L;
+Long longObj = l;  // AutoBoxing
+
+// float → Float
+float f = 3.14f;
+Float floatObj = f;  // AutoBoxing
+
+// double → Double
+double d = 3.14159;
+Double doubleObj = d;  // AutoBoxing
+
+// char → Character
+char c = 'A';
+Character charObj = c;  // AutoBoxing
+
+// boolean → Boolean
+boolean bool = true;
+Boolean boolObj = bool;  // AutoBoxing
+</code></pre>
+</section>
+
+<section class="section">
+<h2>What is Unboxing?</h2>
+<p><strong>Unboxing</strong> is the automatic conversion of wrapper classes to their primitive type equivalents.</p>
+<h3>Syntax</h3>
+<pre><code class="language-java">// Compiler automatically converts wrapper to primitive
+Integer wrapped = 42;
+int primitive = wrapped;  // Unboxing happens here
+
+// Behind the scenes, compiler does this:
+int primitive = wrapped.intValue();
+</code></pre>
+<h3>All Wrapper to Primitive Conversions</h3>
+<pre><code class="language-java">Byte byteObj = 1;
+byte b = byteObj;  // Unboxing
+
+Short shortObj = 100;
+short s = shortObj;  // Unboxing
+
+Integer intObj = 1000;
+int i = intObj;  // Unboxing
+
+Long longObj = 10000L;
+long l = longObj;  // Unboxing
+
+Float floatObj = 3.14f;
+float f = floatObj;  // Unboxing
+
+Double doubleObj = 3.14159;
+double d = doubleObj;  // Unboxing
+
+Character charObj = 'A';
+char c = charObj;  // Unboxing
+
+Boolean boolObj = true;
+boolean bool = boolObj;  // Unboxing
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Wrapper Classes</h2>
+<h3>Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Wrapper Class</th>
+<th>Size (bits)</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>byte</td>
+<td>Byte</td>
+<td>8</td>
+<td>-128 to 127</td>
+</tr>
+<tr>
+<td>short</td>
+<td>Short</td>
+<td>16</td>
+<td>-32,768 to 32,767</td>
+</tr>
+<tr>
+<td>int</td>
+<td>Integer</td>
+<td>32</td>
+<td>-2³¹ to 2³¹-1</td>
+</tr>
+<tr>
+<td>long</td>
+<td>Long</td>
+<td>64</td>
+<td>-2⁶³ to 2⁶³-1</td>
+</tr>
+<tr>
+<td>float</td>
+<td>Float</td>
+<td>32</td>
+<td>±3.4 × 10³⁸ (approx)</td>
+</tr>
+<tr>
+<td>double</td>
+<td>Double</td>
+<td>64</td>
+<td>±1.7 × 10³⁰⁸ (approx)</td>
+</tr>
+<tr>
+<td>char</td>
+<td>Character</td>
+<td>16</td>
+<td>0 to 65,535</td>
+</tr>
+<tr>
+<td>boolean</td>
+<td>Boolean</td>
+<td>1</td>
+<td>true or false</td>
+</tr>
+</tbody>
+</table>
+<h3>Wrapper Class Hierarchy</h3>
+<pre><code>java.lang.Object
+    ├── Number (abstract)
+    │   ├── Byte
+    │   ├── Short
+    │   ├── Integer
+    │   ├── Long
+    │   ├── Float
+    │   └── Double
+    ├── Character
+    └── Boolean
+</code></pre>
+<h3>Why Wrapper Classes Exist</h3>
+<pre><code class="language-java">// 1. Collections only work with objects
+List&lt;int&gt; primitiveList;  // COMPILATION ERROR!
+List&lt;Integer&gt; objectList = new ArrayList&lt;&gt;();  // OK
+
+// 2. Nullable values
+int primitive = null;  // COMPILATION ERROR!
+Integer object = null;  // OK
+
+// 3. Utility methods
+Integer.parseInt(&quot;123&quot;);
+Integer.toBinaryString(42);
+Integer.MAX_VALUE;
+Integer.MIN_VALUE;
+
+// 4. Pass by reference (sort of)
+public void modifyPrimitive(int x) {
+    x = 100;  // Original value unchanged
+}
+
+public void modifyWrapper(Integer x) {
+    x = 100;  // Still doesn't change original (Integer is immutable)
+    // But at least you can pass null
+}
+
+// 5. Generics require objects
+class Box&lt;T&gt; {
+    private T value;
+}
+Box&lt;int&gt; primitiveBox;  // ERROR!
+Box&lt;Integer&gt; objectBox;  // OK
+</code></pre>
+</section>
+
+<section class="section">
+<h2>How AutoBoxing Works</h2>
+<h3>Compiler Transformation</h3>
+<p><strong>Your Code:</strong></p>
+<pre><code class="language-java">Integer num = 42;
+int value = num + 10;
+</code></pre>
+<p><strong>What Compiler Generates:</strong></p>
+<pre><code class="language-java">Integer num = Integer.valueOf(42);  // AutoBoxing
+int value = num.intValue() + 10;    // Unboxing
+</code></pre>
+<h3>valueOf() vs Constructor</h3>
+<pre><code class="language-java">// Modern way (uses valueOf)
+Integer a = 42;  // Compiler uses Integer.valueOf(42)
+
+// Old way (deprecated since Java 9)
+Integer b = new Integer(42);  // Don't use!
+
+// Why valueOf() is better:
+// 1. Caching: valueOf() reuses objects for small values
+// 2. Memory efficient
+// 3. Better performance
+</code></pre>
+<h3>Step-by-Step Example</h3>
+<pre><code class="language-java">public class AutoBoxingDemo {
+    public static void main(String[] args) {
+        // Step 1: AutoBoxing
+        int primitive = 100;
+        Integer wrapped = primitive;
+
+        // Compiler transforms to:
+        // Integer wrapped = Integer.valueOf(primitive);
+
+        // Step 2: Unboxing
+        int unwrapped = wrapped;
+
+        // Compiler transforms to:
+        // int unwrapped = wrapped.intValue();
+
+        // Step 3: Mixed operation
+        Integer a = 10;
+        Integer b = 20;
+        int sum = a + b;  // Both unbox, then add
+
+        // Compiler transforms to:
+        // int sum = a.intValue() + b.intValue();
+
+        // Step 4: AutoBoxing result
+        Integer result = a + b;
+
+        // Compiler transforms to:
+        // Integer result = Integer.valueOf(a.intValue() + b.intValue());
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>When AutoBoxing Occurs</h2>
+<h3>1. Assignment</h3>
+<pre><code class="language-java">// Primitive to wrapper
+int i = 10;
+Integer obj = i;  // AutoBoxing
+
+// Wrapper to primitive
+Integer num = 100;
+int value = num;  // Unboxing
+</code></pre>
+<h3>2. Method Parameters</h3>
+<pre><code class="language-java">public void takesWrapper(Integer num) {
+    System.out.println(num);
+}
+
+public void takesPrimitive(int num) {
+    System.out.println(num);
+}
+
+int primitive = 42;
+Integer wrapper = 42;
+
+takesWrapper(primitive);  // AutoBoxing: int → Integer
+takesPrimitive(wrapper);  // Unboxing: Integer → int
+</code></pre>
+<h3>3. Return Values</h3>
+<pre><code class="language-java">public Integer returnsWrapper() {
+    return 42;  // AutoBoxing
+}
+
+public int returnsPrimitive() {
+    Integer num = 100;
+    return num;  // Unboxing
+}
+</code></pre>
+<h3>4. Arithmetic Operations</h3>
+<pre><code class="language-java">Integer a = 10;
+Integer b = 20;
+
+// All arithmetic operations require unboxing
+int sum = a + b;        // Unbox both, add, result is int
+Integer result = a + b; // Unbox both, add, AutoBox result
+
+// Increment/Decrement
+Integer count = 0;
+count++;  // Unbox, increment, AutoBox
+// Equivalent to: count = Integer.valueOf(count.intValue() + 1);
+
+count += 5;  // Unbox, add, AutoBox
+// Equivalent to: count = Integer.valueOf(count.intValue() + 5);
+</code></pre>
+<h3>5. Comparison Operations</h3>
+<pre><code class="language-java">Integer a = 100;
+Integer b = 100;
+Integer c = 200;
+
+// Relational operators unbox
+if (a &lt; c) {  // Unboxes both: a.intValue() &lt; c.intValue()
+    System.out.println(&quot;a is less than c&quot;);
+}
+
+// Equality with == is tricky (see Common Pitfalls)
+System.out.println(a == b);  // Might be true (cache)
+System.out.println(c == 200);  // Unboxes c
+
+// Use equals() for wrapper comparison
+System.out.println(a.equals(b));  // Proper comparison
+</code></pre>
+<h3>6. Collections</h3>
+<pre><code class="language-java">List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+
+// Adding primitive to collection
+numbers.add(42);  // AutoBoxing: int → Integer
+numbers.add(100);
+numbers.add(200);
+
+// Getting from collection
+int first = numbers.get(0);  // Unboxing: Integer → int
+
+// Iteration
+for (int num : numbers) {  // Unboxing on each iteration
+    System.out.println(num);
+}
+
+// Stream operations
+int sum = numbers.stream()
+                 .mapToInt(Integer::intValue)  // Explicit unboxing
+                 .sum();
+</code></pre>
+<h3>7. Ternary Operator</h3>
+<pre><code class="language-java">boolean condition = true;
+Integer a = 100;
+int b = 50;
+
+// Result type is determined by operands
+int result1 = condition ? a : b;  // a unboxes to int
+Integer result2 = condition ? a : b;  // b autoboxes to Integer
+
+// Mixed types can cause issues
+Double d = 1.0;
+int i = 1;
+Object result = condition ? d : i;  // i autoboxes to Integer
+// result is Double (1.0) or Integer (1)
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Performance Implications</h2>
+<h3>Memory Overhead</h3>
+<pre><code class="language-java">public class MemoryComparison {
+    public static void main(String[] args) {
+        // Primitive array
+        int[] primitives = new int[1_000_000];
+        // Memory: ~4MB (4 bytes per int)
+
+        // Wrapper array (with autoboxing)
+        Integer[] wrappers = new Integer[1_000_000];
+        for (int i = 0; i &lt; 1_000_000; i++) {
+            wrappers[i] = i;  // AutoBoxing creates objects
+        }
+        // Memory: ~16-24MB (16 bytes per Integer object + array overhead)
+
+        // ArrayList with autoboxing
+        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; 1_000_000; i++) {
+            list.add(i);  // AutoBoxing on each add
+        }
+        // Memory: ~20-30MB (Integer objects + ArrayList overhead)
+    }
+}
+</code></pre>
+<h3>Performance Benchmarks</h3>
+<pre><code class="language-java">public class AutoBoxingPerformance {
+    private static final int ITERATIONS = 10_000_000;
+
+    public static void main(String[] args) {
+        // Test 1: Primitive operations
+        long start = System.nanoTime();
+        int sum1 = 0;
+        for (int i = 0; i &lt; ITERATIONS; i++) {
+            sum1 += i;
+        }
+        long primitiveTime = System.nanoTime() - start;
+        System.out.println(&quot;Primitive time: &quot; + primitiveTime / 1_000_000 + &quot;ms&quot;);
+
+        // Test 2: AutoBoxing operations
+        start = System.nanoTime();
+        Integer sum2 = 0;
+        for (int i = 0; i &lt; ITERATIONS; i++) {
+            sum2 += i;  // Unbox sum2, add i, autobox result
+        }
+        long boxingTime = System.nanoTime() - start;
+        System.out.println(&quot;AutoBoxing time: &quot; + boxingTime / 1_000_000 + &quot;ms&quot;);
+
+        System.out.println(&quot;AutoBoxing is &quot; + (boxingTime / primitiveTime) + &quot;x slower&quot;);
+        // Typical result: 5-10x slower
+    }
+}
+</code></pre>
+<h3>Performance Cost Breakdown</h3>
+<pre><code class="language-java">// Single autoboxing operation cost:
+Integer x = 42;
+// Cost: Object allocation + initialization + cache lookup
+// ~10-20 nanoseconds (if not cached)
+// ~2-5 nanoseconds (if cached)
+
+// Unboxing operation cost:
+int y = x;
+// Cost: Method call (intValue())
+// ~1-2 nanoseconds
+
+// Arithmetic with wrappers:
+Integer a = 100;
+Integer b = 200;
+Integer sum = a + b;
+// Cost: 2 unboxings + addition + 1 autoboxing
+// ~15-30 nanoseconds total
+
+// Compare to primitive:
+int p1 = 100;
+int p2 = 200;
+int pSum = p1 + p2;
+// Cost: Direct CPU instruction
+// ~0.5-1 nanoseconds
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Common Pitfalls</h2>
+<h3>1. NullPointerException</h3>
+<pre><code class="language-java">// DANGEROUS: Unboxing null throws NPE
+Integer num = null;
+int value = num;  // NullPointerException!
+
+// Safe patterns:
+// Pattern 1: Null check
+if (num != null) {
+    int value = num;  // Safe
+}
+
+// Pattern 2: Default value
+int value = (num != null) ? num : 0;
+
+// Pattern 3: Optional (Java 8+)
+Integer num = null;
+int value = Optional.ofNullable(num).orElse(0);
+
+// Common mistake in collections:
+Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+int count = map.get(&quot;key&quot;);  // NPE if key doesn't exist!
+
+// Safe version:
+int count = map.getOrDefault(&quot;key&quot;, 0);
+// Or:
+Integer count = map.get(&quot;key&quot;);
+if (count != null) {
+    // Use count
+}
+</code></pre>
+<h3>2. Object Identity vs Equality</h3>
+<pre><code class="language-java">// The Integer cache (-128 to 127)
+Integer a = 127;
+Integer b = 127;
+System.out.println(a == b);  // true (same cached object)
+
+Integer c = 128;
+Integer d = 128;
+System.out.println(c == d);  // false (different objects)
+
+// ALWAYS use equals() for wrapper comparison
+System.out.println(c.equals(d));  // true
+
+// Real-world bug example:
+public boolean isValidStatus(Integer status) {
+    return status == 200;  // WRONG! May fail for some values
+}
+
+public boolean isValidStatusCorrect(Integer status) {
+    return status != null &amp;&amp; status.equals(200);  // Correct
+    // Or: return status != null &amp;&amp; status == 200; (unboxes to primitive)
+}
+</code></pre>
+<h3>3. Unexpected Object Creation</h3>
+<pre><code class="language-java">// Creating objects in a loop
+Long sum = 0L;
+for (long i = 0; i &lt; 1000; i++) {
+    sum += i;  // Unbox, add, autobox - creates 1000 Long objects!
+}
+
+// Better:
+long sum = 0L;  // Use primitive
+for (long i = 0; i &lt; 1000; i++) {
+    sum += i;  // Pure primitive operation
+}
+Long result = sum;  // Single autobox at the end if needed
+</code></pre>
+<h3>4. Collection Contains/Remove Confusion</h3>
+<pre><code class="language-java">List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3, 4, 5));
+
+// Ambiguity: remove by index or by value?
+numbers.remove(2);  // Removes element at index 2 (value 3)
+// List is now [1, 2, 4, 5]
+
+numbers.remove(Integer.valueOf(2));  // Removes value 2
+// List is now [1, 4, 5]
+
+// Similar issue with contains:
+Set&lt;Integer&gt; set = new HashSet&lt;&gt;(Arrays.asList(1, 2, 3));
+boolean has2 = set.contains(2);  // AutoBoxing: int → Integer
+// More explicit:
+boolean has2Explicit = set.contains(Integer.valueOf(2));
+</code></pre>
+<h3>5. Ternary Operator Type Confusion</h3>
+<pre><code class="language-java">// Unexpected behavior:
+boolean flag = true;
+Integer i = 1;
+Double d = 2.0;
+
+// What type is result?
+Object result = flag ? i : d;  // i unboxes to int, then widens to double!
+System.out.println(result);  // 1.0 (Double)
+
+// If flag is false:
+result = false ? i : d;
+System.out.println(result);  // 2.0 (Double)
+
+// Safer:
+Number result = flag ? i : d;  // Both are Number subclasses
+</code></pre>
+<h3>6. Wrapper Mutability Misconception</h3>
+<pre><code class="language-java">// Wrappers are IMMUTABLE!
+Integer num = 100;
+modifyWrapper(num);
+System.out.println(num);  // Still 100
+
+public void modifyWrapper(Integer x) {
+    x = 200;  // Only changes local reference
+}
+
+// This applies to all operations:
+Integer count = 0;
+count++;  // Doesn't modify original object, creates new one!
+// Old object (0) becomes garbage
+// New object (1) is assigned to count
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Integer Cache</h2>
+<h3>How It Works</h3>
+<pre><code class="language-java">// Java caches Integer objects from -128 to 127
+public static Integer valueOf(int i) {
+    if (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}
+
+// Default cache: -128 to 127
+// Can be extended via JVM parameter:
+// -XX:AutoBoxCacheMax=1000
+</code></pre>
+<h3>Cache Demonstration</h3>
+<pre><code class="language-java">public class IntegerCacheDemo {
+    public static void main(String[] args) {
+        // Cached values
+        Integer a1 = 127;
+        Integer a2 = 127;
+        System.out.println(a1 == a2);  // true (same object)
+
+        // Non-cached values
+        Integer b1 = 128;
+        Integer b2 = 128;
+        System.out.println(b1 == b2);  // false (different objects)
+
+        // Forcing new object
+        Integer c1 = new Integer(127);  // Deprecated
+        Integer c2 = 127;
+        System.out.println(c1 == c2);  // false
+
+        // Using valueOf explicitly
+        Integer d1 = Integer.valueOf(100);
+        Integer d2 = Integer.valueOf(100);
+        System.out.println(d1 == d2);  // true (cached)
+    }
+}
+</code></pre>
+<h3>Other Wrapper Caches</h3>
+<pre><code class="language-java">// Byte: ALL values cached (-128 to 127)
+Byte b1 = 127;
+Byte b2 = 127;
+System.out.println(b1 == b2);  // true
+
+// Short: -128 to 127 cached
+Short s1 = 127;
+Short s2 = 127;
+System.out.println(s1 == s2);  // true
+
+// Long: -128 to 127 cached
+Long l1 = 127L;
+Long l2 = 127L;
+System.out.println(l1 == l2);  // true
+
+// Character: 0 to 127 cached
+Character c1 = 127;
+Character c2 = 127;
+System.out.println(c1 == c2);  // true
+
+// Boolean: true and false cached (only 2 objects)
+Boolean bool1 = true;
+Boolean bool2 = true;
+System.out.println(bool1 == bool2);  // true
+
+// Float and Double: NO caching
+Double d1 = 1.0;
+Double d2 = 1.0;
+System.out.println(d1 == d2);  // false (different objects)
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Null Pointer Exceptions</h2>
+<h3>Common NPE Scenarios</h3>
+<pre><code class="language-java">// 1. Unboxing null
+Integer num = null;
+int value = num;  // NPE!
+
+// 2. Null in arithmetic
+Integer a = null;
+Integer b = 10;
+int sum = a + b;  // NPE when unboxing a
+
+// 3. Null in comparison
+Integer x = null;
+if (x &gt; 10) {  // NPE when unboxing x
+    // ...
+}
+
+// 4. Null from map
+Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+int count = map.get(&quot;missing&quot;);  // NPE (returns null)
+
+// 5. Null in enhanced for loop
+List&lt;Integer&gt; numbers = Arrays.asList(1, null, 3);
+for (int num : numbers) {  // NPE when unboxing null
+    System.out.println(num);
+}
+
+// 6. Null in stream
+List&lt;Integer&gt; numbers = Arrays.asList(1, null, 3);
+int sum = numbers.stream()
+                 .mapToInt(Integer::intValue)  // NPE on null
+                 .sum();
+</code></pre>
+<h3>Safe Patterns</h3>
+<pre><code class="language-java">// Pattern 1: Null-safe arithmetic
+Integer a = null;
+Integer b = 10;
+int sum = Optional.ofNullable(a).orElse(0) +
+          Optional.ofNullable(b).orElse(0);
+
+// Pattern 2: Null-safe comparison
+Integer x = null;
+if (x != null &amp;&amp; x &gt; 10) {  // Short-circuit prevents NPE
+    // Safe
+}
+
+// Pattern 3: Null-safe collection operations
+List&lt;Integer&gt; numbers = Arrays.asList(1, null, 3);
+int sum = numbers.stream()
+                 .filter(Objects::nonNull)  // Filter nulls
+                 .mapToInt(Integer::intValue)
+                 .sum();
+
+// Pattern 4: Defensive wrapper methods
+public static int safeUnbox(Integer value, int defaultValue) {
+    return value != null ? value : defaultValue;
+}
+
+int result = safeUnbox(possiblyNull, 0);
+
+// Pattern 5: Use primitives when possible
+// Instead of:
+public Integer calculateSum(Integer a, Integer b) {
+    return a + b;  // Potential NPE
+}
+
+// Use:
+public int calculateSum(int a, int b) {
+    return a + b;  // No NPE possible
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Collections and AutoBoxing</h2>
+<h3>ArrayList Example</h3>
+<pre><code class="language-java">List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+
+// Adding - autoboxing occurs
+numbers.add(1);      // int → Integer
+numbers.add(2);
+numbers.add(3);
+
+// Getting - unboxing occurs
+int first = numbers.get(0);  // Integer → int
+
+// Iteration - unboxing occurs
+for (int num : numbers) {  // Integer → int on each iteration
+    System.out.println(num);
+}
+
+// Stream operations
+int sum = numbers.stream()
+                 .mapToInt(Integer::intValue)  // Explicit unboxing
+                 .sum();
+
+// Better: use primitive stream when possible
+int[] primitiveArray = {1, 2, 3, 4, 5};
+int sum2 = Arrays.stream(primitiveArray).sum();  // No boxing!
+</code></pre>
+<h3>Performance with Collections</h3>
+<pre><code class="language-java">public class CollectionBoxingPerformance {
+    private static final int SIZE = 1_000_000;
+
+    public static void main(String[] args) {
+        // Scenario 1: ArrayList with autoboxing
+        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+        long start = System.nanoTime();
+        for (int i = 0; i &lt; SIZE; i++) {
+            list.add(i);  // Autoboxing on each add
+        }
+        int sum = 0;
+        for (int num : list) {  // Unboxing on each iteration
+            sum += num;
+        }
+        long listTime = System.nanoTime() - start;
+
+        // Scenario 2: Primitive array
+        start = System.nanoTime();
+        int[] array = new int[SIZE];
+        for (int i = 0; i &lt; SIZE; i++) {
+            array[i] = i;  // No boxing
+        }
+        sum = 0;
+        for (int num : array) {  // No unboxing
+            sum += num;
+        }
+        long arrayTime = System.nanoTime() - start;
+
+        System.out.println(&quot;ArrayList time: &quot; + listTime / 1_000_000 + &quot;ms&quot;);
+        System.out.println(&quot;Array time: &quot; + arrayTime / 1_000_000 + &quot;ms&quot;);
+        System.out.println(&quot;ArrayList is &quot; + (listTime / arrayTime) + &quot;x slower&quot;);
+        // Typical result: 3-5x slower
+    }
+}
+</code></pre>
+<h3>Map Operations</h3>
+<pre><code class="language-java">Map&lt;String, Integer&gt; counts = new HashMap&lt;&gt;();
+
+// Put - autoboxing occurs
+counts.put(&quot;apple&quot;, 5);    // int → Integer
+counts.put(&quot;banana&quot;, 3);
+counts.put(&quot;orange&quot;, 7);
+
+// Get - manual null check needed
+Integer appleCount = counts.get(&quot;apple&quot;);
+if (appleCount != null) {
+    int count = appleCount;  // Unboxing
+}
+
+// Or use getOrDefault
+int pearCount = counts.getOrDefault(&quot;pear&quot;, 0);  // AutoBox 0 if missing
+
+// Update with compute
+counts.compute(&quot;apple&quot;, (k, v) -&gt; v == null ? 1 : v + 1);
+// If v is null: autobox 1
+// If v is not null: unbox v, add 1, autobox result
+
+// Increment pattern (watch out for NPE!)
+// DANGEROUS:
+counts.put(&quot;grape&quot;, counts.get(&quot;grape&quot;) + 1);  // NPE if &quot;grape&quot; not present
+
+// SAFE:
+counts.put(&quot;grape&quot;, counts.getOrDefault(&quot;grape&quot;, 0) + 1);
+
+// Or use merge:
+counts.merge(&quot;grape&quot;, 1, Integer::sum);  // Elegant!
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Best Practices</h2>
+<h3>1. Prefer Primitives for Performance-Critical Code</h3>
+<pre><code class="language-java">// BAD: Unnecessary boxing in hot loop
+public long sumList(List&lt;Integer&gt; numbers) {
+    Integer sum = 0;  // Autoboxing on every addition!
+    for (Integer num : numbers) {
+        sum += num;  // Unbox sum, add, autobox result
+    }
+    return sum;
+}
+
+// GOOD: Use primitive accumulator
+public long sumListOptimized(List&lt;Integer&gt; numbers) {
+    long sum = 0;  // Primitive
+    for (Integer num : numbers) {
+        sum += num;  // Just one unbox per iteration
+    }
+    return sum;
+}
+
+// BETTER: Use specialized primitive stream
+public long sumListBest(List&lt;Integer&gt; numbers) {
+    return numbers.stream()
+                  .mapToLong(Integer::longValue)
+                  .sum();
+}
+</code></pre>
+<h3>2. Be Careful with Null</h3>
+<pre><code class="language-java">// BAD: Potential NPE
+public int calculate(Integer a, Integer b) {
+    return a + b;  // NPE if either is null
+}
+
+// GOOD: Null checks
+public int calculateSafe(Integer a, Integer b) {
+    if (a == null || b == null) {
+        throw new IllegalArgumentException(&quot;Arguments cannot be null&quot;);
+    }
+    return a + b;
+}
+
+// BETTER: Use primitives if null not needed
+public int calculatePrimitive(int a, int b) {
+    return a + b;  // No NPE possible
+}
+
+// BEST: Use Optional for nullable results
+public Optional&lt;Integer&gt; calculateOptional(Integer a, Integer b) {
+    if (a == null || b == null) {
+        return Optional.empty();
+    }
+    return Optional.of(a + b);
+}
+</code></pre>
+<h3>3. Use equals() for Wrapper Comparison</h3>
+<pre><code class="language-java">// BAD: Using == for wrapper comparison
+Integer a = 1000;
+Integer b = 1000;
+if (a == b) {  // false! (different objects)
+    // Won't execute
+}
+
+// GOOD: Use equals()
+if (a.equals(b)) {  // true
+    // Executes correctly
+}
+
+// ACCEPTABLE: Unbox for primitive comparison
+if (a.intValue() == b.intValue()) {  // true
+    // Works, but verbose
+}
+
+// MODERN: Use Objects.equals() for null safety
+if (Objects.equals(a, b)) {  // true, and null-safe
+    // Best practice
+}
+</code></pre>
+<h3>4. Avoid Autoboxing in Loops</h3>
+<pre><code class="language-java">// BAD: Boxing in loop
+Long sum = 0L;
+for (long i = 0; i &lt; 1_000_000; i++) {
+    sum += i;  // Creates 1M Long objects!
+}
+
+// GOOD: Use primitive
+long sum = 0L;
+for (long i = 0; i &lt; 1_000_000; i++) {
+    sum += i;  // No object creation
+}
+
+// BAD: Boxing in collection loop
+List&lt;Integer&gt; numbers = getNumbers();
+Integer sum = 0;
+for (Integer num : numbers) {
+    sum += num;  // Unbox sum, add, autobox - every iteration!
+}
+
+// GOOD: Primitive accumulator
+int sum = 0;
+for (Integer num : numbers) {
+    sum += num;  // Just unbox num, no autoboxing
+}
+</code></pre>
+<h3>5. Choose the Right Collection Type</h3>
+<pre><code class="language-java">// For primitive int data:
+
+// Option 1: List&lt;Integer&gt; (most flexible, but boxing overhead)
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+
+// Option 2: int[] (best performance, fixed size)
+int[] array = new int[1000];
+
+// Option 3: IntStream (functional, no boxing)
+IntStream.range(0, 1000)
+         .filter(i -&gt; i % 2 == 0)
+         .sum();
+
+// Option 4: Third-party primitive collections (e.g., Trove, FastUtil)
+// TIntArrayList list = new TIntArrayList();  // No boxing!
+
+// For mixed operations:
+// Convert at boundaries
+List&lt;Integer&gt; boxed = new ArrayList&lt;&gt;();
+// Operate on primitive array
+int[] primitives = boxed.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray();
+// Process primitives...
+// Convert back if needed
+List&lt;Integer&gt; result = Arrays.stream(primitives)
+                             .boxed()
+                             .collect(Collectors.toList());
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Comparison with Manual Boxing</h2>
+<h3>Before Java 5 (Manual Boxing)</h3>
+<pre><code class="language-java">// Creating wrapper objects
+Integer num = new Integer(42);  // Deprecated since Java 9
+Integer num2 = Integer.valueOf(42);  // Preferred
+
+// Extracting primitive values
+int value = num.intValue();
+
+// Collections
+List list = new ArrayList();  // Raw type
+list.add(new Integer(1));
+list.add(new Integer(2));
+Integer first = (Integer) list.get(0);  // Cast needed
+int firstValue = first.intValue();
+
+// Arithmetic required manual unwrapping
+Integer a = new Integer(10);
+Integer b = new Integer(20);
+int sum = a.intValue() + b.intValue();
+Integer result = new Integer(sum);
+</code></pre>
+<h3>After Java 5 (AutoBoxing)</h3>
+<pre><code class="language-java">// Creating wrapper objects
+Integer num = 42;  // Autoboxing
+
+// Extracting primitive values
+int value = num;  // Unboxing
+
+// Collections
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();  // Generics
+list.add(1);  // Autoboxing
+list.add(2);
+int first = list.get(0);  // Unboxing, no cast
+
+// Arithmetic is automatic
+Integer a = 10;
+Integer b = 20;
+Integer result = a + b;  // Auto unbox, add, box
+</code></pre>
+<h3>Comparison Table</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Manual Boxing (Pre-Java 5)</th>
+<th>AutoBoxing (Java 5+)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create wrapper</td>
+<td><code>new Integer(42)</code></td>
+<td><code>Integer i = 42;</code></td>
+</tr>
+<tr>
+<td>Extract primitive</td>
+<td><code>num.intValue()</code></td>
+<td><code>int i = num;</code></td>
+</tr>
+<tr>
+<td>Collection add</td>
+<td><code>list.add(new Integer(1))</code></td>
+<td><code>list.add(1);</code></td>
+</tr>
+<tr>
+<td>Collection get</td>
+<td><code>(Integer)list.get(0)</code></td>
+<td><code>list.get(0)</code></td>
+</tr>
+<tr>
+<td>Arithmetic</td>
+<td><code>a.intValue() + b.intValue()</code></td>
+<td><code>a + b</code></td>
+</tr>
+<tr>
+<td>Null safety</td>
+<td>Explicit checks</td>
+<td>Still need checks!</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section class="section">
+<h2>Real-World Examples</h2>
+<h3>Example 1: Configuration Map</h3>
+<pre><code class="language-java">public class Configuration {
+    private Map&lt;String, Integer&gt; settings = new HashMap&lt;&gt;();
+
+    // BAD: Potential NPE
+    public int getTimeoutBad() {
+        return settings.get(&quot;timeout&quot;);  // NPE if not set!
+    }
+
+    // GOOD: Default value
+    public int getTimeout() {
+        return settings.getOrDefault(&quot;timeout&quot;, 30);
+    }
+
+    // GOOD: Null-safe
+    public int getTimeoutSafe() {
+        Integer timeout = settings.get(&quot;timeout&quot;);
+        return timeout != null ? timeout : 30;
+    }
+
+    // BEST: Return wrapper for explicit null handling
+    public Integer getTimeoutNullable() {
+        return settings.get(&quot;timeout&quot;);  // Caller handles null
+    }
+}
+</code></pre>
+<h3>Example 2: Statistics Calculator</h3>
+<pre><code class="language-java">public class Statistics {
+    // BAD: Boxing in loop
+    public double averageBad(List&lt;Integer&gt; numbers) {
+        Integer sum = 0;  // Boxing overhead
+        for (Integer num : numbers) {
+            sum += num;  // Unbox, add, box - every iteration
+        }
+        return (double) sum / numbers.size();
+    }
+
+    // GOOD: Primitive accumulator
+    public double averageGood(List&lt;Integer&gt; numbers) {
+        long sum = 0;  // Primitive
+        for (Integer num : numbers) {
+            sum += num;  // Just unbox num
+        }
+        return (double) sum / numbers.size();
+    }
+
+    // BEST: Use streams
+    public double averageBest(List&lt;Integer&gt; numbers) {
+        return numbers.stream()
+                     .mapToInt(Integer::intValue)
+                     .average()
+                     .orElse(0.0);
+    }
+}
+</code></pre>
+<h3>Example 3: Cache Implementation</h3>
+<pre><code class="language-java">public class UserCache {
+    private Map&lt;String, Integer&gt; userIds = new HashMap&lt;&gt;();
+
+    // BAD: Vulnerable to NPE
+    public void incrementVisitsBad(String userId) {
+        userIds.put(userId, userIds.get(userId) + 1);  // NPE if new user!
+    }
+
+    // GOOD: Safe with getOrDefault
+    public void incrementVisitsGood(String userId) {
+        userIds.put(userId, userIds.getOrDefault(userId, 0) + 1);
+    }
+
+    // BEST: Use merge
+    public void incrementVisitsBest(String userId) {
+        userIds.merge(userId, 1, Integer::sum);
+    }
+
+    // Get with default
+    public int getVisits(String userId) {
+        return userIds.getOrDefault(userId, 0);
+    }
+}
+</code></pre>
+<h3>Example 4: Data Processing Pipeline</h3>
+<pre><code class="language-java">public class DataProcessor {
+    // Process large dataset efficiently
+    public List&lt;Integer&gt; processData(List&lt;String&gt; rawData) {
+        // BAD: Unnecessary boxing
+        List&lt;Integer&gt; results = new ArrayList&lt;&gt;();
+        for (String data : rawData) {
+            Integer value = Integer.parseInt(data);  // Autoboxed
+            value = value * 2;  // Unbox, multiply, box
+            results.add(value);
+        }
+        return results;
+
+        // BETTER: Minimize boxing
+        List&lt;Integer&gt; results2 = new ArrayList&lt;&gt;(rawData.size());
+        for (String data : rawData) {
+            int value = Integer.parseInt(data);  // Primitive
+            value = value * 2;  // Primitive operation
+            results2.add(value);  // Single autobox
+        }
+        return results2;
+
+        // BEST: Use streams
+        return rawData.stream()
+                     .map(Integer::parseInt)
+                     .map(x -&gt; x * 2)
+                     .collect(Collectors.toList());
+    }
+}
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Summary</h2>
+<h3>Key Takeaways</h3>
+<ol>
+<li><strong>AutoBoxing</strong> = primitive → wrapper (automatic)</li>
+<li><strong>Unboxing</strong> = wrapper → primitive (automatic)</li>
+<li><strong>Performance</strong>: Primitives are faster and use less memory</li>
+<li><strong>NPE Risk</strong>: Unboxing null throws NullPointerException</li>
+<li><strong>Equality</strong>: Use <code>.equals()</code> for wrapper comparison, not <code>==</code></li>
+<li><strong>Caching</strong>: Integer caches -128 to 127</li>
+<li><strong>Collections</strong>: Only work with objects, not primitives</li>
+<li><strong>Best Practice</strong>: Use primitives when possible, wrappers when necessary</li>
+</ol>
+<h3>When to Use What</h3>
+<table>
+<thead>
+<tr>
+<th>Use Primitives (int, long, etc.)</th>
+<th>Use Wrappers (Integer, Long, etc.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Performance-critical code</td>
+<td>Collections (List, Set, Map)</td>
+</tr>
+<tr>
+<td>Large datasets</td>
+<td>Null is meaningful</td>
+</tr>
+<tr>
+<td>Arithmetic-heavy operations</td>
+<td>Generic types</td>
+</tr>
+<tr>
+<td>Memory-constrained</td>
+<td>API compatibility</td>
+</tr>
+<tr>
+<td>Simple local variables</td>
+<td>Utility methods (Integer.parseInt)</td>
+</tr>
+<tr>
+<td>Loop counters</td>
+<td>Optional/nullable values</td>
+</tr>
+</tbody>
+</table>
+<h3>Common Mistakes to Avoid</h3>
+<pre><code class="language-java">// ❌ Don't use == for wrapper comparison
+Integer a = 1000, b = 1000;
+if (a == b) { }  // false!
+
+// ✅ Use equals()
+if (a.equals(b)) { }  // true
+
+// ❌ Don't ignore null possibility
+int sum = wrapperValue + 10;  // NPE if wrapperValue is null
+
+// ✅ Check for null
+if (wrapperValue != null) {
+    int sum = wrapperValue + 10;
+}
+
+// ❌ Don't box in hot loops
+Integer sum = 0;
+for (int i = 0; i &lt; 1000000; i++) {
+    sum += i;  // Creates 1M objects!
+}
+
+// ✅ Use primitives in loops
+int sum = 0;
+for (int i = 0; i &lt; 1000000; i++) {
+    sum += i;  // No object creation
+}
+</code></pre>
+<h3>Final Recommendation</h3>
+<p><strong>Default to primitives unless you specifically need:</strong><br />
+- Null values<br />
+- Collections<br />
+- Generics<br />
+- Wrapper utility methods</p>
+<p>AutoBoxing is convenient but not free - use it wisely!</p>
+</section>
+    </div>
+</body>
+</html>
