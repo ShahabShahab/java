@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finding Duplicate and Missing Numbers in an Array</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .section h2 {
+            color: #1e40af;
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #374151;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #4b5563;
+            margin-top: 20px;
+        }
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example code {
+            color: #e2e8f0;
+        }
+        .highlight {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <a href="../index.html" class="back-link">← Back to Java Resources</a>
+        
+        <h1>Finding Duplicate and Missing Numbers in an Array</h1>
+        
+<section class="section">
+<h1>Finding Duplicate and Missing Numbers in an Array</h1>
+</section>
+
+<section class="section">
+<h2>Problem Statement</h2>
+<p>Given an array <code>nums</code> that should contain all numbers from 1 to n, but due to an error, one number appears twice and another is missing. Find both the duplicate and missing numbers.</p>
+<h3>Examples</h3>
+<pre><code>Input: nums = [1,2,2,4]
+Output: [2,3]
+Explanation: 2 appears twice, 3 is missing
+
+Input: nums = [1,1]
+Output: [1,2]
+Explanation: 1 appears twice, 2 is missing
+</code></pre>
+</section>
+
+<section class="section">
+<h2>Core Concepts</h2>
+<h3>1. Frequency Counting</h3>
+<p>The most straightforward approach uses an auxiliary array to count occurrences of each number.</p>
+<p><strong>Key Idea:</strong><br />
+- Numbers that appear twice have a count of 2 (duplicate)<br />
+- Numbers that never appear have a count of 0 (missing)</p>
+<p><strong>Time Complexity:</strong> O(n)<br />
+<strong>Space Complexity:</strong> O(n)</p>
+<pre><code class="language-java">int[] count = new int[n + 1];
+for (int num : nums) {
+    count[num]++;
+}
+</code></pre>
+<p>This leverages the principle that in a perfect set [1,2,3,4], each number appears exactly once.</p>
+<hr />
+<h3>2. Mathematical Sum Property</h3>
+<p>This approach uses the Gaussian sum formula to find the missing number.</p>
+<p><strong>Key Concept:</strong><br />
+The sum of first n natural numbers is: <strong>sum = n × (n + 1) / 2</strong></p>
+<p><strong>Algorithm:</strong><br />
+1. Calculate expected sum: <code>n × (n + 1) / 2</code><br />
+2. Calculate actual sum of the array<br />
+3. Find the duplicate using a set/boolean array<br />
+4. Calculate missing: <code>expectedSum - actualSum + duplicate</code></p>
+<p><strong>Why add the duplicate?</strong><br />
+The actual sum includes the duplicate number twice, so:<br />
+- <code>actualSum = expectedSum - missing + duplicate</code><br />
+- Rearranging: <code>missing = expectedSum - actualSum + duplicate</code></p>
+<p><strong>Time Complexity:</strong> O(n)<br />
+<strong>Space Complexity:</strong> O(n) for tracking seen numbers</p>
+<hr />
+<h3>3. Index as Hash Map (In-Place Marking)</h3>
+<p>A space-optimized approach that uses the array itself as a hash map by marking visited indices.</p>
+<p><strong>Key Technique:</strong><br />
+Use the sign of numbers to indicate whether an index has been visited.</p>
+<p><strong>Algorithm:</strong><br />
+1. For each number, use its value as an index<br />
+2. Negate the number at that index to mark it as "seen"<br />
+3. If the number at that index is already negative, we found the duplicate<br />
+4. After processing, positive numbers indicate missing indices</p>
+<p><strong>Example:</strong></p>
+<pre><code>Original: [1, 2, 2, 4]
+After processing:
+  Visit 1: [-1, 2, 2, 4]
+  Visit 2: [-1, -2, 2, 4]
+  Visit 2 again: Already negative at index 1 → duplicate is 2
+  Visit 4: [-1, -2, 2, -4]
+  Index 2 (value 2) is positive → 3 is missing
+</code></pre>
+<p><strong>Time Complexity:</strong> O(n)<br />
+<strong>Space Complexity:</strong> O(1) - modifies input array</p>
+<p><strong>Important:</strong> This approach modifies the input array but can restore it afterward.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Comparison of Approaches</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frequency Counting</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>Simple, clear</td>
+<td>Extra space</td>
+</tr>
+<tr>
+<td>Mathematical Sum</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>Uses mathematical property</td>
+<td>Needs duplicate tracking</td>
+</tr>
+<tr>
+<td>Index Marking</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>Space-efficient</td>
+<td>Modifies input array</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</section>
+
+<section class="section">
+<h2>Key Learning Points</h2>
+<h3>1. Array Index as Hash Map</h3>
+<p>When array values are in range [1, n], you can use indices as a hash map. This is a common pattern in:<br />
+- Finding duplicates<br />
+- Finding missing numbers<br />
+- Cycle detection in arrays</p>
+<h3>2. Mathematical Properties</h3>
+<p>Leverage formulas like the Gaussian sum to solve problems efficiently:<br />
+- Sum of first n numbers: <code>n × (n + 1) / 2</code><br />
+- Sum of squares: <code>n × (n + 1) × (2n + 1) / 6</code></p>
+<h3>3. Sign as State Indicator</h3>
+<p>Using the sign of numbers to track state (visited/not visited) is a powerful technique for in-place algorithms.</p>
+<h3>4. Trade-offs</h3>
+<p>Understanding trade-offs between:<br />
+- <strong>Space vs Time:</strong> Sometimes using extra space makes code clearer<br />
+- <strong>Mutability vs Purity:</strong> In-place algorithms save space but modify input<br />
+- <strong>Simplicity vs Optimization:</strong> Start with clear solutions, optimize if needed</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>When to Use Each Approach</h2>
+<p><strong>Use Frequency Counting when:</strong><br />
+- Clarity and maintainability are priorities<br />
+- Space is not a constraint<br />
+- The array might be used later</p>
+<p><strong>Use Mathematical Sum when:</strong><br />
+- You want to demonstrate mathematical problem-solving<br />
+- The problem has mathematical properties to exploit<br />
+- You need to avoid modifying the array</p>
+<p><strong>Use Index Marking when:</strong><br />
+- Space is limited<br />
+- The array won't be needed in its original form<br />
+- Maximum performance is required</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Related Problems</h2>
+<p>This technique applies to many similar problems:<br />
+- Find all duplicates in an array<br />
+- Find all missing numbers<br />
+- First missing positive number<br />
+- Set mismatch detection</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Implementation Notes</h2>
+<p>All three approaches are implemented in <code>FindErrorNums.java</code>:<br />
+- <code>findErrorNums()</code> - Frequency counting<br />
+- <code>findErrorNumsV2()</code> - Mathematical sum<br />
+- <code>findErrorNumsV3()</code> - Index marking</p>
+<p>Each method includes detailed comments and complexity analysis.</p>
+<hr />
+</section>
+
+<section class="section">
+<h2>Conclusion</h2>
+<p>This problem demonstrates how the same problem can be solved using different paradigms:<br />
+1. <strong>Data structures</strong> (hash map/frequency array)<br />
+2. <strong>Mathematics</strong> (sum formulas)<br />
+3. <strong>In-place manipulation</strong> (index marking)</p>
+<p>Understanding all three approaches helps you choose the right solution based on constraints and requirements.</p>
+</section>
+    </div>
+</body>
+</html>
